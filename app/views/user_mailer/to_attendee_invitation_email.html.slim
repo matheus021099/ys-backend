@@ -1,0 +1,47 @@
+head
+  link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet" /
+  link href="https://fonts.googleapis.com/css?family=Nunito:300,400,600,700,900" rel="stylesheet" /
+
+  css:
+    body { font-family: 'Nunito', 'Avenir', 'Arial'; font-size: 16px; }
+    .wrapper { max-width: 640px; margin: 50px auto 50px auto; box-shadow: 1px 1px 10px -5px; border-radius: 5px; overflow: hidden; }
+
+    .header { text-align: center; }
+    .header img.line { width: 100%; height: 25px; }
+    .header img.logo { height: 32px; margin: 50px 0 50px 0; }
+
+    .content { padding: 50px 50px 100px 50px; }
+    .content img { height: 28px; }
+    .content h3 { margin: 20px 0 20px 0; font-size: 28px; font-weight: 500; color: #3A92FF; }
+    .content p { line-height: 24px; }
+    .content a { display: inline-block; margin: 30px 0 30px 0; padding: 12px 80px; border-radius: 30px; background-color: #3A92FF; color: #FFFFFF; text-decoration: none; }
+
+    .footer { padding: 20px 0; font-size: 14px; text-align: center; }
+    .footer a { display: inline-block; margin-right: 30px; color: #000000; text-decoration: none; }
+    .footer span { color: #b0b0b0; }
+
+body
+  .wrapper
+    .header
+      img.line src="#{ENV['API_HOST']}/images/img_header.jpg"
+      img.logo src="#{ENV['API_HOST']}/images/img_logo.png" alt="YouSound"
+
+    .content
+      img src="#{ENV['API_HOST']}/images/ic_smile.png"
+      h3 Invitation to YouSound
+      p
+        | Hi&nbsp;
+        = @attendee.display_name
+        | , you can create your account by clicking the below url!
+
+      = link_to 'Invitation Link', invitation_url(nil, @attendee.invitation_token)
+
+      p
+        | You can skip the twitter confirmation step.
+
+    .footer
+      = link_to 'FAQ', "#{ENV['WEB_APP_PATH']}/faq"
+      = link_to 'Help', "#{ENV['WEB_APP_PATH']}/help"
+      = link_to 'Terms', "#{ENV['WEB_APP_PATH']}/terms"
+      = link_to 'Contact', "#{ENV['WEB_APP_PATH']}/terms"
+      span.copyright &copy; YouSound, Inc

@@ -1,0 +1,22 @@
+p
+  | Hi,&nbsp;
+  strong = @requester.display_name
+
+p
+  | your account was verified by&nbsp;
+  strong = @verifier.display_name
+  | , and your account has been verified.
+  br
+  | You account has been converted from Listener to&nbsp;
+  = @requester.request_role.capitalize
+  | .
+
+p
+  | You can login now and start uploading content.
+  br
+  = login_url(nil)
+
+p
+  | Regards,
+  br
+  | YouSound Team

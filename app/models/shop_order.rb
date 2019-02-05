@@ -1,0 +1,25 @@
+class ShopOrder < ApplicationRecord
+  # enum status: [:order_pending, :order_shipped]
+  enum status: {
+    order_pending: 'order_pending',
+    order_shipped: 'order_shipped'
+  }
+
+  after_create :do_after_create
+
+  belongs_to :billing_address, class_name: 'ShopAddress'
+  belongs_to :shipping_address, class_name: 'ShopAddress'
+  belongs_to :customer, class_name: 'User'
+  belongs_to :merchant, class_name: 'User'
+  # belongs_to :payment
+  has_many :payments, foreign_key: 'order_id'
+  has_many :items, foreign_key: 'order_id', class_name: 'ShopItem'
+  accepts_nested_attributes_for :items
+
+  default_scope { order(created_at: :desc) }
+
+  def do_after_create
+    ApplicationMailer.to_buyer_order_email(self).deliver
+    ApplicationMailer.to_seller_order_email(self).deliver
+  end
+end

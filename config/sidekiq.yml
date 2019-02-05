@@ -1,0 +1,9 @@
+---
+:concurrency: 30
+:verbose: true
+:timeout: 300
+:queues:
+  - [critical, 20]
+  - [high, 20]
+  - [default, 20]
+  - [low, 20]
