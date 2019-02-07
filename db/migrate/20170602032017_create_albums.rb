@@ -23,7 +23,7 @@ class CreateAlbums < ActiveRecord::Migration[5.0]
       t.integer :reposted, default: 0
       t.integer :commented, default: 0
 
-      t.string location, default: ''
+      t.string  :location, default: ''
       t.integer :collaborators_count, default: 0
       t.boolean :enabled_sample, default: false
       t.boolean :is_only_for_live_stream, default: false

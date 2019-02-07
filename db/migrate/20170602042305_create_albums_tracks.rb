@@ -6,6 +6,6 @@ class CreateAlbumsTracks < ActiveRecord::Migration[5.0]
       t.integer :position, default: 0
     end
 
-    add_index :album_tracks, [:album_id, :track_id], :unique => true
+    add_index :albums_tracks, [:album_id, :track_id], :unique => true
   end
 end

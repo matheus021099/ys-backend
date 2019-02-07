@@ -92,24 +92,8 @@ class UserSerializer < ActiveModel::Serializer
   #   hash
   # end
 
-  def user_type
-    # return 'superadmin' if object.superadmin?
-    # return 'admin' if object.admin?
-    # return 'moderator' if object.moderator?
-    # return 'artist' if object.artist?
-    # return 'listener'
-
-    # return 'superadmin' if object.has_cached_role? :superadmin
-    # return 'admin' if object.has_cached_role? :admin
-    # return 'moderator' if object.has_cached_role? :moderator
-    # return 'artist' if object.has_cached_role? :artist
-    # return 'listener'
-
-    object.roles.first.name || 'listener'
-  end
-
   def is_moderator?
-    include_social_info? && user_type == 'moderator'
+    include_social_info? && object.user_type == 'moderator'
   end
 
   def is_current_user?

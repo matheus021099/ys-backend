@@ -23,7 +23,7 @@ class User < ApplicationRecord
     inactive: 'inactive',
     active: 'active',
     verified: 'verified',
-    suspended: 'suspended'
+    suspended: 'suspended',
     deleted: 'deleted'
   }
 
@@ -696,16 +696,32 @@ class User < ApplicationRecord
       order = {}
       case filter
         when 'new'
-          order[:created_at] = :desc
+          order[:created_at] = {
+            order: 'desc',
+            # ignore_unmapped: true,
+            unmapped_type: 'long'
+          }
           where[:album_type] = 'album'
         when 'popular'
-          order[:created_at] = :desc
+          order[:created_at] = {
+            order: 'desc',
+            # ignore_unmapped: true,
+            unmapped_type: 'long'
+          }
           where[:playlist] = 'album'
         when 'playlist'
-          order[:created_at] = :desc
+          order[:created_at] = {
+            order: 'desc',
+            # ignore_unmapped: true,
+            unmapped_type: 'long'
+          }
           where[:album_type] = 'playlist'
         when 'recommended'
-          order[:recommended_at] = :desc
+          order[:recommended_at] = {
+            order: 'desc',
+            # ignore_unmapped: true,
+            unmapped_type: 'long'
+          }
           where[:recommended] = true
       end
 
