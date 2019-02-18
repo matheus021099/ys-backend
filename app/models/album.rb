@@ -53,7 +53,7 @@ class Album < ApplicationRecord
 
   scope :most_recent, -> {order('created_at desc')}
   scope :most_downloaded, -> {order('downloaded desc')}
-  # scope :most_downloaded, -> { order('downloaded').joins("LEFT OUTER JOIN feeds ON feeds.assoc_type='Album' AND album.id = feeds.assoc_id AND feeds.feed_type = 3").group('feeds.id') }
+  # scope :most_downloaded, -> { order('downloaded').joins("LEFT OUTER JOIN feeds ON feeds.assoc_type='Album' AND album.id = feeds.assoc_id AND feeds.feed_type = 'download'").group('feeds.id') }
 
   scope :published, -> { where status: Album.statuses[:published] }
   scope :playlists, -> { where album_type: Album.album_types[:playlist] }

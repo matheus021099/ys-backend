@@ -315,7 +315,7 @@ module Api::V1
         SELECT taggings.tag_id, count(1) AS count FROM feeds
         INNER JOIN taggings ON feeds.assoc_id = taggings.taggable_id
         WHERE feeds.consumer_id = feeds.publisher_id
-          AND feeds.feed_type = 3
+          AND feeds.feed_type = 'download'
           AND feeds.assoc_type = 'Album'
           AND feeds.updated_at >= '#{start_date}' AND feeds.updated_at <= '#{end_date}'
           AND taggings.context = 'genres'
@@ -330,7 +330,7 @@ module Api::V1
       #   SELECT taggings.tag_id, count(1) AS count FROM feeds
       #   INNER JOIN taggings ON feeds.assoc_id = taggings.taggable_id
       #   WHERE feeds.consumer_id = feeds.publisher_id
-      #     AND feeds.feed_type = 2
+      #     AND feeds.feed_type = 'play'
       #     AND feeds.assoc_type = 'Album'
       #     AND feeds.updated_at >= '#{start_date}' AND feeds.updated_at <= '#{end_date}'
       #     AND taggings.context = 'genres'
@@ -342,7 +342,7 @@ module Api::V1
         SELECT taggings.tag_id, count(1) AS count FROM (
           SELECT DISTINCT ON (activities.sender_id) * FROM activities
           WHERE activities.sender_id = activities.receiver_id
-            AND activities.action_type = 5
+            AND activities.action_type = 'play'
             AND activities.assoc_type = 'Album'
             AND activities.created_at >= '#{start_date}' AND activities.created_at <= '#{end_date}'
         ) t1
