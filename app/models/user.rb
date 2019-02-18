@@ -180,7 +180,7 @@ class User < ApplicationRecord
   end
 
   def blocked_album_ids
-    exclude_album_ids = ['00000000-0000-0000-0000-000000000000']
+    exclude_album_ids = [0]
 
     # albums which are type of genres blocked
     hidden_album_ids = Album.tagged_with(self.genre_list, :on => :genres, :any => true).pluck(:id)
@@ -324,6 +324,17 @@ class User < ApplicationRecord
             .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
             .most_recent
             .limit(count)
+      when 'uploaded'
+        query = Feed
+            .select('t1.*')
+            .from('feeds t1')
+            .joins("RIGHT JOIN (SELECT MAX(feeds.id) AS id, assoc_id, assoc_type FROM feeds "\
+                "WHERE publisher_id = '#{self.id}' AND assoc_type='Album' "\
+                "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+            .joins("LEFT JOIN albums t3 ON t1.assoc_id = t3.id")
+            .where('t3.album_type = ? AND t1.assoc_id NOT IN (?)', Album.album_types[:album], self.blocked_album_ids)
+            .most_recent
+            .limit(count)
       when 'playlist'
         query = Feed
             .select('t1.*')
@@ -331,7 +342,7 @@ class User < ApplicationRecord
             .joins("RIGHT JOIN (SELECT MAX(feeds.id) AS id, assoc_id, assoc_type FROM feeds "\
                 "WHERE publisher_id = '#{self.id}' AND assoc_type='Album' "\
                 "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
-            .joins("LEFT JOIN albums t3 ON t1.assoc_id = (t3.id::varchar(50))")
+            .joins("LEFT JOIN albums t3 ON t1.assoc_id = t3.id")
             .where('t3.album_type = ? AND t1.assoc_id NOT IN (?)', Album.album_types[:playlist], self.blocked_album_ids)
             .most_recent
             .limit(count)
@@ -409,7 +420,7 @@ class User < ApplicationRecord
             .select('t1.*')
             .from('users t1')
             .joins("RIGHT JOIN (SELECT publisher_id, MAX(feeds.created_at) AS created_at FROM feeds "\
-                "LEFT JOIN albums ON feeds.assoc_id = (albums.id::varchar(50)) "\
+                "LEFT JOIN albums ON feeds.assoc_id = albums.id "\
                 "WHERE consumer_id = '#{self.id}' AND publisher_id NOT IN ('#{blocked_user_ids.join("', '")}') AND albums.album_type = '#{Album.album_types[:playlist].to_s}' AND assoc_type = 'Album' AND assoc_id NOT IN ('#{self.blocked_album_ids.join("', '")}') "\
                 "GROUP BY publisher_id ORDER BY created_at) t2 ON t1.id = t2.publisher_id")
             .order('t2.created_at DESC')
@@ -735,7 +746,7 @@ class User < ApplicationRecord
         end
       end
 
-      exclude_album_ids = ['00000000-0000-0000-0000-000000000000']
+      exclude_album_ids = [0]
       unless user.blank?
          exclude_album_ids = user.blocked_album_ids
       end
