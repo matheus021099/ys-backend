@@ -33,9 +33,10 @@ Rails.application.configure do
 
   # Mount Action Cable outside main process or domain
   # config.action_cable.mount_path = nil
+  # config.action_cable.url = 'wss://api.yousound.com'
   # config.action_cable.allowed_request_origins = [ 'https://www.yousound.com', /https:\/\/.*\.yousound\.com/ ]
-  config.action_cable.url = 'wss://api.yousound.com'
-  config.action_cable.allowed_request_origins = [ 'https://www.yousound.com', 'http://localhost:8080' ]
+  config.action_cable.url = 'ws://ys-api-prod.2fnnszc3hz.us-east-1.elasticbeanstalk.com'
+  config.action_cable.allowed_request_origins = [ 'https://www.yousound.com', 'http://localhost:8080', /http:\/\/ys-vue-prod\..*\.us-east-1\.elasticbeanstalk\.com/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
