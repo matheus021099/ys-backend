@@ -7,7 +7,7 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 # require_relative './seeds/roles.rb'
-require_relative './seeds/users.rb'
+# require_relative './seeds/users.rb'
 # require_relative './seeds/genres.rb'
 require_relative './seeds/genres_tree.rb'
 require_relative './seeds/shop_categories.rb'

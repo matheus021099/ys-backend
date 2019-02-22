@@ -27,6 +27,7 @@ README.local.md
 /public/uploads
 /public/apidocs
 
+/db/seeds/users.rb
 # Ignore the robots.txt file as it needs to be specific to staging and production environments
 /public/robots.txt
 

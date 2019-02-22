@@ -79,7 +79,7 @@ module Api::V1
     def deny_user
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
       user = User.find(params[:user_id])
-      user.apply_role :listener unless user.listener?
+      user.apply_role User.user_types[:listener] unless user.listener?
       user.update_attributes(
         denial_reason: params[:denial_reason],
         denial_description: params[:denial_description],

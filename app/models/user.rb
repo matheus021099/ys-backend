@@ -90,6 +90,7 @@ class User < ApplicationRecord
   # default
   after_initialize :set_default_values
   def set_default_values
+    self.user_type ||= User.user_types[:listener]
     self.status ||= User.statuses[:inactive]
   end
 
@@ -101,57 +102,55 @@ class User < ApplicationRecord
   end
 
   # role
-  after_create :assign_default_role
-  def assign_default_role
-    self.add_role(:listener) if self.roles.blank?
-  end
+  # after_create :assign_default_role
+  # def assign_default_role
+  #   self.add_role(:listener) if self.roles.blank?
+  # end
 
   def apply_role role
-    # self.roles.where(resource_type: nil).pluck(:name).each do |name|
-    #   self.remove_role name
-    # end
-    ActiveRecord::Base.connection.execute("DELETE FROM users_roles WHERE user_id = '#{self.id}' "\
-       "AND role_id IN (SELECT id FROM roles WHERE resource_type IS NULL)")
-    self.add_role role
+    # ActiveRecord::Base.connection.execute("DELETE FROM users_roles WHERE user_id = '#{self.id}' "\
+    #    "AND role_id IN (SELECT id FROM roles WHERE resource_type IS NULL)")
+    # self.add_role role
+    self.update_attributes(user_type: role)
   end
 
   # superadmin
   def self.superadmin
-    @@superadmin ||= User.find_by(email: ENV['SUPERADMIN_EMAIL']) || User.with_role(:superadmin).first
+    @@superadmin ||= User.find_by(email: ENV['SUPERADMIN_EMAIL']) || User.where(user_type: User.user_type[:superadmin]).first
   end
 
   def self.admin
-    @@admin ||= User.find_by(email: ENV['ADMIN_EMAIL']) || User.with_role(:admin).first
+    @@admin ||= User.find_by(email: ENV['ADMIN_EMAIL']) || User.where(user_type: User.user_type[:admin]).first
   end
 
   # property
-  def superadmin?
-    self.has_role? :superadmin
-  end
+  # def superadmin?
+  #   self.has_role? :superadmin
+  # end
 
-  def admin?
-    self.has_role? :admin
-  end
+  # def admin?
+  #   self.has_role? :admin
+  # end
 
-  def moderator?
-    self.has_role? :moderator
-  end
+  # def moderator?
+  #   self.has_role? :moderator
+  # end
 
-  def artist?
-    self.has_role? :artist
-  end
+  # def artist?
+  #   self.has_role? :artist
+  # end
 
-  def brand?
-    self.has_role? :brand
-  end
+  # def brand?
+  #   self.has_role? :brand
+  # end
 
-  def label?
-    self.has_role? :label
-  end
+  # def label?
+  #   self.has_role? :label
+  # end
 
-  def listener?
-    self.has_role? :listener
-  end
+  # def listener?
+  #   self.has_role? :listener
+  # end
 
   def current_cart
     ShopCart.find_or_create_by(customer_id: self.id)

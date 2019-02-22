@@ -34,8 +34,8 @@ class CreateStreams < ActiveRecord::Migration[5.0]
 
       t.integer :played_period, default: 0
       t.integer :valid_period, default: 0
-      t.integer :view_price, :integer, default: 0
-      t.integer :viewers_limit, :integer, default: 0
+      t.integer :view_price, default: 0
+      t.integer :viewers_limit, default: 0
 
       t.string :status, default: 'active'
       t.timestamps

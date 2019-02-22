@@ -485,7 +485,6 @@ ActiveRecord::Schema.define(version: 20181212021334) do
     t.integer  "played_period",         default: 0
     t.integer  "valid_period",          default: 0
     t.integer  "view_price",            default: 0
-    t.integer  "integer",               default: 0
     t.integer  "viewers_limit",         default: 0
     t.string   "status",                default: "active"
     t.datetime "created_at",                               null: false
