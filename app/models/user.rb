@@ -463,28 +463,28 @@ class User < ApplicationRecord
         query = Feed
           .select('t1.*')
           .from('feeds t1')
-          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id='" + self.id + "' AND feed_type = '" + Feed.feed_types[:download].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:download]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
           .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
           .most_recent
       when 'uploaded'
         query = Feed
           .select('t1.*')
           .from('feeds t1')
-          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id='" + self.id + "' AND feed_type = '" + Feed.feed_types[:release].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:release]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
           .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
           .most_recent
       when 'reposted'
         query = Feed
           .select('t1.*')
           .from('feeds t1')
-          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id ='" + self.id + "' AND feed_type = '" + Feed.feed_types[:repost].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:repost]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
           .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
           .most_recent
       when 'playlist'
         query = Feed
           .select('t1.*')
           .from('feeds t1')
-          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id ='" + self.id + "' AND assoc_type='Album' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' AND assoc_type='Album' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
           .joins('JOIN albums t3 ON t3.id = t2.assoc_id')
           .where('t3.album_type = ? AND t1.assoc_id NOT IN (?)', Album.album_types[:playlist], self.blocked_album_ids)
           .most_recent
@@ -492,14 +492,14 @@ class User < ApplicationRecord
       #   query = Feed
       #     .select('t1.*')
       #     .from('feeds t1')
-      #     .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id='" + self.id + "' AND feed_type = '" + Feed.feed_types[:merch].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+      #     .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:merch]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
       #     .where('t1.assoc_type != ?', 'Album')
       #     .most_recent
       else
         query = Feed
           .select('t1.*')
           .from('feeds t1')
-          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id='" + self.id + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE consumer_id = '#{self.id}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
           .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
           .most_recent
     end
@@ -568,7 +568,7 @@ class User < ApplicationRecord
     items = Feed
       .select('t1.*')
       .from('feeds t1')
-      .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE publisher_id='" + self.id + "' AND feed_type = '" + Feed.feed_types[:download].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+      .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE publisher_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:download]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
     album_ids = items.map{ |item| item.assoc_id }
     query = Album.where(id: album_ids)
   end
@@ -577,7 +577,7 @@ class User < ApplicationRecord
     items = Feed
       .select('t1.*')
       .from('feeds t1')
-      .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE publisher_id='" + self.id + "' AND feed_type = '" + Feed.feed_types[:repost].to_s + "' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+      .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE publisher_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:repost]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
       .order('updated_at desc')
     # album_ids = items.map{ |item| item.assoc_id }
     # query = Album.where(id: album_ids)

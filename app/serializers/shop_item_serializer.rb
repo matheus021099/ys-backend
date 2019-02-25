@@ -1,5 +1,5 @@
 class ShopItemSerializer < ActiveModel::Serializer
-  attributes :id, :type, :price, :quantity, :fee, :shipping_cost, :tax, :tax_percent, :is_vat, :status
+  attributes :id, :price, :quantity, :fee, :shipping_cost, :tax, :tax_percent, :is_vat, :status
 
   # belongs_to :product, class_name: 'ShopProduct'
   attribute :product
