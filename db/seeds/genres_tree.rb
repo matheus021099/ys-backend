@@ -9,6 +9,7 @@ csv.each do |row|
   # genre = Genre.find_or_create_by!(name: row['name'])
   # genre.update_attributes(parent: parent)
 
-  ancestry = parent_name.blank? ? nil : Genre.find_or_create_by!(name: parent_name, ancestry: nil).id
-  genre = Genre.find_or_create_by!(name: row['name'], ancestry: ancestry)  
+  ancestry = parent_name.blank? ? nil : Genre.find_or_create_by!(name: parent_name).id
+  genre = Genre.find_or_create_by!(name: row['name'], ancestry: ancestry)
+  genre.update_attributes(color: row['color'])
 end

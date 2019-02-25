@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181212021334) do
+ActiveRecord::Schema.define(version: 20190225010647) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -153,6 +153,7 @@ ActiveRecord::Schema.define(version: 20181212021334) do
     t.integer "position",    default: 0
     t.string  "slug"
     t.string  "ancestry"
+    t.string  "color",       default: ""
     t.index ["ancestry"], name: "index_genres_on_ancestry", using: :btree
     t.index ["slug"], name: "index_genres_on_slug", unique: true, using: :btree
   end
