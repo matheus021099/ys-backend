@@ -1,518 +1,511 @@
-parent_name,name,color
-"","BLUES","#297DE4"
-"BLUES","Acoustic Blues",""
-"BLUES","Blues",""
-"BLUES","Chicago Blues",""
-"BLUES","Contemporary Blues",""
-"BLUES","Delta Blues",""
-"BLUES","Electric Blues Guitar",""
-"BLUES","Harmonica Blues",""
-"BLUES","Jump Blues",""
-"BLUES","Modern Blues",""
-"BLUES","Piano",""
-"BLUES","Slide Guitar",""
-"BLUES","Traditional Blues",""
-"BLUES","Cajun",""
-"","CLASSICAL","#F43374"
-"CLASSICAL","Avant-Garde",""
-"CLASSICAL","Ballets & Dances",""
-"CLASSICAL","Baroque",""
-"CLASSICAL","Chant",""
-"CLASSICAL","Choral",""
-"CLASSICAL","Classical",""
-"CLASSICAL","Classical Crossover",""
-"CLASSICAL","Contemporary Classical",""
-"CLASSICAL","Expressionist",""
-"CLASSICAL","Impressionist",""
-"CLASSICAL","Medieval",""
-"CLASSICAL","Minimal Classical",""
-"CLASSICAL","Modern Classical",""
-"CLASSICAL","Opera & Vocal",""
-"CLASSICAL","Orchestral",""
-"CLASSICAL","Renaissance",""
-"CLASSICAL","Romantic",""
-"","COUNTRY","#E12D84"
-"COUNTRY","Alternative Country",""
-"COUNTRY","Americana",""
-"COUNTRY","Bluegrass",""
-"COUNTRY","Classic Country",""
-"COUNTRY","Contemporary Bluegrass",""
-"COUNTRY","Contemporary Country",""
-"COUNTRY","Country",""
-"COUNTRY","Country Dance Music",""
-"COUNTRY","Country Gospel",""
-"COUNTRY","Honky Tonk",""
-"COUNTRY","Outlaw Country",""
-"COUNTRY","Pop Country",""
-"COUNTRY","Urband Cowboy",""
-"","DRUM & BASS","#CE2894"
-"DRUM & BASS","Breakcore",""
-"DRUM & BASS","Darkcore",""
-"DRUM & BASS","Deep",""
-"DRUM & BASS","Drill'n'Bass",""
-"DRUM & BASS","Drum & Bass",""
-"DRUM & BASS","Drumstep",""
-"DRUM & BASS","Halftime",""
-"DRUM & BASS","Intelligent",""
-"DRUM & BASS","Jump Up",""
-"DRUM & BASS","Liquid",""
-"DRUM & BASS","Nuerofunk",""
-"DRUM & BASS","Ragga Jungle",""
-"DRUM & BASS","Sambass",""
-"DRUM & BASS","Techstep",""
-"","ELECTRONIC","#B823A4"
-"ELECTRONIC","2-step / Garage",""
-"ELECTRONIC","8-bit",""
-"ELECTRONIC","Acid Jazz",""
-"ELECTRONIC","Ambient",""
-"ELECTRONIC","B-More",""
-"ELECTRONIC","Bass Music",""
-"ELECTRONIC","Beats",""
-"ELECTRONIC","Big Beat",""
-"ELECTRONIC","Booty Bass",""
-"ELECTRONIC","Broken beat",""
-"ELECTRONIC","Chill Trap / Future Bass",""
-"ELECTRONIC","Chillstep",""
-"ELECTRONIC","Chillwave",""
-"ELECTRONIC","Chiptune",""
-"ELECTRONIC","Club",""
-"ELECTRONIC","Complextro",""
-"ELECTRONIC","Disco",""
-"ELECTRONIC","Downtempo",""
-"ELECTRONIC","Dubstep",""
-"ELECTRONIC","EDM",""
-"ELECTRONIC","Electro Swing",""
-"ELECTRONIC","Electro",""
-"ELECTRONIC","Electro Pop",""
-"ELECTRONIC","Electronic",""
-"ELECTRONIC","Footwork",""
-"ELECTRONIC","Freestyle",""
-"ELECTRONIC","Ghettotech",""
-"ELECTRONIC","Glitch Hop",""
-"ELECTRONIC","Gqom",""
-"ELECTRONIC","Grime",""
-"ELECTRONIC","Hardstyle",""
-"ELECTRONIC","Hi-NRG",""
-"ELECTRONIC","IDM / Experimental",""
-"ELECTRONIC","Indie Dance",""
-"ELECTRONIC","Industrial",""
-"ELECTRONIC","Italo Disco",""
-"ELECTRONIC","Jersey Club",""
-"ELECTRONIC","Miami Bass",""
-"ELECTRONIC","MIDI Music",""
-"ELECTRONIC","Moombahton",""
-"ELECTRONIC","New Age",""
-"ELECTRONIC","Nu Skool Breaks",""
-"ELECTRONIC","Psy-Trance",""
-"ELECTRONIC","Rave",""
-"ELECTRONIC","Speedcore",""
-"ELECTRONIC","Trance",""
-"ELECTRONIC","Trap",""
-"ELECTRONIC","Trip-Hop",""
-"ELECTRONIC","UK Funky",""
-"ELECTRONIC","Witch House",""
-"ELECTRONIC","Vaporwave",""
-"","EXPERIMENTAL","#9F21B4"
-"EXPERIMENTAL","ASMR",""
-"EXPERIMENTAL","Ambient",""
-"EXPERIMENTAL","Avant-garde",""
-"EXPERIMENTAL","Drone",""
-"EXPERIMENTAL","Environmental",""
-"EXPERIMENTAL","Healing",""
-"EXPERIMENTAL","Improvisation",""
-"EXPERIMENTAL","Meditation",""
-"EXPERIMENTAL","Minimal",""
-"EXPERIMENTAL","Musique Concrete",""
-"EXPERIMENTAL","Noise",""
-"EXPERIMENTAL","Obscure",""
-"EXPERIMENTAL","Relaxation",""
-"EXPERIMENTAL","Space music",""
-"","FOLK","#8021C4"
-"FOLK","Contemporary Folk",""
-"FOLK","Folk",""
-"FOLK","Hawaiian Folk",""
-"FOLK","Psych Folk",""
-"FOLK","Revival",""
-"FOLK","Traditional Folk",""
-"","GOSPEL","#55C6D5"
-"GOSPEL","Christian Alternative",""
-"GOSPEL","Christian Contemporary Music",""
-"GOSPEL","Christian Rap",""
-"GOSPEL","Christian Rock",""
-"GOSPEL","Gospel",""
-"","HIP HOP / RAP","#54B8DE"
-"HIP HOP / RAP","African Hip Hop",""
-"HIP HOP / RAP","Arabic Hip Hop",""
-"HIP HOP / RAP","Asian Hip Hop",""
-"HIP HOP / RAP","Australian Hip Hop",""
-"HIP HOP / RAP","Beats / Beat Tapes",""
-"HIP HOP / RAP","Beat Boxing",""
-"HIP HOP / RAP","Boom Bap",""
-"HIP HOP / RAP","Canadian Hip Hop",""
-"HIP HOP / RAP","Chinese Hip Hop",""
-"HIP HOP / RAP","Electro Hip Hop",""
-"HIP HOP / RAP","European Hip Hop",""
-"HIP HOP / RAP","Experimental Rap",""
-"HIP HOP / RAP","French Hip Hop",""
-"HIP HOP / RAP","Gangsta Rap",""
-"HIP HOP / RAP","Golden Era",""
-"HIP HOP / RAP","Grime",""
-"HIP HOP / RAP","Hip Hop",""
-"HIP HOP / RAP","Hip House",""
-"HIP HOP / RAP","Instrumental Hip Hop",""
-"HIP HOP / RAP","Instrumental Trap",""
-"HIP HOP / RAP","Japanese Hip Hop",""
-"HIP HOP / RAP","Korean Hip Hop",""
-"HIP HOP / RAP","Latin Rap",""
-"HIP HOP / RAP","LoFi / Chill Hop",""
-"HIP HOP / RAP","Miami Bass",""
-"HIP HOP / RAP","Old School Rap",""
-"HIP HOP / RAP","Rap",""
-"HIP HOP / RAP","Southern Rap",""
-"HIP HOP / RAP","Trap",""
-"HIP HOP / RAP","West Coast Rap",""
-"","HOLIDAY","#4FAAE7"
-"HOLIDAY","Birthday Music",""
-"HOLIDAY","Chanukah",""
-"HOLIDAY","Christmas",""
-"HOLIDAY","Christmas (Religious)",""
-"HOLIDAY","Halloween",""
-"","HOUSE","#469CF0"
-"HOUSE","Afro House",""
-"HOUSE","Bassline House",""
-"HOUSE","Big Room",""
-"HOUSE","Chicago House",""
-"HOUSE","Deep House",""
-"HOUSE","Deep Progressive House",""
-"HOUSE","Diva House",""
-"HOUSE","Dutch House",""
-"HOUSE","Electro House",""
-"HOUSE","Experimental House",""
-"HOUSE","Fidget House",""
-"HOUSE","Filtered / Disco House",""
-"HOUSE","Future House",""
-"HOUSE","Garage House",""
-"HOUSE","Ghetto House",""
-"HOUSE","Hard House",""
-"HOUSE","House",""
-"HOUSE","Jackin' / Funky House",""
-"HOUSE","Jazz House",""
-"HOUSE","Juke",""
-"HOUSE","Kwaito",""
-"HOUSE","Latin House",""
-"HOUSE","Leftfield House",""
-"HOUSE","Lo-fi House",""
-"HOUSE","Lounge House",""
-"HOUSE","New York House (Classic)",""
-"HOUSE","Nu-Disco",""
-"HOUSE","Progressive House",""
-"HOUSE","Tech House",""
-"HOUSE","Tribal House",""
-"HOUSE","Tropical House",""
-"","LATIN","#388EF8"
-"LATIN","Alternativo & Rock Latino",""
-"LATIN","Bachata",""
-"LATIN","Baladas y Boleros",""
-"LATIN","Banda",""
-"LATIN","Bossa Nova",""
-"LATIN","Brazilian ",""
-"LATIN","Chicano",""
-"LATIN","Classic",""
-"LATIN","Conjunto",""
-"LATIN","Conjunto Progressive",""
-"LATIN","Contemporary Latin",""
-"LATIN","Cumbia",""
-"LATIN","Flamenco",""
-"LATIN","Latin",""
-"LATIN","Latin Pop",""
-"LATIN","Latin R&B / Urban",""
-"LATIN","Latin Rock",""
-"LATIN","Latin Trap",""
-"LATIN","Merengue",""
-"LATIN","New Mex",""
-"LATIN","Nuevo Flamenco",""
-"LATIN","Pop Latino",""
-"LATIN","Portuguese",""
-"LATIN","Reggaton",""
-"LATIN","Regional Mexicano",""
-"LATIN","Salsa",""
-"LATIN","Soca",""
-"","JAZZ","#54D5CC"
-"JAZZ","Acid Jazz",""
-"JAZZ","Afro-Cuban Jazz",""
-"JAZZ","Avant Garde & Free Jazz",""
-"JAZZ","Bebop",""
-"JAZZ","Brazilian Jazz",""
-"JAZZ","Cool Jazz",""
-"JAZZ","Dixieland",""
-"JAZZ","European Jazz",""
-"JAZZ","Jazz",""
-"JAZZ","Jazz Fusion",""
-"JAZZ","Jive Jazz",""
-"JAZZ","Latin Jazz",""
-"JAZZ","Modern Post Bebop",""
-"JAZZ","New Orleans Jazz",""
-"JAZZ","Nu Jazz",""
-"JAZZ","Orchestral Jazz",""
-"JAZZ","Smooth Jazz",""
-"JAZZ","Soul-Jazz & Boogaloo",""
-"JAZZ","Swing",""
-"JAZZ","Traditional Jazz & Ragtime",""
-"JAZZ","Vocal",""
-"","METAL","#60C1CE"
-"METAL","African Metal",""
-"METAL","Alternative Metal",""
-"METAL","Black Metal",""
-"METAL","British Metal",""
-"METAL","Death Metal",""
-"METAL","Doom Metal",""
-"METAL","Math Metal",""
-"METAL","Metal",""
-"METAL","Pop Metal",""
-"METAL","Power Metal",""
-"METAL","Progressive Metal",""
-"METAL","Stoner Metal",""
-"METAL","Thrash Metal",""
-"METAL","Traditional Heavy Metal",""
-"","R&B / SOUL","#67ACD0"
-"R&B / SOUL","Adult Contemporary",""
-"R&B / SOUL","African Soul",""
-"R&B / SOUL","Boogie",""
-"R&B / SOUL","Classic Soul",""
-"R&B / SOUL","Classic R&B",""
-"R&B / SOUL","Contemporary",""
-"R&B / SOUL","Disco",""
-"R&B / SOUL","Doo Wop",""
-"R&B / SOUL","Electro Funk",""
-"R&B / SOUL","Funk",""
-"R&B / SOUL","Future R&B / Soul",""
-"R&B / SOUL","Jamaican R&B",""
-"R&B / SOUL","Neo-Soul",""
-"R&B / SOUL","New Jack Swing",""
-"R&B / SOUL","R&B",""
-"R&B / SOUL","Soul",""
-"","REGGAE","#69A2D0"
-"REGGAE","Dancehall",""
-"REGGAE","Dub",""
-"REGGAE","Lovers Rock",""
-"REGGAE","Raggamuffin",""
-"REGGAE","Reggae",""
-"REGGAE","Roots",""
-"REGGAE","Ska",""
-"REGGAE","Calypso",""
-"","ROCK","#6B8DD1"
-"ROCK","Acid Rock",""
-"ROCK","Afro Punk",""
-"ROCK","Alt-Country & Americana",""
-"ROCK","Ambient Pop",""
-"ROCK","American Punk",""
-"ROCK","AOR",""
-"ROCK","Arabic Rock",""
-"ROCK","Arena Rock",""
-"ROCK","Art Rock",""
-"ROCK","Blues Rock",""
-"ROCK","British Invasion",""
-"ROCK","British Pop",""
-"ROCK","British Punk",""
-"ROCK","British Ska",""
-"ROCK","Bubblegum",""
-"ROCK","Chamber Pop",""
-"ROCK","Country Rock",""
-"ROCK","Dream Pop",""
-"ROCK","Electronic Pop",""
-"ROCK","Emo",""
-"ROCK","Folk Rock",""
-"ROCK","Funk Rock",""
-"ROCK","Glam",""
-"ROCK","Goth",""
-"ROCK","Grindcore",""
-"ROCK","Grunge",""
-"ROCK","Hard Rock",""
-"ROCK","Hardcore",""
-"ROCK","Indie Rock",""
-"ROCK","J-rock",""
-"ROCK","Jam Bands",""
-"ROCK","Jangle Pop",""
-"ROCK","Krautrock",""
-"ROCK","Latin Rock",""
-"ROCK","Lo-Fi",""
-"ROCK","Math Rock",""
-"ROCK","New Wave",""
-"ROCK","No Wave",""
-"ROCK","Oldies",""
-"ROCK","Paisley Underground",""
-"ROCK","Pop Punk",""
-"ROCK","Pop Rock",""
-"ROCK","Post Grunge",""
-"ROCK","Power Pop",""
-"ROCK","Prog Rock",""
-"ROCK","Psychedelic Rock",""
-"ROCK","Psychobilly",""
-"ROCK","Punk",""
-"ROCK","Rap Rock",""
-"ROCK","Retro",""
-"ROCK","Riot Grrl",""
-"ROCK","Rock",""
-"ROCK","Rockabilly",""
-"ROCK","Roots Rock",""
-"ROCK","Screamo",""
-"ROCK","Shoegaze",""
-"ROCK","Soft Rock",""
-"ROCK","Southern Rock",""
-"ROCK","Surf Rock",""
-"ROCK","Yacht Rock",""
-"","SOUND FX","#6B83D2"
-"SOUND FX","Acapella",""
-"SOUND FX","Field Recordings",""
-"SOUND FX","Library Music",""
-"SOUND FX","Multitrack & Stems",""
-"SOUND FX","Nature",""
-"SOUND FX","Sound Fx",""
-"SOUND FX","Sample Packs",""
-"","TECHNO","#6A98D1"
-"TECHNO","Acid Techno",""
-"TECHNO","Detroit Techno",""
-"TECHNO","Drone Techno",""
-"TECHNO","Dub Techno",""
-"TECHNO","Experimental Techno",""
-"TECHNO","Hardcore",""
-"TECHNO","Minimal Techno",""
-"TECHNO","Techno",""
-"","TURNTABLISM","#6B83D2"
-"TURNTABLISM","DJ Tools",""
-"TURNTABLISM","Practice Cuts",""
-"TURNTABLISM","Scratch Beats",""
-"TURNTABLISM","Scratch Music",""
-"","VERBAL","#6867D3"
-"VERBAL","ASMR",""
-"VERBAL","Comedy",""
-"VERBAL","Exercise",""
-"VERBAL","Instructional",""
-"VERBAL","Interviews",""
-"VERBAL","Lectures",""
-"VERBAL","Other",""
-"VERBAL","Poetry & Spoken Word",""
-"VERBAL","Radio Shows",""
-"VERBAL","Self-Help",""
-"","WORLD","#674ED8"
-"WORLD","WORLD (AFRICA)",""
-"WORLD (AFRICA)","Afro House",""
-"WORLD (AFRICA)","Afrobeat",""
-"WORLD (AFRICA)","Apala",""
-"WORLD (AFRICA)","Azonto",""
-"WORLD (AFRICA)","Batuque",""
-"WORLD (AFRICA)","Benga",""
-"WORLD (AFRICA)","Bikutsi",""
-"WORLD (AFRICA)","Bongo Flava",""
-"WORLD (AFRICA)","Cape Jazz",""
-"WORLD (AFRICA)","Carnatic",""
-"WORLD (AFRICA)","Chimurenga",""
-"WORLD (AFRICA)","Coladeira",""
-"WORLD (AFRICA)","Coupe-Decale",""
-"WORLD (AFRICA)","Dangdut",""
-"WORLD (AFRICA)","Fuji Music",""
-"WORLD (AFRICA)","Funana",""
-"WORLD (AFRICA)","Genge",""
-"WORLD (AFRICA)","Highlife",""
-"WORLD (AFRICA)","Hipco",""
-"WORLD (AFRICA)","Hiplife",""
-"WORLD (AFRICA)","Isicathamiya",""
-"WORLD (AFRICA)","Jit",""
-"WORLD (AFRICA)","Juju",""
-"WORLD (AFRICA)","Kalindula Music",""
-"WORLD (AFRICA)","Kapuka / Boomba",""
-"WORLD (AFRICA)","Kizomba",""
-"WORLD (AFRICA)","Klezmer",""
-"WORLD (AFRICA)","Kuduro",""
-"WORLD (AFRICA)","Kwaito",""
-"WORLD (AFRICA)","Kwela",""
-"WORLD (AFRICA)","Makossa",""
-"WORLD (AFRICA)","Maloya",""
-"WORLD (AFRICA)","Marrabenta",""
-"WORLD (AFRICA)","Mbalax",""
-"WORLD (AFRICA)","Mbaqanga / Sungura",""
-"WORLD (AFRICA)","Mbube",""
-"WORLD (AFRICA)","Morna",""
-"WORLD (AFRICA)","Museve",""
-"WORLD (AFRICA)","Ndombolo",""
-"WORLD (AFRICA)","Palm-wine / Maringa",""
-"WORLD (AFRICA)","Pandza",""
-"WORLD (AFRICA)","Rai",""
-"WORLD (AFRICA)","Sakara",""
-"WORLD (AFRICA)","Salegy",""
-"WORLD (AFRICA)","Sega",""
-"WORLD (AFRICA)","Semba",""
-"WORLD (AFRICA)","Shangaan Electro",""
-"WORLD (AFRICA)","Soukous",""
-"WORLD (AFRICA)","Taarab",""
-"WORLD (AFRICA)","Zouglou",""
-"WORLD","WORLD (ARABIC)",""
-"WORLD (ARABIC)","Adani",""
-"WORLD (ARABIC)","Al Jeel (Egypt)",""
-"WORLD (ARABIC)","Andalusian",""
-"WORLD (ARABIC)","Ardham",""
-"WORLD (ARABIC)","Armenian",""
-"WORLD (ARABIC)","Chaabi (Algeria)",""
-"WORLD (ARABIC)","Chaabi (Morocco)",""
-"WORLD (ARABIC)","Fann at-Tanbura",""
-"WORLD (ARABIC)","Fijiri",""
-"WORLD (ARABIC)","Gnawa",""
-"WORLD (ARABIC)","Haqibah",""
-"WORLD (ARABIC)","Khaliji",""
-"WORLD (ARABIC)","Liwa",""
-"WORLD (ARABIC)","M'alayah",""
-"WORLD (ARABIC)","Malhun (Morocco)",""
-"WORLD (ARABIC)","Malouf (Tunisia)",""
-"WORLD (ARABIC)","Mawwal (Egypt)",""
-"WORLD (ARABIC)","Mezwed (Tunisia)",""
-"WORLD (ARABIC)","Mizmar",""
-"WORLD (ARABIC)","Rai (Algeria)",""
-"WORLD (ARABIC)","Samri",""
-"WORLD (ARABIC)","Sawt",""
-"WORLD (ARABIC)","Semsemya (Egypt)",""
-"WORLD (ARABIC)","Shaabi Music (Egypt)",""
-"WORLD (ARABIC)","Yowla",""
-"WORLD","WORLD (CHINA)",""
-"WORLD (CHINA)","Chinese Opera",""
-"WORLD (CHINA)","Chinese Traditional",""
-"WORLD","WORLD (EUROPE)",""
-"WORLD (EUROPE)","Fado",""
-"WORLD (EUROPE)","Flamenco",""
-"WORLD (EUROPE)","France",""
-"WORLD (EUROPE)","Hungarian",""
-"WORLD (EUROPE)","Icelandic",""
-"WORLD (EUROPE)","Italian",""
-"WORLD (EUROPE)","Pimba",""
-"WORLD (EUROPE)","Polka",""
-"WORLD (EUROPE)","Portugese Folk",""
-"WORLD (EUROPE)","Russian Tango",""
-"WORLD (EUROPE)","Russian Traditional",""
-"WORLD (EUROPE)","Serbian",""
-"WORLD (EUROPE)","Turkish",""
-"WORLD (EUROPE)","Ye-Ye",""
-"WORLD (EUROPE)","Zouk",""
-"WORLD","WORLD (INDIA)",""
-"WORLD (INDIA)","Bhangra",""
-"WORLD (INDIA)","Bollywood",""
-"WORLD (INDIA)","Carnatic",""
-"WORLD (INDIA)","Chaiti",""
-"WORLD (INDIA)","Dadra",""
-"WORLD (INDIA)","Filmi",""
-"WORLD (INDIA)","Hindustani",""
-"WORLD (INDIA)","Indian Ghazal",""
-"WORLD (INDIA)","Indian Pop",""
-"WORLD (INDIA)","Kajari",""
-"WORLD (INDIA)","Kathak",""
-"WORLD (INDIA)","Khyal",""
-"WORLD (INDIA)","Punjab",""
-"WORLD (INDIA)","Thumri",""
-"WORLD","WORLD (JAPAN)",""
-"WORLD (JAPAN)","J-Pop",""
-"WORLD (JAPAN)","Japanese Traditional",""
-"WORLD (JAPAN)","Anime",""
-"WORLD","WORLD (KOREA)",""
-"WORLD (KOREA)","Ch'angga",""
-"WORLD (KOREA)","K-Pop",""
-"WORLD (KOREA)","Kagok",""
-"WORLD (KOREA)","Kugak",""
-"WORLD (KOREA)","Yuhaengga",""
+parent_name,region,name,color,sequence
+"","","BLUES","#297DE4",12
+"BLUES","BLUES","Acoustic Blues","",0
+"BLUES","BLUES","Blues","",0
+"BLUES","BLUES","Chicago Blues","",0
+"BLUES","BLUES","Contemporary Blues","",0
+"BLUES","BLUES","Delta Blues","",0
+"BLUES","BLUES","Electric Blues Guitar","",0
+"BLUES","BLUES","Harmonica Blues","",0
+"BLUES","BLUES","Jump Blues","",0
+"BLUES","BLUES","Modern Blues","",0
+"BLUES","BLUES","Piano","",0
+"BLUES","BLUES","Slide Guitar","",0
+"BLUES","BLUES","Traditional Blues","",0
+"BLUES","BLUES","Cajun","",0
+"","","CLASSICAL","#F43374",1
+"CLASSICAL","CLASSICAL","Avant-Garde","",0
+"CLASSICAL","CLASSICAL","Ballets & Dances","",0
+"CLASSICAL","CLASSICAL","Baroque","",0
+"CLASSICAL","CLASSICAL","Chant","",0
+"CLASSICAL","CLASSICAL","Choral","",0
+"CLASSICAL","CLASSICAL","Classical","",0
+"CLASSICAL","CLASSICAL","Classical Crossover","",0
+"CLASSICAL","CLASSICAL","Contemporary Classical","",0
+"CLASSICAL","CLASSICAL","Expressionist","",0
+"CLASSICAL","CLASSICAL","Impressionist","",0
+"CLASSICAL","CLASSICAL","Medieval","",0
+"CLASSICAL","CLASSICAL","Minimal Classical","",0
+"CLASSICAL","CLASSICAL","Modern Classical","",0
+"CLASSICAL","CLASSICAL","Opera & Vocal","",0
+"CLASSICAL","CLASSICAL","Orchestral","",0
+"CLASSICAL","CLASSICAL","Renaissance","",0
+"CLASSICAL","CLASSICAL","Romantic","",0
+"","","COUNTRY","#E12D84",2
+"COUNTRY","COUNTRY","Alternative Country","",0
+"COUNTRY","COUNTRY","Americana","",0
+"COUNTRY","COUNTRY","Bluegrass","",0
+"COUNTRY","COUNTRY","Classic Country","",0
+"COUNTRY","COUNTRY","Contemporary Bluegrass","",0
+"COUNTRY","COUNTRY","Contemporary Country","",0
+"COUNTRY","COUNTRY","Country","",0
+"COUNTRY","COUNTRY","Country Dance Music","",0
+"COUNTRY","COUNTRY","Country Gospel","",0
+"COUNTRY","COUNTRY","Honky Tonk","",0
+"COUNTRY","COUNTRY","Outlaw Country","",0
+"COUNTRY","COUNTRY","Pop Country","",0
+"COUNTRY","COUNTRY","Urband Cowboy","",0
+"","","DRUM & BASS","#CE2894",3
+"DRUM & BASS","DRUM & BASS","Breakcore","",0
+"DRUM & BASS","DRUM & BASS","Darkcore","",0
+"DRUM & BASS","DRUM & BASS","Deep","",0
+"DRUM & BASS","DRUM & BASS","Drill'n'Bass","",0
+"DRUM & BASS","DRUM & BASS","Drum & Bass","",0
+"DRUM & BASS","DRUM & BASS","Drumstep","",0
+"DRUM & BASS","DRUM & BASS","Halftime","",0
+"DRUM & BASS","DRUM & BASS","Intelligent","",0
+"DRUM & BASS","DRUM & BASS","Jump Up","",0
+"DRUM & BASS","DRUM & BASS","Liquid","",0
+"DRUM & BASS","DRUM & BASS","Nuerofunk","",0
+"DRUM & BASS","DRUM & BASS","Ragga Jungle","",0
+"DRUM & BASS","DRUM & BASS","Sambass","",0
+"DRUM & BASS","DRUM & BASS","Techstep","",0
+"","","ELECTRONIC","#B823A4",4
+"ELECTRONIC","ELECTRONIC","2-step / Garage","",0
+"ELECTRONIC","ELECTRONIC","8-bit","",0
+"ELECTRONIC","ELECTRONIC","Acid Jazz","",0
+"ELECTRONIC","ELECTRONIC","Ambient","",0
+"ELECTRONIC","ELECTRONIC","B-More","",0
+"ELECTRONIC","ELECTRONIC","Bass Music","",0
+"ELECTRONIC","ELECTRONIC","Beats","",0
+"ELECTRONIC","ELECTRONIC","Big Beat","",0
+"ELECTRONIC","ELECTRONIC","Booty Bass","",0
+"ELECTRONIC","ELECTRONIC","Broken beat","",0
+"ELECTRONIC","ELECTRONIC","Chill Trap / Future Bass","",0
+"ELECTRONIC","ELECTRONIC","Chillstep","",0
+"ELECTRONIC","ELECTRONIC","Chillwave","",0
+"ELECTRONIC","ELECTRONIC","Chiptune","",0
+"ELECTRONIC","ELECTRONIC","Club","",0
+"ELECTRONIC","ELECTRONIC","Complextro","",0
+"ELECTRONIC","ELECTRONIC","Disco","",0
+"ELECTRONIC","ELECTRONIC","Downtempo","",0
+"ELECTRONIC","ELECTRONIC","Dubstep","",0
+"ELECTRONIC","ELECTRONIC","EDM","",0
+"ELECTRONIC","ELECTRONIC","Electro Swing","",0
+"ELECTRONIC","ELECTRONIC","Electro","",0
+"ELECTRONIC","ELECTRONIC","Electro Pop","",0
+"ELECTRONIC","ELECTRONIC","Electronic","",0
+"ELECTRONIC","ELECTRONIC","Footwork","",0
+"ELECTRONIC","ELECTRONIC","Freestyle","",0
+"ELECTRONIC","ELECTRONIC","Ghettotech","",0
+"ELECTRONIC","ELECTRONIC","Glitch Hop","",0
+"ELECTRONIC","ELECTRONIC","Gqom","",0
+"ELECTRONIC","ELECTRONIC","Grime","",0
+"ELECTRONIC","ELECTRONIC","Hardstyle","",0
+"ELECTRONIC","ELECTRONIC","Hi-NRG","",0
+"ELECTRONIC","ELECTRONIC","IDM / Experimental","",0
+"ELECTRONIC","ELECTRONIC","Indie Dance","",0
+"ELECTRONIC","ELECTRONIC","Industrial","",0
+"ELECTRONIC","ELECTRONIC","Italo Disco","",0
+"ELECTRONIC","ELECTRONIC","Jersey Club","",0
+"ELECTRONIC","ELECTRONIC","Miami Bass","",0
+"ELECTRONIC","ELECTRONIC","MIDI Music","",0
+"ELECTRONIC","ELECTRONIC","Moombahton","",0
+"ELECTRONIC","ELECTRONIC","New Age","",0
+"ELECTRONIC","ELECTRONIC","Nu Skool Breaks","",0
+"ELECTRONIC","ELECTRONIC","Psy-Trance","",0
+"ELECTRONIC","ELECTRONIC","Rave","",0
+"ELECTRONIC","ELECTRONIC","Speedcore","",0
+"ELECTRONIC","ELECTRONIC","Trance","",0
+"ELECTRONIC","ELECTRONIC","Trap","",0
+"ELECTRONIC","ELECTRONIC","Trip-Hop","",0
+"ELECTRONIC","ELECTRONIC","UK Funky","",0
+"ELECTRONIC","ELECTRONIC","Witch House","",0
+"ELECTRONIC","ELECTRONIC","Vaporwave","",0
+"","","EXPERIMENTAL","#9F21B4",5
+"EXPERIMENTAL","EXPERIMENTAL","ASMR","",0
+"EXPERIMENTAL","EXPERIMENTAL","Ambient","",0
+"EXPERIMENTAL","EXPERIMENTAL","Avant-garde","",0
+"EXPERIMENTAL","EXPERIMENTAL","Drone","",0
+"EXPERIMENTAL","EXPERIMENTAL","Environmental","",0
+"EXPERIMENTAL","EXPERIMENTAL","Healing","",0
+"EXPERIMENTAL","EXPERIMENTAL","Improvisation","",0
+"EXPERIMENTAL","EXPERIMENTAL","Meditation","",0
+"EXPERIMENTAL","EXPERIMENTAL","Minimal","",0
+"EXPERIMENTAL","EXPERIMENTAL","Musique Concrete","",0
+"EXPERIMENTAL","EXPERIMENTAL","Noise","",0
+"EXPERIMENTAL","EXPERIMENTAL","Obscure","",0
+"EXPERIMENTAL","EXPERIMENTAL","Relaxation","",0
+"EXPERIMENTAL","EXPERIMENTAL","Space music","",0
+"","","FOLK","#8021C4",6
+"FOLK","FOLK","Contemporary Folk","",0
+"FOLK","FOLK","Folk","",0
+"FOLK","FOLK","Hawaiian Folk","",0
+"FOLK","FOLK","Psych Folk","",0
+"FOLK","FOLK","Revival","",0
+"FOLK","FOLK","Traditional Folk","",0
+"","","GOSPEL","#55C6D5",7
+"GOSPEL","GOSPEL","Christian Alternative","",0
+"GOSPEL","GOSPEL","Christian Contemporary Music","",0
+"GOSPEL","GOSPEL","Christian Rap","",0
+"GOSPEL","GOSPEL","Christian Rock","",0
+"GOSPEL","GOSPEL","Gospel","",0
+"","","HIP HOP / RAP","#54B8DE",8
+"HIP HOP / RAP","HIP HOP / RAP","African Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Arabic Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Asian Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Australian Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Beats / Beat Tapes","",0
+"HIP HOP / RAP","HIP HOP / RAP","Beat Boxing","",0
+"HIP HOP / RAP","HIP HOP / RAP","Boom Bap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Canadian Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Chinese Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Electro Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","European Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Experimental Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","French Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Gangsta Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Golden Era","",0
+"HIP HOP / RAP","HIP HOP / RAP","Grime","",0
+"HIP HOP / RAP","HIP HOP / RAP","Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Hip House","",0
+"HIP HOP / RAP","HIP HOP / RAP","Instrumental Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Instrumental Trap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Japanese Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Korean Hip Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Latin Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","LoFi / Chill Hop","",0
+"HIP HOP / RAP","HIP HOP / RAP","Miami Bass","",0
+"HIP HOP / RAP","HIP HOP / RAP","Old School Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Southern Rap","",0
+"HIP HOP / RAP","HIP HOP / RAP","Trap","",0
+"HIP HOP / RAP","HIP HOP / RAP","West Coast Rap","",0
+"","","HOLIDAY","#4FAAE7",9
+"HOLIDAY","HOLIDAY","Birthday Music","",0
+"HOLIDAY","HOLIDAY","Chanukah","",0
+"HOLIDAY","HOLIDAY","Christmas","",0
+"HOLIDAY","HOLIDAY","Christmas (Religious)","",0
+"HOLIDAY","HOLIDAY","Halloween","",0
+"","","HOUSE","#469CF0",10
+"HOUSE","HOUSE","Afro House","",0
+"HOUSE","HOUSE","Bassline House","",0
+"HOUSE","HOUSE","Big Room","",0
+"HOUSE","HOUSE","Chicago House","",0
+"HOUSE","HOUSE","Deep House","",0
+"HOUSE","HOUSE","Deep Progressive House","",0
+"HOUSE","HOUSE","Diva House","",0
+"HOUSE","HOUSE","Dutch House","",0
+"HOUSE","HOUSE","Electro House","",0
+"HOUSE","HOUSE","Experimental House","",0
+"HOUSE","HOUSE","Fidget House","",0
+"HOUSE","HOUSE","Filtered / Disco House","",0
+"HOUSE","HOUSE","Future House","",0
+"HOUSE","HOUSE","Garage House","",0
+"HOUSE","HOUSE","Ghetto House","",0
+"HOUSE","HOUSE","Hard House","",0
+"HOUSE","HOUSE","House","",0
+"HOUSE","HOUSE","Jackin' / Funky House","",0
+"HOUSE","HOUSE","Jazz House","",0
+"HOUSE","HOUSE","Juke","",0
+"HOUSE","HOUSE","Kwaito","",0
+"HOUSE","HOUSE","Latin House","",0
+"HOUSE","HOUSE","Leftfield House","",0
+"HOUSE","HOUSE","Lo-fi House","",0
+"HOUSE","HOUSE","Lounge House","",0
+"HOUSE","HOUSE","New York House (Classic)","",0
+"HOUSE","HOUSE","Nu-Disco","",0
+"HOUSE","HOUSE","Progressive House","",0
+"HOUSE","HOUSE","Tech House","",0
+"HOUSE","HOUSE","Tribal House","",0
+"HOUSE","HOUSE","Tropical House","",0
+"","","LATIN","#388EF8",11
+"LATIN","LATIN","Alternativo & Rock Latino","",0
+"LATIN","LATIN","Bachata","",0
+"LATIN","LATIN","Baladas y Boleros","",0
+"LATIN","LATIN","Banda","",0
+"LATIN","LATIN","Bossa Nova","",0
+"LATIN","LATIN","Brazilian ","",0
+"LATIN","LATIN","Chicano","",0
+"LATIN","LATIN","Classic","",0
+"LATIN","LATIN","Conjunto","",0
+"LATIN","LATIN","Conjunto Progressive","",0
+"LATIN","LATIN","Contemporary Latin","",0
+"LATIN","LATIN","Cumbia","",0
+"LATIN","LATIN","Flamenco","",0
+"LATIN","LATIN","Latin","",0
+"LATIN","LATIN","Latin Pop","",0
+"LATIN","LATIN","Latin R&B / Urban","",0
+"LATIN","LATIN","Latin Rock","",0
+"LATIN","LATIN","Latin Trap","",0
+"LATIN","LATIN","Merengue","",0
+"LATIN","LATIN","New Mex","",0
+"LATIN","LATIN","Nuevo Flamenco","",0
+"LATIN","LATIN","Pop Latino","",0
+"LATIN","LATIN","Portuguese","",0
+"LATIN","LATIN","Reggaton","",0
+"LATIN","LATIN","Regional Mexicano","",0
+"LATIN","LATIN","Salsa","",0
+"LATIN","LATIN","Soca","",0
+"","","JAZZ","#54D5CC",13
+"JAZZ","JAZZ","Acid Jazz","",0
+"JAZZ","JAZZ","Afro-Cuban Jazz","",0
+"JAZZ","JAZZ","Avant Garde & Free Jazz","",0
+"JAZZ","JAZZ","Bebop","",0
+"JAZZ","JAZZ","Brazilian Jazz","",0
+"JAZZ","JAZZ","Cool Jazz","",0
+"JAZZ","JAZZ","Dixieland","",0
+"JAZZ","JAZZ","European Jazz","",0
+"JAZZ","JAZZ","Jazz","",0
+"JAZZ","JAZZ","Jazz Fusion","",0
+"JAZZ","JAZZ","Jive Jazz","",0
+"JAZZ","JAZZ","Latin Jazz","",0
+"JAZZ","JAZZ","Modern Post Bebop","",0
+"JAZZ","JAZZ","New Orleans Jazz","",0
+"JAZZ","JAZZ","Nu Jazz","",0
+"JAZZ","JAZZ","Orchestral Jazz","",0
+"JAZZ","JAZZ","Smooth Jazz","",0
+"JAZZ","JAZZ","Soul-Jazz & Boogaloo","",0
+"JAZZ","JAZZ","Swing","",0
+"JAZZ","JAZZ","Traditional Jazz & Ragtime","",0
+"JAZZ","JAZZ","Vocal","",0
+"","","METAL","#60C1CE",14
+"METAL","METAL","African Metal","",0
+"METAL","METAL","Alternative Metal","",0
+"METAL","METAL","Black Metal","",0
+"METAL","METAL","British Metal","",0
+"METAL","METAL","Death Metal","",0
+"METAL","METAL","Doom Metal","",0
+"METAL","METAL","Math Metal","",0
+"METAL","METAL","Metal","",0
+"METAL","METAL","Pop Metal","",0
+"METAL","METAL","Power Metal","",0
+"METAL","METAL","Progressive Metal","",0
+"METAL","METAL","Stoner Metal","",0
+"METAL","METAL","Thrash Metal","",0
+"METAL","METAL","Traditional Heavy Metal","",0
+"","","R&B / SOUL","#67ACD0",15
+"R&B / SOUL","R&B / SOUL","Adult Contemporary","",0
+"R&B / SOUL","R&B / SOUL","African Soul","",0
+"R&B / SOUL","R&B / SOUL","Boogie","",0
+"R&B / SOUL","R&B / SOUL","Classic Soul","",0
+"R&B / SOUL","R&B / SOUL","Classic R&B","",0
+"R&B / SOUL","R&B / SOUL","Contemporary","",0
+"R&B / SOUL","R&B / SOUL","Disco","",0
+"R&B / SOUL","R&B / SOUL","Doo Wop","",0
+"R&B / SOUL","R&B / SOUL","Electro Funk","",0
+"R&B / SOUL","R&B / SOUL","Funk","",0
+"R&B / SOUL","R&B / SOUL","Future R&B / Soul","",0
+"R&B / SOUL","R&B / SOUL","Jamaican R&B","",0
+"R&B / SOUL","R&B / SOUL","Neo-Soul","",0
+"R&B / SOUL","R&B / SOUL","New Jack Swing","",0
+"R&B / SOUL","R&B / SOUL","R&B","",0
+"R&B / SOUL","R&B / SOUL","Soul","",0
+"","","REGGAE","#69A2D0",16
+"REGGAE","REGGAE","Dancehall","",0
+"REGGAE","REGGAE","Dub","",0
+"REGGAE","REGGAE","Lovers Rock","",0
+"REGGAE","REGGAE","Raggamuffin","",0
+"REGGAE","REGGAE","Reggae","",0
+"REGGAE","REGGAE","Roots","",0
+"REGGAE","REGGAE","Ska","",0
+"REGGAE","REGGAE","Calypso","",0
+"","","ROCK","#6B8DD1",17
+"ROCK","ROCK","Acid Rock","",0
+"ROCK","ROCK","Afro Punk","",0
+"ROCK","ROCK","Alt-Country & Americana","",0
+"ROCK","ROCK","Ambient Pop","",0
+"ROCK","ROCK","American Punk","",0
+"ROCK","ROCK","AOR","",0
+"ROCK","ROCK","Arabic Rock","",0
+"ROCK","ROCK","Arena Rock","",0
+"ROCK","ROCK","Art Rock","",0
+"ROCK","ROCK","Blues Rock","",0
+"ROCK","ROCK","British Invasion","",0
+"ROCK","ROCK","British Pop","",0
+"ROCK","ROCK","British Punk","",0
+"ROCK","ROCK","British Ska","",0
+"ROCK","ROCK","Bubblegum","",0
+"ROCK","ROCK","Chamber Pop","",0
+"ROCK","ROCK","Country Rock","",0
+"ROCK","ROCK","Dream Pop","",0
+"ROCK","ROCK","Electronic Pop","",0
+"ROCK","ROCK","Emo","",0
+"ROCK","ROCK","Folk Rock","",0
+"ROCK","ROCK","Funk Rock","",0
+"ROCK","ROCK","Glam","",0
+"ROCK","ROCK","Goth","",0
+"ROCK","ROCK","Grindcore","",0
+"ROCK","ROCK","Grunge","",0
+"ROCK","ROCK","Hard Rock","",0
+"ROCK","ROCK","Hardcore","",0
+"ROCK","ROCK","Indie Rock","",0
+"ROCK","ROCK","J-rock","",0
+"ROCK","ROCK","Jam Bands","",0
+"ROCK","ROCK","Jangle Pop","",0
+"ROCK","ROCK","Krautrock","",0
+"ROCK","ROCK","Latin Rock","",0
+"ROCK","ROCK","Lo-Fi","",0
+"ROCK","ROCK","Math Rock","",0
+"ROCK","ROCK","New Wave","",0
+"ROCK","ROCK","No Wave","",0
+"ROCK","ROCK","Oldies","",0
+"ROCK","ROCK","Paisley Underground","",0
+"ROCK","ROCK","Pop Punk","",0
+"ROCK","ROCK","Pop Rock","",0
+"ROCK","ROCK","Post Grunge","",0
+"ROCK","ROCK","Power Pop","",0
+"ROCK","ROCK","Prog Rock","",0
+"ROCK","ROCK","Psychedelic Rock","",0
+"ROCK","ROCK","Psychobilly","",0
+"ROCK","ROCK","Punk","",0
+"ROCK","ROCK","Rap Rock","",0
+"ROCK","ROCK","Retro","",0
+"ROCK","ROCK","Riot Grrl","",0
+"ROCK","ROCK","Rock","",0
+"ROCK","ROCK","Rockabilly","",0
+"ROCK","ROCK","Roots Rock","",0
+"ROCK","ROCK","Screamo","",0
+"ROCK","ROCK","Shoegaze","",0
+"ROCK","ROCK","Soft Rock","",0
+"ROCK","ROCK","Southern Rock","",0
+"ROCK","ROCK","Surf Rock","",0
+"ROCK","ROCK","Yacht Rock","",0
+"","","SOUND FX","#6B83D2",18
+"SOUND FX","SOUND FX","Acapella","",0
+"SOUND FX","SOUND FX","Field Recordings","",0
+"SOUND FX","SOUND FX","Library Music","",0
+"SOUND FX","SOUND FX","Multitrack & Stems","",0
+"SOUND FX","SOUND FX","Nature","",0
+"SOUND FX","SOUND FX","Sound Fx","",0
+"SOUND FX","SOUND FX","Sample Packs","",0
+"","","TECHNO","#6A98D1",19
+"TECHNO","TECHNO","Acid Techno","",0
+"TECHNO","TECHNO","Detroit Techno","",0
+"TECHNO","TECHNO","Drone Techno","",0
+"TECHNO","TECHNO","Dub Techno","",0
+"TECHNO","TECHNO","Experimental Techno","",0
+"TECHNO","TECHNO","Hardcore","",0
+"TECHNO","TECHNO","Minimal Techno","",0
+"TECHNO","TECHNO","Techno","",0
+"","","TURNTABLISM","#6B83D2",20
+"TURNTABLISM","TURNTABLISM","DJ Tools","",0
+"TURNTABLISM","TURNTABLISM","Practice Cuts","",0
+"TURNTABLISM","TURNTABLISM","Scratch Beats","",0
+"TURNTABLISM","TURNTABLISM","Scratch Music","",0
+"","","VERBAL","#6867D3",21
+"VERBAL","VERBAL","ASMR","",0
+"VERBAL","VERBAL","Comedy","",0
+"VERBAL","VERBAL","Exercise","",0
+"VERBAL","VERBAL","Instructional","",0
+"VERBAL","VERBAL","Interviews","",0
+"VERBAL","VERBAL","Lectures","",0
+"VERBAL","VERBAL","Other","",0
+"VERBAL","VERBAL","Poetry & Spoken Word","",0
+"VERBAL","VERBAL","Radio Shows","",0
+"VERBAL","VERBAL","Self-Help","",0
+"","","WORLD","#674ED8",22
+"WORLD","AFRICA","Afro House","",0
+"WORLD","AFRICA","Afrobeat","",0
+"WORLD","AFRICA","Apala","",0
+"WORLD","AFRICA","Azonto","",0
+"WORLD","AFRICA","Batuque","",0
+"WORLD","AFRICA","Benga","",0
+"WORLD","AFRICA","Bikutsi","",0
+"WORLD","AFRICA","Bongo Flava","",0
+"WORLD","AFRICA","Cape Jazz","",0
+"WORLD","AFRICA","Carnatic","",0
+"WORLD","AFRICA","Chimurenga","",0
+"WORLD","AFRICA","Coladeira","",0
+"WORLD","AFRICA","Coupe-Decale","",0
+"WORLD","AFRICA","Dangdut","",0
+"WORLD","AFRICA","Fuji Music","",0
+"WORLD","AFRICA","Funana","",0
+"WORLD","AFRICA","Genge","",0
+"WORLD","AFRICA","Highlife","",0
+"WORLD","AFRICA","Hipco","",0
+"WORLD","AFRICA","Hiplife","",0
+"WORLD","AFRICA","Isicathamiya","",0
+"WORLD","AFRICA","Jit","",0
+"WORLD","AFRICA","Juju","",0
+"WORLD","AFRICA","Kalindula Music","",0
+"WORLD","AFRICA","Kapuka / Boomba","",0
+"WORLD","AFRICA","Kizomba","",0
+"WORLD","AFRICA","Klezmer","",0
+"WORLD","AFRICA","Kuduro","",0
+"WORLD","AFRICA","Kwaito","",0
+"WORLD","AFRICA","Kwela","",0
+"WORLD","AFRICA","Makossa","",0
+"WORLD","AFRICA","Maloya","",0
+"WORLD","AFRICA","Marrabenta","",0
+"WORLD","AFRICA","Mbalax","",0
+"WORLD","AFRICA","Mbaqanga / Sungura","",0
+"WORLD","AFRICA","Mbube","",0
+"WORLD","AFRICA","Morna","",0
+"WORLD","AFRICA","Museve","",0
+"WORLD","AFRICA","Ndombolo","",0
+"WORLD","AFRICA","Palm-wine / Maringa","",0
+"WORLD","AFRICA","Pandza","",0
+"WORLD","AFRICA","Rai","",0
+"WORLD","AFRICA","Sakara","",0
+"WORLD","AFRICA","Salegy","",0
+"WORLD","AFRICA","Sega","",0
+"WORLD","AFRICA","Semba","",0
+"WORLD","AFRICA","Shangaan Electro","",0
+"WORLD","AFRICA","Soukous","",0
+"WORLD","AFRICA","Taarab","",0
+"WORLD","AFRICA","Zouglou","",0
+"WORLD","ARABIC","Adani","",0
+"WORLD","ARABIC","Al Jeel (Egypt)","",0
+"WORLD","ARABIC","Andalusian","",0
+"WORLD","ARABIC","Ardham","",0
+"WORLD","ARABIC","Armenian","",0
+"WORLD","ARABIC","Chaabi (Algeria)","",0
+"WORLD","ARABIC","Chaabi (Morocco)","",0
+"WORLD","ARABIC","Fann at-Tanbura","",0
+"WORLD","ARABIC","Fijiri","",0
+"WORLD","ARABIC","Gnawa","",0
+"WORLD","ARABIC","Haqibah","",0
+"WORLD","ARABIC","Khaliji","",0
+"WORLD","ARABIC","Liwa","",0
+"WORLD","ARABIC","M'alayah","",0
+"WORLD","ARABIC","Malhun (Morocco)","",0
+"WORLD","ARABIC","Malouf (Tunisia)","",0
+"WORLD","ARABIC","Mawwal (Egypt)","",0
+"WORLD","ARABIC","Mezwed (Tunisia)","",0
+"WORLD","ARABIC","Mizmar","",0
+"WORLD","ARABIC","Rai (Algeria)","",0
+"WORLD","ARABIC","Samri","",0
+"WORLD","ARABIC","Sawt","",0
+"WORLD","ARABIC","Semsemya (Egypt)","",0
+"WORLD","ARABIC","Shaabi Music (Egypt)","",0
+"WORLD","ARABIC","Yowla","",0
+"WORLD","CHINA","Chinese Opera","",0
+"WORLD","CHINA","Chinese Traditional","",0
+"WORLD","EUROPE","Fado","",0
+"WORLD","EUROPE","Flamenco","",0
+"WORLD","EUROPE","France","",0
+"WORLD","EUROPE","Hungarian","",0
+"WORLD","EUROPE","Icelandic","",0
+"WORLD","EUROPE","Italian","",0
+"WORLD","EUROPE","Pimba","",0
+"WORLD","EUROPE","Polka","",0
+"WORLD","EUROPE","Portugese Folk","",0
+"WORLD","EUROPE","Russian Tango","",0
+"WORLD","EUROPE","Russian Traditional","",0
+"WORLD","EUROPE","Serbian","",0
+"WORLD","EUROPE","Turkish","",0
+"WORLD","EUROPE","Ye-Ye","",0
+"WORLD","EUROPE","Zouk","",0
+"WORLD","INDIA","Bhangra","",0
+"WORLD","INDIA","Bollywood","",0
+"WORLD","INDIA","Carnatic","",0
+"WORLD","INDIA","Chaiti","",0
+"WORLD","INDIA","Dadra","",0
+"WORLD","INDIA","Filmi","",0
+"WORLD","INDIA","Hindustani","",0
+"WORLD","INDIA","Indian Ghazal","",0
+"WORLD","INDIA","Indian Pop","",0
+"WORLD","INDIA","Kajari","",0
+"WORLD","INDIA","Kathak","",0
+"WORLD","INDIA","Khyal","",0
+"WORLD","INDIA","Punjab","",0
+"WORLD","INDIA","Thumri","",0
+"WORLD","JAPAN","J-Pop","",0
+"WORLD","JAPAN","Japanese Traditional","",0
+"WORLD","JAPAN","Anime","",0
+"WORLD","KOREA","Ch'angga","",0
+"WORLD","KOREA","K-Pop","",0
+"WORLD","KOREA","Kagok","",0
+"WORLD","KOREA","Kugak","",0
+"WORLD","KOREA","Yuhaengga","",0

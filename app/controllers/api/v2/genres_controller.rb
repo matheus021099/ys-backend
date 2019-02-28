@@ -32,7 +32,7 @@ module Api::V2
       SQL
       genre_users = Genre.connection.execute(genre_users_sql).to_a.inject({}){|obj, r| obj[r['genre_id']] = r['count'].to_i; obj}
 
-      genres = Genre.roots
+      genres = Genre.roots.order(:sequence)
       render json: genres, scope: OpenStruct.new(genre_users: genre_users), include_children: true
     end
 

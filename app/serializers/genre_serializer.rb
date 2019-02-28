@@ -1,5 +1,5 @@
 class GenreSerializer < ActiveModel::Serializer
-  attributes :id, :slug, :name, :color
+  attributes :id, :slug, :name, :region, :color, :sequence
   attribute :users_size
   attribute :children, if: :include_children?
 
