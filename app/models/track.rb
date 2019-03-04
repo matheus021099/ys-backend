@@ -61,7 +61,7 @@ class Track < ApplicationRecord
   def download(downloader, page_track = nil)
     return true if downloader.id == self.user_id
 
-    Activity.insert(
+    activity = Activity.insert(
       sender_id: downloader.id,
       receiver_id: downloader.id,
       message: 'downloaded a track',
