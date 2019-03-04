@@ -587,28 +587,29 @@ class User < ApplicationRecord
     case filter
       when 'listener'
         User
-          .joins(
-            "INNER JOIN users_roles ON users_roles.user_id = users.id "\
-            "INNER JOIN roles ON roles.id = users_roles.role_id "\
-            "INNER JOIN follows ON users.id = follows.follower_id"
-          )
+          .joins("INNER JOIN follows ON users.id = follows.follower_id")
           .where(
-            users: {status: User.statuses[:active]},
-            follows: {blocked: false, followable_id: self.id},
-            roles: {name: 'listener', resource_type: nil, resource_id: nil}
+            users: {
+              status: User.statuses[:active],
+              user_type: User.user_types[:listener]
+            },
+            follows: {
+              blocked: false,
+              followable_id: self.id
+            }
           )
-          # .where.not(roles: {name: ['artist', 'admin']})
       when 'artist'
         User
-          .joins(
-            "INNER JOIN users_roles ON users_roles.user_id = users.id "\
-            "INNER JOIN roles ON roles.id = users_roles.role_id "\
-            "RIGHT JOIN follows ON users.id = follows.follower_id"
-          )
+          .joins("RIGHT JOIN follows ON users.id = follows.follower_id")
           .where(
-            users: {status: User.statuses[:active]},
-            follows: {blocked: false, followable_id: self.id},
-            roles: {name: 'artist', resource_type: nil, resource_id: nil}
+            users: {
+              status: User.statuses[:active],
+              user_type: User.user_types[:artist]
+            },
+            follows: {
+              blocked: false,
+              followable_id: self.id
+            }
           )
       else
         User
@@ -641,27 +642,31 @@ class User < ApplicationRecord
       when 'listener'
         User
           .joins(
-            "INNER JOIN users_roles ON users_roles.user_id = users.id "\
-            "INNER JOIN roles ON roles.id = users_roles.role_id "\
             "INNER JOIN follows ON users.id = follows.followable_id"
           )
           .where(
-            users: {status: User.statuses[:active]},
-            follows: {blocked: false, follower_id: self.id},
-            roles: {name: 'listener', resource_type: nil, resource_id: nil}
+            users: {
+              status: User.statuses[:active],
+              user_type: User.user_types[:listener]
+            },
+            follows: {
+              blocked: false,
+              follower_id: self.id
+            }
           )
           # .where.not(roles: {name: ['artist', 'admin']})
       when 'artist'
         User
-          .joins(
-            "INNER JOIN users_roles ON users_roles.user_id = users.id "\
-            "INNER JOIN roles ON roles.id = users_roles.role_id "\
-            "RIGHT JOIN follows ON users.id = follows.followable_id"
-          )
+          .joins("RIGHT JOIN follows ON users.id = follows.followable_id")
           .where(
-            users: {status: User.statuses[:active]},
-            follows: {blocked: false, follower_id: self.id},
-            roles: {name: 'artist', resource_type: nil, resource_id: nil}
+            users: {
+              status: User.statuses[:active],
+              user_type: User.user_types[:artist]
+            },
+            follows: {
+              blocked: false,
+              follower_id: self.id
+            }
           )
       else
         User
