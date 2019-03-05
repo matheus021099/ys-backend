@@ -145,19 +145,30 @@ module Api::V1
     setup_authorization_header(:albums)
     swagger_api :albums do |api|
       summary 'get albums'
-      param :query, :statuses, :string, :optional, 'any, published, privated, pending, collaboration'
+      param :query, :statuses, :string, :optional, 'any, published, privated, pending, collaborated'
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
+      param :query, :q, :string, :optional, 'query string'
     end
     def albums
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
       statuses = params[:statuses].present? ? params[:statuses].split(',').map(&:strip) : ['any']
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
+      q = params[:q] || '*'
 
-      albums = Album.where.not(status: Album.statuses[:deleted]).order(created_at: :desc)
-      albums = albums.where(status: statuses) unless statuses.include?('any')
-      albums = albums.page(page).per(per_page)
+      ps = {}
+      where = {slug: {not: nil}}
+      where[:status] = statuses unless statuses.include?('any')
+      ps = ps.merge(
+        fields: [:name, :description, :owner_username, :owner_display_name],
+        match: :word_start,
+        where: where,
+        order: {created_at: :desc},
+        page: page,
+        per_page: per_page
+      )
+      albums = Album.search(q.presence || '*', ps)
 
       render_success(
         albums: ActiveModel::Serializer::CollectionSerializer.new(
