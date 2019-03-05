@@ -137,12 +137,12 @@ class ShopProduct < ApplicationRecord
     end
 
     Activity.where(
-      assoc_type: 'ShopProduct',
+      assoc_type: self.class.name,
       assoc_id: self.id
     ).delete_all
 
     Feed.where(
-      assoc_type: 'ShopProduct',
+      assoc_type: self.class.name,
       assoc_id: self.id
     ).delete_all
 

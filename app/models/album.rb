@@ -338,12 +338,19 @@ class Album < ApplicationRecord
   def unrepost(unreposter)
     return 'You are trying to un-repost your album' if unreposter.id == self.user_id
 
+    Activity.where({
+      sender_id: unreposter.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      action_type: Activity.action_types[:repost]
+    }).delete_all
+
     Feed.where({
       publisher_id: unreposter.id,
       assoc_type: self.class.name,
       assoc_id: self.id,
       feed_types: Feed.feed_types[:repost]
-    }).destroy_all
+    }).delete_all
 
     true
   end
@@ -356,7 +363,19 @@ class Album < ApplicationRecord
   end
 
   def make_private
-    self.update_attributes(status: Album.statuses[:privated])
+    Activity.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).delete_all
+
+    Feed.where({
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    }).delete_all
+
+    self.update_attributes(
+      status: Album.statuses[:privated]
+    )
   end
 
   def make_live_video_only
@@ -397,7 +416,7 @@ class Album < ApplicationRecord
       publisher_id: actor.id,
       assoc_type: self.class.name,
       assoc_id: self.id
-    }).destroy_all
+    }).delete_all
 
     feed = Feed.insert(
       consumer_id: actor.id,
