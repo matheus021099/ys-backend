@@ -166,17 +166,11 @@ module Api::V1
         q.presence || '*',
         fields: [:name, :description, :owner_username, :owner_display_name],
         match: :word_start,
-        where: {status: 'published', slug: {not: nil}},
+        where: {status: ['published', 'collaborated'], slug: {not: nil}},
         limit: limit
       )#, load: false)
       albums = albums_all.select{|a| a.album_type == 'album'}
       playlists = albums_all.select{|a| a.album_type == 'playlist'}
-      # products = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(
-      #   status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]],
-      #   stock_status: ShopProduct.stock_statuses[:active],
-      #   show_status: ShopProduct.show_statuses[:show_all]
-      # ).limit(limit)
-      # products = products.where('name ILIKE ?', "%#{q.downcase}%") if q.presence
       products = ShopProduct.search(
         q.presence || '*',
         fields: [:name, :description, :merchant_username, :merchant_display_name],
@@ -239,7 +233,7 @@ module Api::V1
       seed_val = ActiveRecord::Base.connection.quote(seed)
 
       # a1 = Album.order("RANDOM()").first
-      # albums = Album.search('*', where: {status: 'published', album_type: 'album', slug: {not: nil}}, limit: per_page)
+      # albums = Album.search('*', where: {status: ['published', 'collaborated'], album_type: 'album', slug: {not: nil}}, limit: per_page)
       ActiveRecord::Base.connection.execute("select setseed(#{seed_val})")
       albums = Album.where(
         status: [Album.statuses[:published], Album.statuses[:collaborated]],
