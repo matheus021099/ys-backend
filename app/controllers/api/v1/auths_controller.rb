@@ -372,7 +372,7 @@ module Api::V1
       skip_authorization
       render_json and return unless params[:username].present?
 
-      user = User.find_by(username: params[:username])
+      user = User.find_by(username: params[:username].downcase)
       render_error 'Already exists', :unprocessable_entity and return if user.present?
 
       render_success true

@@ -22,6 +22,23 @@ class ShopProduct < ApplicationRecord
 
   mount_uploader :digital_content, ZipUploader
 
+  paginates_per 25
+
+  searchkick word_start: %i[id name description merchant_username merchant_display_name],
+    searchable: %i[id name description merchant_username merchant_display_name]
+
+  def search_data
+    attributes.merge(search_custom_fields)
+  end
+
+  def search_custom_fields
+    {
+      category_name: self.category.name,
+      merchant_username: self.merchant.username,
+      merchant_display_name: self.merchant.display_name
+    }
+  end
+
   validates :name, presence: true, on: :create
 
   belongs_to :merchant, foreign_key: 'merchant_id', class_name: 'User'
@@ -321,16 +338,34 @@ class ShopProduct < ApplicationRecord
   end
 
   class << self
+    # def explore_query(category, params = {}, user = nil)
+    #   query = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(
+    #     status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]],
+    #     stock_status: ShopProduct.stock_statuses[:active],
+    #     show_status: ShopProduct.show_statuses[:show_all]
+    #   )
+    #   query = query.joins(:category).where(shop_categories: {is_digital: false})
+    #   query = query.where(shop_categories: {name: category}) unless category.eql?('any')
+    #   query = query.where.not(merchant_id: user.block_list) if user
+    #   query = query.page(params[:page]).order(created_at: :desc).per(params[:per_page])
+    # end
+
     def explore_query(category, params = {}, user = nil)
-      query = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(
-        status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]],
-        stock_status: ShopProduct.stock_statuses[:active],
-        show_status: ShopProduct.show_statuses[:show_all]
-      )
-      query = query.joins(:category).where(shop_categories: {is_digital: false})
-      query = query.where(shop_categories: {name: category}) unless category.eql?('any')
-      query = query.where.not(merchant_id: user.block_list) if user
-      query = query.page(params[:page]).order(created_at: :desc).per(params[:per_page])
+      where = {
+        status: ['published', 'collaborated'],
+        stock_status: 'active',
+        show_status: 'show_all'
+      }
+      where[:category_name] = category unless category.blank? || category == 'any'
+      if user
+        where[:merchant_id] = {} if where[:merchant_id].blank?
+        where[:merchant_id][:not] = user.block_list
+      end
+      order = {created_at: :desc}
+      params = params.merge(per_page: ShopProduct.default_per_page) if params[:per_page].blank?
+      params = params.merge(where: where, order: order)
+      params = params.merge(includes: [:merchant, :category, :variants, :shipments, :covers, :user_products])
+      ShopProduct.search '*', params
     end
 
     def categories_query(user = nil)
@@ -339,7 +374,7 @@ class ShopProduct < ApplicationRecord
         stock_status: ShopProduct.stock_statuses[:active],
         show_status: ShopProduct.show_statuses[:show_all]
       )
-      query = query.joins(:category).where(shop_categories: {is_digital: false})
+      # query = query.joins(:category).where(shop_categories: {is_digital: false})
       query = query.where.not(merchant_id: user.block_list) if user
       category_ids = query.group(:category_id).count.keys
       ShopCategory.where(id: category_ids)

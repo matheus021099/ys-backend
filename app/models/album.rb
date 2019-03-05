@@ -14,13 +14,20 @@ class Album < ApplicationRecord
   mount_uploader :cover, CoverUploader
   mount_uploader :zip, ZipUploader
 
-  paginates_per 24
+  paginates_per 25
 
-  searchkick word_start: %i[id name slug description],
-    searchable: %i[id name slug description]
+  searchkick word_start: %i[id name slug description owner_username owner_display_name],
+    searchable: %i[id name slug description owner_username owner_display_name]
 
   def search_data
-    attributes
+    attributes.merge(search_custom_fields)
+  end
+
+  def search_custom_fields
+    {
+      owner_username: self.user.username,
+      owner_display_name: self.user.display_name
+    }
   end
 
   validates :name, presence: true, on: :create

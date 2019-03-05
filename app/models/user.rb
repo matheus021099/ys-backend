@@ -63,7 +63,7 @@ class User < ApplicationRecord
   # validates :first_name, presence: true
   # validates :last_name, presence: true
   # validates :avatar, presence: true
-  validates :email, presence: true
+  validates :email, presence: true, uniqueness: { case_sensitive: false }
   # validates :email, presence: { if: -> { social_user_id.blank? } }
   validates :username, presence: :true, uniqueness: { case_sensitive: false }
 
@@ -92,6 +92,12 @@ class User < ApplicationRecord
   def set_default_values
     self.user_type ||= User.user_types[:listener]
     self.status ||= User.statuses[:inactive]
+  end
+
+  before_save :downcase_fields
+  def downcase_fields
+    self.email.downcase! unless self.email.blank?
+    self.username.downcase! unless self.username.blank?
   end
 
   # slug
@@ -679,9 +685,9 @@ class User < ApplicationRecord
   end
 
   class << self
-    def find_by_username(username)
-      User.where('lower(username) = ?', username.downcase).first
-    end
+    # def find_by_username(username)
+    #   User.where('lower(username) = ?', username.downcase).first
+    # end
 
     def from_omniauth(info)
       user = where(social_provider: info[:provider], social_user_id: info[:user_id]).first_or_initialize do |u|

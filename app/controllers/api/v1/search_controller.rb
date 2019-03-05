@@ -155,16 +155,36 @@ module Api::V1
     def search_global
       q = params[:q]
       limit = 10
-      users = User.search(q.presence || '*', fields: [:email, :username, :display_name], match: :word_start, where: {status: 'active'}, limit: limit)
-      albums_all = Album.search(q.presence || '*', fields: [:name, :description], match: :word_start, where: {status: 'published', slug: {not: nil}}, limit: limit)#, load: false)
-      albums = albums_all.select{ |a| a.album_type == 'album' }
-      playlists = albums_all.select{ |a| a.album_type == 'playlist' }
-      products = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(
-        status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]],
-        stock_status: ShopProduct.stock_statuses[:active],
-        show_status: ShopProduct.show_statuses[:show_all]
-      ).limit(limit)
-      products = products.where('name ILIKE ?', "%#{q.downcase}%") if q.presence
+      users = User.search(
+        q.presence || '*',
+        fields: [:email, :username, :display_name],
+        match: :word_start,
+        where: {status: 'active'},
+        limit: limit
+      )
+      albums_all = Album.search(
+        q.presence || '*',
+        fields: [:name, :description, :owner_username, :owner_display_name],
+        match: :word_start,
+        where: {status: 'published', slug: {not: nil}},
+        limit: limit
+      )#, load: false)
+      albums = albums_all.select{|a| a.album_type == 'album'}
+      playlists = albums_all.select{|a| a.album_type == 'playlist'}
+      # products = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(
+      #   status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]],
+      #   stock_status: ShopProduct.stock_statuses[:active],
+      #   show_status: ShopProduct.show_statuses[:show_all]
+      # ).limit(limit)
+      # products = products.where('name ILIKE ?', "%#{q.downcase}%") if q.presence
+      products = ShopProduct.search(
+        q.presence || '*',
+        fields: [:name, :description, :merchant_username, :merchant_display_name],
+        match: :word_start,
+        where: {status: ['published', 'collaborated'], stock_status: 'active', show_status: 'show_all'},
+        includes: [:merchant, :category, :variants, :shipments, :covers, :user_products],
+        limit: limit
+      )
       streams = Stream.where(status: Stream.statuses[:running]).limit(limit)
       streams = streams.where('name ILIKE ?', "%#{q.downcase}%") if q.presence
 
