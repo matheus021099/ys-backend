@@ -13,7 +13,7 @@ class Stream < ApplicationRecord
     deleted: 'deleted'
   }
 
-  mount_uploader :cover, CoverUploader
+  mount_uploader :cover, VideoCoverUploader
 
   belongs_to :user
   belongs_to :assoc, polymorphic: true, optional: true
