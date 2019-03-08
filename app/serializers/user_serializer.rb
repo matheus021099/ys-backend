@@ -11,12 +11,13 @@ class UserSerializer < ActiveModel::Serializer
   attribute :balance_amount, if: :is_current_user?
   attribute :available_amount, if: :is_current_user?
   attribute :is_stripe_connected, if: :is_current_user?
-  attribute :message_first_visited_time, if: :is_current_user?
   attribute :sign_in_count, if: :is_current_user?
   attribute :stream_rolled_time, if: :is_current_user?
   attribute :stream_rolled_cost, if: :is_current_user?
   attribute :stream, if: :include_all?
   attribute :enabled_view_direct_messages, if: :is_moderator?
+  # attribute :message_first_visited_time, if: :is_current_user?
+  attribute :data, if: :is_current_user?
 
 
   # is following by current_user

@@ -35,6 +35,8 @@ class User < ApplicationRecord
 
   mount_uploader :avatar, AvatarUploader
 
+  serialize :data, JsonHashSerializer
+
   searchkick word_start: %i[id email username display_name contact_url status],
     searchable: %i[id email username display_name contact_url status]
 
@@ -128,35 +130,6 @@ class User < ApplicationRecord
   def self.admin
     @@admin ||= User.find_by(email: ENV['ADMIN_EMAIL']) || User.where(user_type: User.user_type[:admin]).first
   end
-
-  # property
-  # def superadmin?
-  #   self.has_role? :superadmin
-  # end
-
-  # def admin?
-  #   self.has_role? :admin
-  # end
-
-  # def moderator?
-  #   self.has_role? :moderator
-  # end
-
-  # def artist?
-  #   self.has_role? :artist
-  # end
-
-  # def brand?
-  #   self.has_role? :brand
-  # end
-
-  # def label?
-  #   self.has_role? :label
-  # end
-
-  # def listener?
-  #   self.has_role? :listener
-  # end
 
   def current_cart
     ShopCart.find_or_create_by(customer_id: self.id)

@@ -142,7 +142,14 @@ module Api::V1
       render_error 'No params', :unprocessable_entity and return if params[:user].blank?
 
       attributes = permitted_attributes(@user)
-      attributes[:message_first_visited_time] = Time.now if params[:user][:message_visited].to_i == 1
+
+      # @user.message_first_visited_time = Time.now if params[:user][:message_visited].to_i == 1
+      @user.data['message_page_visited'] = 1 if params[:user][:message_page_visited].to_i == 1
+      @user.data['video_page_visited'] = 1 if params[:user][:video_page_visited].to_i == 1
+      @user.data['sell_page_visited'] = 1 if params[:user][:sell_page_visited].to_i == 1
+      @user.data['discover_page_visited'] = 1 if params[:user][:discover_page_visited].to_i == 1
+      @user.data['label_page_visited'] = 1 if params[:user][:label_page_visited].to_i == 1
+
       unless params[:user][:avatar].instance_of? ActionDispatch::Http::UploadedFile
         attributes.delete('avatar')
       end
