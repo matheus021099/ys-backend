@@ -148,6 +148,7 @@ module Api::V1
       @user.data['video_page_visited'] = 1 if params[:user][:video_page_visited].to_i == 1
       @user.data['sell_page_visited'] = 1 if params[:user][:sell_page_visited].to_i == 1
       @user.data['discover_page_visited'] = 1 if params[:user][:discover_page_visited].to_i == 1
+      @user.data['stream_page_visited'] = 1 if params[:user][:stream_page_visited].to_i == 1
       @user.data['label_page_visited'] = 1 if params[:user][:label_page_visited].to_i == 1
 
       unless params[:user][:avatar].instance_of? ActionDispatch::Http::UploadedFile
