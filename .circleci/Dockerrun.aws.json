@@ -1,0 +1,246 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "app",
+      "host": {
+        "sourcePath": "/var/app/current"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "yousound-api",
+      "image": "731521589805.dkr.ecr.us-east-1.amazonaws.com/yousound-api:<ENVIRONMENT>",
+      "essential": true,
+      "privileged": "true",
+      "memoryReservation": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "environment": [
+        {
+          "name": "RAILS_ENV",
+          "value": "<RAILS_ENV>"
+        },
+        {
+          "name": "REDIS_URL",
+          "value": "<REDIS_URL>"
+        },
+        {
+          "name": "REDIS_PROVIDER",
+          "value": "REDIS_URL"
+        },        
+        {
+          "name": "HOST",
+          "value": "<HOST>"
+        },
+        {
+          "name": "API_HOST",
+          "value": "<API_HOST>"
+        },
+        {
+          "name": "WEB_APP_PATH",
+          "value": "<WEB_APP_PATH>"
+        },
+        {
+          "name": "MAIN_SUB_DOMAIN",
+          "value": "<MAIN_SUB_DOMAIN>"
+        },
+        {
+          "name": "DOMAIN_NAME",
+          "value": "<DOMAIN_NAME>"
+        },
+        {
+          "name": "DATABASE_HOST",
+          "value": "<DATABASE_HOST>"
+        },
+        {
+          "name": "DATABASE_USERNAME",
+          "value": "<DATABASE_USERNAME>"
+        },
+        {
+          "name": "DATABASE_PASSWORD",
+          "value": "<DATABASE_PASSWORD>"
+        },
+        {
+          "name": "DATABASE_NAME",
+          "value": "<DATABASE_NAME>"
+        },
+        {
+          "name": "SECRET_KEY_BASE",
+          "value": "<SECRET_KEY_BASE>"
+        },
+        {
+          "name": "ELASTICSEARCH_URL",
+          "value": "<ELASTICSEARCH_URL>"
+        },
+        {
+          "name": "AWS_CLOUDFRONT_KEY_PAIR_ID",
+          "value": "<AWS_CLOUDFRONT_KEY_PAIR_ID>"
+        },
+        {
+          "name": "AWS_CLOUDFRONT_PRIVATE_KEY",
+          "value": "<AWS_CLOUDFRONT_PRIVATE_KEY>"
+        },
+        {
+          "name": "AWS_CDN_HOST",
+          "value": "<AWS_CDN_HOST>"
+        },
+        {
+          "name": "AWS_S3_REGION",
+          "value": "<AWS_S3_REGION>"
+        },
+        {
+          "name": "AWS_S3_BUCKET",
+          "value": "<AWS_S3_BUCKET>"
+        },
+        {
+          "name": "AWS_S3_ENDPOINT",
+          "value": "<AWS_S3_ENDPOINT>"
+        },
+        {
+          "name": "AWS_SES_IAM_USERNAME",
+          "value": "<AWS_SES_IAM_USERNAME>"
+        },
+        {
+          "name": "AWS_SES_SMTP_SERVER",
+          "value": "<AWS_SES_SMTP_SERVER>"
+        },
+        {
+          "name": "AWS_SES_SMTP_USERNAME",
+          "value": "<AWS_SES_SMTP_USERNAME>"
+        },
+        { 
+          "name": "AWS_SES_SMTP_PASSWORD",
+          "value": "<AWS_SES_SMTP_PASSWORD>"
+        },
+        { 
+          "name": "AWS_SES_SMTP_PORT",
+          "value": "<AWS_SES_SMTP_PORT>"
+        },
+        { 
+          "name": "AWS_SES_SMTP_USE_TLS",
+          "value": "<AWS_SES_SMTP_USE_TLS>"
+        },
+        { 
+          "name": "AWS_SES_SMTP_DOMAIN",
+          "value": "<AWS_SES_SMTP_DOMAIN>"
+        },
+        { 
+          "name": "AWS_SES_SMTP_AUTH",
+          "value": "<AWS_SES_SMTP_AUTH>"
+        },
+        {
+          "name": "AWS_SES_SUPPORT_EMAIL",
+          "value": "<AWS_SES_SUPPORT_EMAIL>"
+        },
+        {
+          "name": "AWS_SES_VIOLATION_EMAIL",
+          "value": "<AWS_SES_VIOLATION_EMAIL>"
+        },
+        {
+          "name": "AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID",
+          "value": "<AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID>"
+        },
+        {
+          "name": "STRIPE_PUBLISHABLE_KEY",
+          "value": "<STRIPE_PUBLISHABLE_KEY>"
+        },
+        {
+          "name": "STRIPE_SECRET_KEY",
+          "value": "<STRIPE_SECRET_KEY>"
+        },
+        {
+          "name": "STRIPE_CONNECT_CLIENT_ID",
+          "value": "<STRIPE_CONNECT_CLIENT_ID>"
+        },
+        {
+          "name": "TWITTER_API_KEY",
+          "value": "<TWITTER_API_KEY>"
+        },
+        {
+          "name": "TWITTER_API_SECRET",
+          "value": "<TWITTER_API_SECRET>"
+        },
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "value": "<AWS_ACCESS_KEY_ID>"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "value": "<AWS_SECRET_ACCESS_KEY>"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "<AWS_REGION>"
+        },
+        {
+          "name": "SIDEKIQ_USERNAME",
+          "value": "<SIDEKIQ_USERNAME>"
+        },
+        {
+          "name": "SIDEKIQ_PASSWORD",
+          "value": "<SIDEKIQ_PASSWORD>"
+        },
+        {
+          "name": "NEWRELIC_KEY",
+          "value": "<NEWRELIC_KEY>"
+        },
+        {
+          "name": "SUPERADMIN_EMAIL",
+          "value": "<SUPERADMIN_EMAIL>"
+        },
+        {
+          "name": "ADMIN_EMAIL",
+          "value": "<ADMIN_EMAIL>"
+        },
+        {
+          "name": "ACRCLOUD_ACCESS_KEY",
+          "value": "<ACRCLOUD_ACCESS_KEY>"
+        },
+        {
+          "name": "ACRCLOUD_ACCESS_SECRET",
+          "value": "<ACRCLOUD_ACCESS_SECRET>"
+        },
+        {
+          "name": "ACRCLOUD_1_HOST",
+          "value": "<ACRCLOUD_1_HOST>"
+        },
+        {
+          "name": "ACRCLOUD_1_ACCESS_KEY",
+          "value": "<ACRCLOUD_1_ACCESS_KEY>"
+        },
+        {
+          "name": "ACRCLOUD_1_ACCESS_SECRET",
+          "value": "<ACRCLOUD_1_ACCESS_SECRET>"
+        },
+        {
+          "name": "ACRCLOUD_2_HOST",
+          "value": "<ACRCLOUD_2_HOST>"
+        },
+        {
+          "name": "ACRCLOUD_2_ACCESS_KEY",
+          "value": "<ACRCLOUD_2_ACCESS_KEY>"
+        },
+        {
+          "name": "ACRCLOUD_2_ACCESS_SECRET",
+          "value": "<ACRCLOUD_2_ACCESS_SECRET>"
+        },
+        {
+          "name": "ACRCLOUD_2_BUCKET",
+          "value": "<ACRCLOUD_2_BUCKET>"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "app",
+          "containerPath": "/home/ubuntu/yousound/current/"
+        }
+      ]
+    }   
+  ]
+}

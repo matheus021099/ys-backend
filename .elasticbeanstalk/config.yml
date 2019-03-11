@@ -1,0 +1,9 @@
+branch-defaults:
+  master:
+    environment: ys-api-prod
+global:
+  application_name: ys-api
+  default_ec2_keyname: bastion-host-key
+  default_platform: 64bit Amazon Linux 2017.09 v2.8.4 running Multi-container Docker 17.09.1-ce (Generic)
+  default_region: us-east-1
+  sc: git
