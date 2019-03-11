@@ -8,6 +8,10 @@ class PaymentSerializer < ActiveModel::Serializer
   belongs_to :sender
   belongs_to :receiver
 
+  def order_id
+    Util::Number.encode object.order_id
+  end
+
   def assoc
     return nil unless object.assoc
 

@@ -156,7 +156,7 @@ module Api::V1::Shopping
           user_type = 'creator'
           order.items.each do |item|
             csv << [
-              order.created_at.strftime('%Y-%m-%d'), order.id, user_type,
+              order.created_at.strftime('%Y-%m-%d'), Util::Number.encode(order.id), user_type,
               order.customer.display_name, order.shipping_address.email, order.shipping_address.to_full_address,
               item.id, item.product.name, item.product_variant.name,
               number_to_currency(item.price / 100.0, unit: ''), number_to_currency(item.shipping_cost / 100.0, unit: ''),
@@ -203,7 +203,9 @@ module Api::V1::Shopping
 
     private
     def set_order
-      @order = ShopOrder.find(params[:id])
+      order_id = Util::Number.decode(params[:id])
+      @order = ShopOrder.find(order_id)
+      # @order = ShopOrder.find(params[:id])
     end
   end
 end

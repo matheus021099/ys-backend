@@ -62,6 +62,9 @@ gem 'zipline'
 gem 'openssl'
 gem 'audio-trimmer'
 
+# encrypt/decrpyt order number
+gem 'base_x'
+
 # cronjob
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'

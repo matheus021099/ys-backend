@@ -19,6 +19,10 @@ class ShopOrderSerializer < ActiveModel::Serializer
   #   )
   # end
 
+  def id
+    Util::Number.encode object.id
+  end
+
   def refund_amount
     # object.payments.where(payment_type: Payment.payment_types[:refund]).sum(:received_amount)
     object.payments.find_by(payment_type: Payment.payment_types[:buy]).refund_amount rescue 0
