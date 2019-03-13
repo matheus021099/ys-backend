@@ -166,6 +166,7 @@ Rails.application.routes.draw do
           get :make_live_video_only
           get :recommend
           get :unrecommend
+          post :report
           get :hide
           get :download
           get :play

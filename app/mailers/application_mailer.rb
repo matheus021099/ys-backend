@@ -61,4 +61,19 @@ class ApplicationMailer < ActionMailer::Base
       subject: 'invited to yousound.com'
     )
   end
+
+
+  def report_album(reporter, album, reason, description)
+    @reporter = reporter
+    @album = album
+    @data = OpenStruct.new(
+      reason: reason,
+      description: description
+    )
+    mail(
+      template_path: 'user_mailer',
+      to: ENV['AWS_SES_VIOLATION_EMAIL'],
+      subject: 'Reported Content'
+    )
+  end
 end

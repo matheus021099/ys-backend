@@ -5,7 +5,7 @@ module Api::V1
       :request_repost, :repost, :unrepost, :accept_collaboration, :deny_collaboration,
       :send_label_request, :remove_label, :accept_label_request, :deny_label_request,
       :make_public, :make_private, :make_live_video_only, :recommend, :unrecommend,
-      :hide, :download, :play, :rearrange, :add_tracks, :remove_tracks
+      :report, :hide, :download, :play, :rearrange, :add_tracks, :remove_tracks
     ]
     skip_before_action :authenticate_token!, only: [:show, :my_role]
     before_action :authenticate_token, only: [:show, :my_role]
@@ -828,6 +828,20 @@ module Api::V1
       authorize @album
       @album.unrecommend
       render_success(true)
+    end
+
+
+    setup_authorization_header(:report)
+    swagger_api :report do |api|
+      summary 'report an album'
+      param :path, :id, :string, :required
+      param :form, :reason, :string, :optional
+      param :form, :description, :string, :optional
+    end
+    def report
+      authorize @album
+      ApplicationMailer.report_album(current_user, @album, params[:reason], params[:description]).deliver
+      render_success true
     end
 
 

@@ -86,6 +86,10 @@ class AlbumPolicy < ApplicationPolicy
     user.admin? || user.moderator?
   end
 
+  def report?
+    user.id != record.user_id
+  end
+
   def hide?
     moderate?
   end
