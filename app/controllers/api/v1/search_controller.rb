@@ -73,6 +73,7 @@ module Api::V1
       param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
       param :form, :per_page, :integer, :optional, '12, 24, etc. default is 24'
       param :form, :q, :string, :optional, '*, query string'
+      param :form, :seed, :string, :optional
     end
     def search_discover
       q = params[:q] || '*'
@@ -81,6 +82,7 @@ module Api::V1
       category = params[:category] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
+      seed = params[:seed] || DateTime.now.to_i
 
       if filter == 'any'
         albums_recommended = User.explore_query(q, 'recommended', genre, {page: page, per_page: per_page}, current_user)
@@ -115,7 +117,11 @@ module Api::V1
           ),
         )
       elsif filter == 'merch'
-        products = ShopProduct.explore_query(category, {page: page, per_page: per_page}, current_user)
+        products = ShopProduct.explore_query(category, {page: page, per_page: per_page, execute: false}, current_user)
+        random_query = {function_score: {query: products.body[:query], random_score: {seed: seed}}}
+        products.body[:query] = random_query
+        products.body[:sort] = {}
+
         # categories = ShopCategory.all.pluck(:name)
         categories = ShopProduct.categories_query(current_user).pluck(:name)
         render_success(
@@ -129,9 +135,25 @@ module Api::V1
           pagination: pagination(products),
           categories: categories
         )
-      else
+      elsif filter == 'recommended'
         albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page}, current_user)
         # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
+
+        render_success(
+          albums: ActiveModel::Serializer::CollectionSerializer.new(
+            albums,
+            serializer: AlbumSerializer,
+            scope: OpenStruct.new(current_user: current_user),
+            include_collaborators: true,
+            include_collaborators_user: true
+          ),
+          pagination: pagination(albums)
+        )
+      else
+        albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page, execute: false}, current_user)
+        random_query = {function_score: {query: albums.body[:query], random_score: {seed: seed}}}
+        albums.body[:query] = random_query
+        albums.body[:sort] = {}
 
         render_success(
           albums: ActiveModel::Serializer::CollectionSerializer.new(
