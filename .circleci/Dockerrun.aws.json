@@ -39,20 +39,16 @@
           "value": "<HOST>"
         },
         {
-          "name": "API_HOST",
-          "value": "<API_HOST>"
+          "name": "API_BASE_URL",
+          "value": "<API_BASE_URL>"
         },
         {
-          "name": "WEB_APP_PATH",
-          "value": "<WEB_APP_PATH>"
+          "name": "SOCKET_BASE_URL",
+          "value": "<SOCKET_BASE_URL>"
         },
         {
-          "name": "MAIN_SUB_DOMAIN",
-          "value": "<MAIN_SUB_DOMAIN>"
-        },
-        {
-          "name": "DOMAIN_NAME",
-          "value": "<DOMAIN_NAME>"
+          "name": "WEB_BASE_URL",
+          "value": "<WEB_BASE_URL>"
         },
         {
           "name": "DATABASE_HOST",

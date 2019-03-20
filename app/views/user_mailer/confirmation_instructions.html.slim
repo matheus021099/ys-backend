@@ -23,11 +23,11 @@ head
 body
   .wrapper
     .header
-      img.line src="#{ENV['API_HOST']}/images/img_header.jpg"
-      img.logo src="#{ENV['API_HOST']}/images/img_logo.png" alt="YouSound"
+      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg"
+      img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
 
     .content
-      img src="#{ENV['API_HOST']}/images/ic_smile.png"
+      img src="#{ENV['API_BASE_URL']}/images/ic_smile.png"
       h3 Welcome to YouSound
       p
         | Hi&nbsp;
@@ -42,8 +42,8 @@ body
         | Portland keffiyeh aesthetic food truck sriracha cornhole single-origin coffee church-key roof party.
 
     .footer
-      = link_to 'FAQ', "#{ENV['WEB_APP_PATH']}/faq"
-      = link_to 'Help', "#{ENV['WEB_APP_PATH']}/help"
-      = link_to 'Terms', "#{ENV['WEB_APP_PATH']}/terms"
-      = link_to 'Contact', "#{ENV['WEB_APP_PATH']}/terms"
+      = link_to 'FAQ', "#{ENV['WEB_BASE_URL']}/faq"
+      = link_to 'Help', "#{ENV['WEB_BASE_URL']}/help"
+      = link_to 'Terms', "#{ENV['WEB_BASE_URL']}/terms"
+      = link_to 'Contact', "#{ENV['WEB_BASE_URL']}/terms"
       span.copyright &copy; YouSound, Inc

@@ -19,8 +19,8 @@ body
 
     p
       b Album:&nbsp;
-      = link_to "#{@album.name}", "#{ENV['WEB_APP_PATH']}/album/#{@album.slug}"
+      = link_to "#{@album.name}", "#{ENV['WEB_BASE_URL']}/album/#{@album.slug}"
 
     p
       b Reporter:&nbsp;
-      = link_to "#{@reporter.display_name}", "#{ENV['WEB_APP_PATH']}/#{@reporter.slug}"
+      = link_to "#{@reporter.display_name}", "#{ENV['WEB_BASE_URL']}/#{@reporter.slug}"

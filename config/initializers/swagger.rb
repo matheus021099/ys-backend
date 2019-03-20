@@ -12,7 +12,7 @@ Swagger::Docs::Config.register_apis({
   '1.0' => {
     controller_base_path: '',
     api_file_path: 'public/apidocs',
-    base_path: ENV['API_HOST'],
+    base_path: ENV['API_BASE_URL'],
     # parent_controller: Api::V1::ApiController,
     parent_controller: ApplicationController,
     clean_directory: true

@@ -1,7 +1,7 @@
 module MailerHelper
   def reset_password_url(app_path, token)
     if app_path.blank?
-      "#{ENV['WEB_APP_PATH']}/reset_password/#{token}"
+      "#{ENV['WEB_BASE_URL']}/reset_password/#{token}"
     else
       "#{app_path}/reset_password/#{token}"
     end
@@ -9,7 +9,7 @@ module MailerHelper
 
   def confirmation_url(app_path, token)
     if app_path.blank?
-      "#{ENV['WEB_APP_PATH']}/confirm/#{token}"
+      "#{ENV['WEB_BASE_URL']}/confirm/#{token}"
     else
       "#{app_path}/confirm/#{token}"
     end
@@ -17,7 +17,7 @@ module MailerHelper
 
   def login_url(app_path)
     if app_path.blank?
-      "#{ENV['WEB_APP_PATH']}/login"
+      "#{ENV['WEB_BASE_URL']}/login"
     else
       "#{app_path}/login"
     end
@@ -25,7 +25,7 @@ module MailerHelper
 
   def invitation_url(app_path, token)
     if app_path.blank?
-      "#{ENV['WEB_APP_PATH']}/register/attendee/#{token}"
+      "#{ENV['WEB_BASE_URL']}/register/attendee/#{token}"
     else
       "#{app_path}/register/attendee/#{token}"
     end
