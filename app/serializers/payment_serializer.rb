@@ -9,7 +9,7 @@ class PaymentSerializer < ActiveModel::Serializer
   belongs_to :receiver
 
   def order_id
-    Util::Number.encode object.order_id
+    Util::Number.encode object.order_id unless object.order_id.blank?
   end
 
   def assoc
