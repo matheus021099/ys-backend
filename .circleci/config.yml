@@ -5,6 +5,10 @@ jobs:
       only:
         - master
         - integration
+<<<<<<< HEAD
+=======
+        - fix/circleci-branches
+>>>>>>> 51abb13ca31c72469bc28f820639f4becbd031f9
     docker:
        - image: circleci/ruby:2.4.4-node-browsers
 
@@ -27,8 +31,7 @@ jobs:
             elif [ "${CIRCLE_BRANCH}" == "integration" ]; then
               echo "export ENVIRONMENT=integration" >> $BASH_ENV
               echo "export EBENVIRONMENT=int" >> $BASH_ENV
-            # USE THIS FOR TEMPORARY DEPLOYMENT FROM OTHER FEATURE BRANCHES
-            elif [ "${CIRCLE_BRANCH}" == "[your-feature-branch]" ]; then
+            elif [ "${CIRCLE_BRANCH}" == "fix/circleci-branches" ]; then
               echo "export ENVIRONMENT=integration" >> $BASH_ENV
               echo "export EBENVIRONMENT=int" >> $BASH_ENV
             fi
