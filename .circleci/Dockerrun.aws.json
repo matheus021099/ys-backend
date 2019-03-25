@@ -163,6 +163,10 @@
           "value": "<TWITTER_API_SECRET>"
         },
         {
+          "name": "INTERCOM_SECRET_KEY",
+          "value": "<INTERCOM_SECRET_KEY>"
+        },
+        {
           "name": "AWS_ACCESS_KEY_ID",
           "value": "<AWS_ACCESS_KEY_ID>"
         },

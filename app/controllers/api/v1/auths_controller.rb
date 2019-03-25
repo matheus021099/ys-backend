@@ -1,3 +1,4 @@
+require 'openssl'
 require 'csv'
 
 module Api::V1
@@ -32,6 +33,7 @@ module Api::V1
             include_social_info: true,
             include_all: true).as_json
           user_json[:token] = JsonWebToken.encode(user_json)
+          user_json[:hmac] = OpenSSL::HMAC.hexdigest('sha256', ENV['INTERCOM_SECRET_KEY'], user.id.to_s)
           render_success(user_json)
         else
           render_error('Inactive user', :unauthorized)
@@ -387,12 +389,14 @@ module Api::V1
       skip_authorization
       user = User.valid_token? params[:auth_token]
       render_success false and return unless user.instance_of? User
-      # render_success true
-      render json: user,
-        serializer: UserSerializer,
+      user_json = UserSerializer.new(
+        user,
         scope: OpenStruct.new(current_user: user),
         include_all: true,
         include_social_info: true
+      ).as_json
+      user_json[:hmac] = OpenSSL::HMAC.hexdigest('sha256', ENV['INTERCOM_SECRET_KEY'], user.id.to_s)
+      render_success(user_json)
     end
     # def token_validity
     #   skip_authorization
