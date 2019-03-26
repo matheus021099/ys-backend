@@ -293,21 +293,37 @@ module Api::V1
       #   "SELECT COUNT(1) AS total_users "\
       #   "FROM users"
       # ).first)['total_users']
-      total_users = User.with_any_role(:listener, :artist, :brand, :label).size
+      total_users = User.where(
+        user_type: [
+          User.user_types[:listener],
+          User.user_types[:artist],
+          User.user_types[:brand],
+          User.user_types[:label],
+          User.user_types[:moderator]
+        ]
+      ).size
       login_users = Activity.where(
         action_type: Activity.action_types[:signin]
       ).where('created_at >= ? AND created_at <= ?', start_date, end_date).size
-      signup_listener_users = User.with_role(:listener).where(
-        'users.created_at >= ? AND users.created_at <= ?', start_date, end_date
+      signup_listener_users = User.where('user_type = ? AND users.created_at >= ? AND users.created_at <= ?',
+        User.user_types[:listener],
+        start_date,
+        end_date
       ).size
-      signup_artist_users = User.with_role(:artist).where(
-        'users.created_at >= ? AND users.created_at <= ?', start_date, end_date
+      signup_artist_users = User.where('user_type = ? AND users.created_at >= ? AND users.created_at <= ?',
+        User.user_types[:artist],
+        start_date,
+        end_date
       ).size
-      signup_brand_users = User.with_role(:brand).where(
-        'users.created_at >= ? AND users.created_at <= ?', start_date, end_date
+      signup_brand_users = User.where('user_type = ? AND users.created_at >= ? AND users.created_at <= ?',
+        User.user_types[:brand],
+        start_date,
+        end_date
       ).size
-      signup_label_users = User.with_role(:label).where(
-        'users.created_at >= ? AND users.created_at <= ?', start_date, end_date
+      signup_label_users = User.where('user_type = ? AND users.created_at >= ? AND users.created_at <= ?',
+        User.user_types[:label],
+        start_date,
+        end_date
       ).size
 
       # uploaded_albums = Feed.joins('LEFT JOIN albums ON albums.id = feeds.assoc_id').where(

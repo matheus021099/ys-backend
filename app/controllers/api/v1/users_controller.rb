@@ -36,12 +36,12 @@ module Api::V1
       #TODO - set roles according to current_user's role
       # roles = [:superadmin] if current_user.superadmin?
       # roles = [:superadmin, :admin] if current_user.admin?
-      exclude_ids = User.with_any_role(:superadmin, :admin).pluck(:id)
-      exclude_ids << current_user.id
-      exclude_ids += User.tagged_with(current_user.id, :on => :blocks).pluck(:id)
-      # exclude_ids += User.where(status: User.statuses[:deleted]).pluck(:id)
 
-      users = User.where.not(id: exclude_ids, status: User.statuses[:deleted])
+      users = User.where.not(
+        id: current_user.id,
+        user_type: [ User.user_types[:superadmin], User.user_types[:admin] ],
+        status: User.statuses[:deleted]
+      )
       case filter
         when 'co-sign'
           users = users.with_role(:listener).where(
@@ -82,10 +82,9 @@ module Api::V1
       #TODO - set roles according to current_user's role
       # roles = [:superadmin] if current_user.superadmin?
       # roles = [:superadmin, :admin] if current_user.admin?
-      exclude_ids = User.with_any_role(:superadmin, :admin).pluck(:id)
+      exclude_ids = User.where(user_type: [ User.user_types[:superadmin], User.user_types[:admin] ]).pluck(:id)
       exclude_ids << current_user.id
       exclude_ids += User.tagged_with(current_user.id, :on => :blocks).pluck(:id)
-      # exclude_ids += User.where(status: User.statuses[:deleted]).pluck(:id)
 
       users = User.search(
         q,
