@@ -88,6 +88,7 @@ Rails.application.routes.draw do
 
       resources :admin, only: [] do
         collection do
+          get :users
           get :signup_users
           post :approve_user
           post :deny_user

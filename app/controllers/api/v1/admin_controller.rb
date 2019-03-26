@@ -5,6 +5,50 @@ module Api::V1
 
     swagger_controller :admin, 'admin'
 
+    setup_authorization_header(:users)
+    swagger_api :users do |api|
+      summary 'get users'
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+      param :query, :filter, :string, :optional, 'any, artist, '
+    end
+    def users
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
+
+      filter = params[:filter] || 'any'
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 25).to_i
+
+      users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      case filter
+        when 'artist'
+          users = users.where(user_type: User.user_types[:artist])
+        when 'listener'
+          users = users.where(user_type: User.user_types[:listener])
+        when 'moderator'
+          users = users.where(user_type: User.user_types[:moderator])
+        when 'brand'
+          users = users.where(user_type: User.user_types[:brand])
+        when 'label'
+          users = users.where(user_type: User.user_types[:label])
+        when 'suspended'
+          users = users.where(status: User.statuses[:suspended])
+      end
+      users = users.page(page).per(per_page)
+
+      render_success(
+        users: ActiveModel::Serializer::CollectionSerializer.new(
+          users,
+          serializer: UserSerializer,
+          scope: OpenStruct.new(current_user: current_user),
+          include_social_info: true,
+          include_all: true,
+        ),
+        pagination: pagination(users)
+      )
+    end
+
+
     setup_authorization_header(:signup_users)
     swagger_api :signup_users do |api|
       summary 'get signup users'
@@ -13,9 +57,35 @@ module Api::V1
     end
     def signup_users
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
-      exclude_ids = User.with_any_role(:superadmin, :admin).pluck(:id)
-      exclude_ids << current_user.id
-      users = User.where.not(id: exclude_ids, request_status: nil)
+
+      filter = params[:filter] || 'any'
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 25).to_i
+
+      users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      case filter
+        when 'co-signed'
+          users = users.where(
+            user_type: User.user_types[:listener],
+            status: User.statuses[:active],
+            # request_role: ['artist', 'brand', 'label'],
+            request_status: User.request_statuses[:pending]
+          ).where.not(inviter_id: nil)
+        when 'waiting'
+          users = users.where(
+            user_type: User.user_types[:listener],
+            status: User.statuses[:active],
+            # request_role: ['artist', 'brand', 'label'],
+            request_status: User.request_statuses[:pending],
+            inviter_id: nil
+          )
+        when 'approved'
+          users = users.where(request_status: User.request_statuses[:accepted])
+        when 'denied'
+          users = users.where(request_status: User.request_statuses[:denied])
+      end
+      users = users.page(page).per(per_page)
+
       render_success(
         users: ActiveModel::Serializer::CollectionSerializer.new(
           users,
@@ -23,7 +93,7 @@ module Api::V1
           scope: OpenStruct.new(current_user: current_user),
           include_social_info: true,
         ),
-        # pagination: pagination(users)
+        pagination: pagination(users)
       )
     end
 
