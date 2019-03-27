@@ -102,9 +102,20 @@ module Api::V1::Shopping
     swagger_api :mark_as_shipped do |api|
       summary 'mark an item as shipped'
       param :path, :id, :string, :required
+      param :form, :tracking_site, :string, :required
+      param :form, :tracking_url, :string, :optional
+      param :form, :tracking_number, :string, :required
     end
     def mark_as_shipped
+      render_error 'tracking_site is blank', :unprocessable_entity and return if params[:tracking_site].blank?
+      render_error 'tracking_number is blank', :unprocessable_entity and return if params[:tracking_number].blank?
+
       authorize @item
+      @item.update_attributes(
+        tracking_site: params[:tracking_site],
+        tracking_url: params[:tracking_url],
+        tracking_number: params[:tracking_number]
+      )
       @item.mark_as_shipped
       render_success true
     end

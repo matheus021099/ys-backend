@@ -306,7 +306,7 @@ Rails.application.routes.draw do
           end
 
           member do
-            get :mark_as_shipped
+            post :mark_as_shipped
             get :mark_as_unshipped
           end
         end

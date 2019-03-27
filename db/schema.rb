@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190308191551) do
+ActiveRecord::Schema.define(version: 20190327095603) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -354,6 +354,9 @@ ActiveRecord::Schema.define(version: 20190308191551) do
     t.string   "status"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
+    t.string   "tracking_site"
+    t.text     "tracking_url"
+    t.string   "tracking_number"
     t.index ["cart_id"], name: "index_shop_items_on_cart_id", using: :btree
     t.index ["customer_id"], name: "index_shop_items_on_customer_id", using: :btree
     t.index ["merchant_id"], name: "index_shop_items_on_merchant_id", using: :btree
