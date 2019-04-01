@@ -111,6 +111,7 @@ jobs:
             sed -i "s/<TWITTER_API_SECRET>/$TWITTER_API_SECRET/g" Dockerrun.aws.json
             sed -i "s/<INTERCOM_SECRET_KEY>/$INTERCOM_SECRET_KEY/g" Dockerrun.aws.json
             sed -i "s/<SKYLIGHT_AUTHENTICATION>/$SKYLIGHT_AUTHENTICATION/g" Dockerrun.aws.json
+            sed -i "s/<SKYLIGHT_ENV>/$SKYLIGHT_ENV/g" Dockerrun.aws.json
             sed -i "s/<AWS_ACCESS_KEY_ID>/$AWS_ACCESS_KEY_ID_APP/g" Dockerrun.aws.json
             sed -i "s/<AWS_SECRET_ACCESS_KEY>/$AWS_SECRET_ACCESS_KEY_APP/g" Dockerrun.aws.json
             sed -i "s/<AWS_REGION>/$AWS_REGION/g" Dockerrun.aws.json
