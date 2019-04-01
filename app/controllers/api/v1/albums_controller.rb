@@ -77,7 +77,7 @@ module Api::V1
         q,
         fields: [:name, :description, :artis_name],
         where: {id: {not: current_user.id}},
-        includes: [:tracks, :user_albums],
+        includes: [:tracks, :album_tracks, :user_albums, :user],
         order: orders,
         limit: per_page,
         offset: (page - 1) * per_page
