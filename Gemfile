@@ -102,6 +102,10 @@ gem 'foreman'
 
 gem 'skylight'
 
+# JSON optimization
+gem 'oj'
+gem 'oj_mimic_json'
+
 # gem 'curb'
 # gem 'down'
 
