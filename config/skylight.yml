@@ -1,2 +1,3 @@
 ignored_endpoints:
   - Api::V1::Shopping::CategoriesController#index
+  - ActionDispatch::Routing::RouteSet
