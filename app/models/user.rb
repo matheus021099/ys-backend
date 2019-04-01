@@ -59,7 +59,7 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, 
+         :recoverable, :rememberable, :trackable,
          :validatable, :confirmable
 
   # validates :first_name, presence: true
@@ -682,7 +682,7 @@ class User < ApplicationRecord
     end
 
     def explore_query(q, filter, genre, params = {}, user = nil)
-      where = { 
+      where = {
         # released: true,
         is_only_for_live_stream: false,
         status: ['published', 'collaborated']
@@ -740,7 +740,7 @@ class User < ApplicationRecord
 
       params = params.merge(per_page: Album.default_per_page) if params[:per_page].blank?
       params = params.merge(where: where, order: order)
-      params = params.merge(includes: [:tracks, :user_albums])
+      params = params.merge(includes: [:tracks, :album_tracks, :user_albums, :user, :genres, :products])
 
       Album.search q.presence || '*', params
     end
