@@ -1,2 +1,2 @@
 ignored_endpoints:
-  - CategoriesController#index
+  - Api::V1::Shopping::CategoriesController#index

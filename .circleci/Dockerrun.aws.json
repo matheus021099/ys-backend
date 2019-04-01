@@ -171,6 +171,10 @@
           "value": "<SKYLIGHT_AUTHENTICATION>"
         },
         {
+          "name": "SKYLIGHT_ENV",
+          "value": "<SKYLIGHT_ENV>"
+        },
+        {
           "name": "AWS_ACCESS_KEY_ID",
           "value": "<AWS_ACCESS_KEY_ID>"
         },
