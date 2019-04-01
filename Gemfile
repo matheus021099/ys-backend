@@ -100,6 +100,10 @@ gem 'aws-sdk-medialive', '~> 1.5.0'
 
 gem 'foreman'
 
+# JSON optimization
+gem 'oj'
+gem 'oj_mimic_json'
+
 # gem 'curb'
 # gem 'down'
 
