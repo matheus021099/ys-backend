@@ -89,7 +89,10 @@ class AlbumSerializer < ActiveModel::Serializer
   end
 
   def samplings
-    object.samplings.order(position: :asc)
+    ActiveModel::Serializer::CollectionSerializer.new(
+      object.samplings.order(position: :asc),
+      serializer: SamplingSerializer
+    )
   end
 
   def is_reposted

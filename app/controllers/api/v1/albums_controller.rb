@@ -1,7 +1,7 @@
 module Api::V1
   class AlbumsController < ApiController
     before_action :set_album, only: [
-      :show, :update, :destroy, :release, :my_role,
+      :update, :destroy, :release, :my_role,
       :request_repost, :repost, :unrepost, :accept_collaboration, :deny_collaboration,
       :send_label_request, :remove_label, :accept_label_request, :deny_label_request,
       :make_public, :make_private, :make_live_video_only, :recommend, :unrecommend,
@@ -100,6 +100,8 @@ module Api::V1
       param :path, :id, :string, :required, 'album id and slug'
     end
     def show
+      @album = Album.includes(:user, :tracks, samplings: [:sampling_track, :sample_user, :sample_album, :sample_track]).find_by_slug(params[:id]) ||
+        Album.includes(:user, :tracks, samplings: [:sampling_track, :sample_user, :sample_album, :sample_track]).find(params[:id])
       authorize @album
       render json:
         @album,
