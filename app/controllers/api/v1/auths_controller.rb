@@ -31,8 +31,9 @@ module Api::V1
             user,
             scope: OpenStruct.new(current_user: user),
             include_social_info: true,
-            include_all: true).as_json
-          user_json[:token] = JsonWebToken.encode(user_json)
+            include_all: true
+          ).as_json
+          user_json[:token] = JsonWebToken.encode(user.as_json(only: [:id, :email, :slug, :username]))
           user_json[:hmac] = OpenSSL::HMAC.hexdigest('sha256', ENV['INTERCOM_SECRET_KEY'], user.id.to_s)
           render_success(user_json)
         else

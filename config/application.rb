@@ -36,9 +36,9 @@ module YouSoundApi
     config.api_only = true
 
     # rails g generate id type of UUID
-    config.generators do |g|
-      g.orm :active_record, primary_key_type: :uuid
-    end
+    # config.generators do |g|
+    #   g.orm :active_record, primary_key_type: :uuid
+    # end
 
     config.autoload_paths.push(Rails.root.join('lib'))
 

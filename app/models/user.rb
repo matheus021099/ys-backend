@@ -747,7 +747,7 @@ class User < ApplicationRecord
 
     def valid_token?(token)
       payload = JsonWebToken.decode(token)
-      user = User.find(payload['id'])
+      user = User.where(id: payload['id'], username: payload['username']).first
     rescue JWT::ExpiredSignature
       return 'Auth token has expired'
     rescue Exception
