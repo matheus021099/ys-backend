@@ -67,13 +67,13 @@ module Api::V1
     setup_authorization_header(:search_discover)
     swagger_api :search_discover do |api|
       summary 'search discover'
-      param :form, :filter, :string, :optional, 'any, merch, new, popular, playlist, recommended'
+      param :form, :filter, :string, :optional, 'any, merch, new, recommended, videos, popular, playlist'
       param :form, :genre, :string, :optional, 'any, Alt Rock, genre name'
       param :form, :category, :string, :optional, 'any, Tee, Shirt, shop_category name'
       param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
       param :form, :per_page, :integer, :optional, '12, 24, etc. default is 24'
       param :form, :q, :string, :optional, '*, query string'
-      param :form, :seed, :string, :optional
+      param :form, :seed, :string, :optional, 'list records in random order. e.g. 0.1234567'
     end
     def search_discover
       q = params[:q] || '*'
@@ -82,89 +82,105 @@ module Api::V1
       category = params[:category] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
-      seed = params[:seed] || DateTime.now.to_i
+      # seed = params[:seed] || DateTime.now.to_i
+      seed = params[:seed].to_f rescue rand()
 
-      if filter == 'any'
-        albums_recommended = User.explore_query(q, 'recommended', genre, {page: page, per_page: per_page}, current_user)
-        albums_new = User.explore_query(q, 'new', genre, {page: page, per_page: per_page}, current_user)
-        # albums_popular = User.explore_query(q, 'popular', genre, {page: page, per_page: per_page}, current_user)
-        playlists = User.explore_query(q, 'playlist', genre, {page: page, per_page: per_page}, current_user)
-        products = ShopProduct.explore_query(category, {page: page, per_page: per_page}, current_user)
+      case filter
+        when 'any'
+          albums_recommended = User.explore_query(q, 'recommended', genre, {page: page, per_page: per_page}, current_user)
+          albums_new = User.explore_query(q, 'new', genre, {page: page, per_page: per_page}, current_user)
+          # albums_popular = User.explore_query(q, 'popular', genre, {page: page, per_page: per_page}, current_user)
+          playlists = User.explore_query(q, 'playlist', genre, {page: page, per_page: per_page}, current_user)
+          products = ShopProduct.explore_query(category, {page: page, per_page: per_page}, current_user)
 
-        render_success(
-          recommended: ActiveModel::Serializer::CollectionSerializer.new(
-            albums_recommended,
-            serializer: AlbumSerializer,
-            scope: OpenStruct.new(current_user: current_user)
-          ),
-          new: ActiveModel::Serializer::CollectionSerializer.new(
-            albums_new,
-            serializer: AlbumSerializer,
-            scope: OpenStruct.new(current_user: current_user)
-          ),
-          # popular: albums_popular,
-          playlist: ActiveModel::Serializer::CollectionSerializer.new(
-            playlists,
-            serializer: AlbumSerializer,
-            scope: OpenStruct.new(current_user: current_user)
-          ),
-          merch: ActiveModel::Serializer::CollectionSerializer.new(
-            products,
-            serializer: ShopProductSerializer,
-            scope: OpenStruct.new(current_user: current_user),
-            include_collaborators: true,
-            include_collaborators_user: true
-          ),
-        )
-      elsif filter == 'merch'
-        products = ShopProduct.explore_query(category, {page: page, per_page: per_page, execute: false}, current_user)
-        random_query = {function_score: {query: products.body[:query], random_score: {seed: seed}}}
-        products.body[:query] = random_query
-        products.body[:sort] = {}
+          render_success(
+            recommended: ActiveModel::Serializer::CollectionSerializer.new(
+              albums_recommended,
+              serializer: AlbumSerializer,
+              scope: OpenStruct.new(current_user: current_user)
+            ),
+            new: ActiveModel::Serializer::CollectionSerializer.new(
+              albums_new,
+              serializer: AlbumSerializer,
+              scope: OpenStruct.new(current_user: current_user)
+            ),
+            # popular: albums_popular,
+            playlist: ActiveModel::Serializer::CollectionSerializer.new(
+              playlists,
+              serializer: AlbumSerializer,
+              scope: OpenStruct.new(current_user: current_user)
+            ),
+            merch: ActiveModel::Serializer::CollectionSerializer.new(
+              products,
+              serializer: ShopProductSerializer,
+              scope: OpenStruct.new(current_user: current_user),
+              include_collaborators: true,
+              include_collaborators_user: true
+            ),
+          )
+        when 'videos'
+          seed_val = ActiveRecord::Base.connection.quote(seed)
+          ActiveRecord::Base.connection.execute("select setseed(#{seed_val})")
+          streams = Stream.order("random()").page(page).per(per_page)
 
-        # categories = ShopCategory.all.pluck(:name)
-        categories = ShopProduct.categories_query(current_user).pluck(:name)
-        render_success(
-          products: ActiveModel::Serializer::CollectionSerializer.new(
-            products,
-            serializer: ShopProductSerializer,
-            scope: OpenStruct.new(current_user: current_user),
-            include_collaborators: true,
-            include_collaborators_user: true
-          ),
-          pagination: pagination(products),
-          categories: categories
-        )
-      elsif filter == 'recommended'
-        albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page}, current_user)
-        # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
+          render_success(
+            streams: ActiveModel::Serializer::CollectionSerializer.new(
+              streams,
+              serializer: StreamSerializer,
+              scope: OpenStruct.new(current_user: current_user)
+            ),
+            pagination: pagination(streams)
+          )
+        when 'merch'
+          products = ShopProduct.explore_query(category, {page: page, per_page: per_page, execute: false}, current_user)
+          random_query = {function_score: {query: products.body[:query], random_score: {seed: seed}}}
+          products.body[:query] = random_query
+          products.body[:sort] = {}
 
-        render_success(
-          albums: ActiveModel::Serializer::CollectionSerializer.new(
-            albums,
-            serializer: AlbumSerializer,
-            scope: OpenStruct.new(current_user: current_user),
-            include_collaborators: true,
-            include_collaborators_user: true
-          ),
-          pagination: pagination(albums)
-        )
-      else
-        albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page, execute: false}, current_user)
-        random_query = {function_score: {query: albums.body[:query], random_score: {seed: seed}}}
-        albums.body[:query] = random_query
-        albums.body[:sort] = {}
+          # categories = ShopCategory.all.pluck(:name)
+          categories = ShopProduct.categories_query(current_user).pluck(:name)
+          render_success(
+            products: ActiveModel::Serializer::CollectionSerializer.new(
+              products,
+              serializer: ShopProductSerializer,
+              scope: OpenStruct.new(current_user: current_user),
+              include_collaborators: true,
+              include_collaborators_user: true
+            ),
+            pagination: pagination(products),
+            categories: categories
+          )
+        when 'recommended'
+          albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page}, current_user)
+          # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
 
-        render_success(
-          albums: ActiveModel::Serializer::CollectionSerializer.new(
-            albums,
-            serializer: AlbumSerializer,
-            scope: OpenStruct.new(current_user: current_user),
-            include_collaborators: true,
-            include_collaborators_user: true
-          ),
-          pagination: pagination(albums)
-        )
+          render_success(
+            albums: ActiveModel::Serializer::CollectionSerializer.new(
+              albums,
+              serializer: AlbumSerializer,
+              scope: OpenStruct.new(current_user: current_user),
+              include_collaborators: true,
+              include_collaborators_user: true
+            ),
+            pagination: pagination(albums)
+          )
+        else
+          seed = seed.to_s
+          albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page, execute: false}, current_user)
+          random_query = {function_score: {query: albums.body[:query], random_score: {seed: seed}}}
+          albums.body[:query] = random_query
+          albums.body[:sort] = {}
+
+          render_success(
+            albums: ActiveModel::Serializer::CollectionSerializer.new(
+              albums,
+              serializer: AlbumSerializer,
+              scope: OpenStruct.new(current_user: current_user),
+              include_collaborators: true,
+              include_collaborators_user: true
+            ),
+            pagination: pagination(albums)
+          )
       end
     end
 
