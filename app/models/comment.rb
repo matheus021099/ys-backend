@@ -18,6 +18,7 @@ class Comment < ApplicationRecord
 
   # before_create :do_before_create
   after_create :do_after_create
+  before_destroy :remove
 
   # def do_before_create
   #   self.status = Comment.statuses[:published] if self.commentable.user_id == self.user_id
@@ -95,6 +96,6 @@ class Comment < ApplicationRecord
     # #TODO - could raise an issue, coz activity refer comment in assoc
     # Activity.remove(self.class.to_s.underscore, self.id)
     Activity.remove('Comment', self.id)
-    self.destroy
+    # self.destroy
   end
 end

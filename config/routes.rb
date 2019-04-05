@@ -225,6 +225,8 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :posts
+
       resources :comments, except: [:show] do
         member do
           get :make_public

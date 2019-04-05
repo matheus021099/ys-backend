@@ -1,4 +1,4 @@
-class ZipUploader < ApplicationUploader
+class FileUploader < ApplicationUploader
   include CarrierWave::Uploader
 
   def fog_public

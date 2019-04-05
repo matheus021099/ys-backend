@@ -20,7 +20,7 @@ class ShopProduct < ApplicationRecord
     show_only_stream: 'show_only_stream'
   }
 
-  mount_uploader :digital_content, ZipUploader
+  mount_uploader :digital_content, FileUploader
 
   paginates_per 25
 

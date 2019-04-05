@@ -33,7 +33,8 @@ class CommentPolicy < ApplicationPolicy
     [ 
       :commentable_type,
       :commentable_id,
-      :body
+      :body,
+      :status
     ]
   end
 end

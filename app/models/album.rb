@@ -12,7 +12,7 @@ class Album < ApplicationRecord
   enum album_type: [:album, :playlist]
 
   mount_uploader :cover, CoverUploader
-  mount_uploader :zip, ZipUploader
+  mount_uploader :zip, FileUploader
 
   paginates_per 25
 

@@ -6,23 +6,33 @@ module Api::V1
 
     swagger_api :index do |api|
       summary 'list all comments'
-      param_list :query, :commentable_type, :string, :required, 'Commantable Type', [ 'Album', 'ShopProduct' ]
+      param_list :query, :commentable_type, :string, :required, 'Commantable Type', [ 'Album', 'Post' ]
       param :query, :commentable_id, :string, :required
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
     end
     def index
       skip_policy_scope
 
-      commentable = Album.find(params[:commentable_id])
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 10).to_i
+
+      # commentable = Album.find(params[:commentable_id])
+      commentable = params[:commentable_type].constantize.find(params[:commentable_id]) rescue nil
+      render_error 'Not found commentable', :unprocessable_entity and return unless commentable.present?
+
       comments_1 = commentable.comments.where(status: Comment.statuses[:published]).pluck(:id)
       comments_2 = commentable.comments.with_roles([:writer, :reader], current_user).pluck(:id)
       comment_ids = comments_1 + comments_2
-      comments = Comment.where('id IN (?)', comment_ids).where.not(user_id: current_user.block_list).order('created_at desc')
+      comments = Comment.where('id IN (?)', comment_ids).where.not(user_id: current_user.block_list).order('created_at desc').page(page).per(per_page)
 
-      render_success ActiveModel::Serializer::CollectionSerializer.new(
-        comments,
-        serializer: CommentSerializer,
-        scope: OpenStruct.new(current_user: current_user),
-        include_commenter: true
+      render_success(
+        comments: ActiveModel::SerializableResource.new(
+          comments,
+          scope: OpenStruct.new(current_user: current_user),
+          include_commenter: true
+        ),
+        pagination: pagination(comments)
       )
     end
 
@@ -32,6 +42,7 @@ module Api::V1
       param :form, 'comment[commentable_type]', :string, :required
       param :form, 'comment[commentable_id]', :string, :required
       param :form, 'comment[body]', :string, :required
+      param :form, 'comment[status]', :string, :optional, 'privated, published, default is privated'
     end
     def create
       @comment = Comment.new(user: current_user)
@@ -87,13 +98,13 @@ module Api::V1
     def destroy
       authorize @comment
       comment_id = @comment.id
-      @comment.remove
       if @comment.commentable.instance_of? Album
         ActionCable.server.broadcast("comments_#{@comment.commentable_id}", {
           action: 'delete',
           comment_id: comment_id
         })
       end
+      @comment.destroy
       render_success true
     end
 
