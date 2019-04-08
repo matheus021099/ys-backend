@@ -132,6 +132,7 @@ module Api::V1
             pagination: pagination(streams)
           )
         when 'merch'
+          seed = seed.to_s
           products = ShopProduct.explore_query(category, {page: page, per_page: per_page, execute: false}, current_user)
           random_query = {function_score: {query: products.body[:query], random_score: {seed: seed}}}
           products.body[:query] = random_query
