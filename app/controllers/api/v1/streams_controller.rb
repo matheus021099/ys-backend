@@ -669,7 +669,8 @@ module Api::V1
       @stream.attributes = permitted_attributes(@stream)
       @stream.save!
 
-      if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
+      # Rails.logger.info("\n\n\nparams: #{params[:stream][:assoc_type]} - #{params[:stream][:assoc_type] && params[:stream][:assoc_id].present?} \n\n\n")
+      if params[:stream][:assoc_type] && params[:stream][:assoc_id].present?
         result = {}
         case @stream.assoc_type
           when 'Album'
