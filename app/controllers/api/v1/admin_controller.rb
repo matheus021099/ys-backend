@@ -304,6 +304,23 @@ module Api::V1
     end
 
 
+    setup_authorization_header(:send_global_message)
+    swagger_api :send_global_message do |api|
+      summary 'send global message'
+      param :form, :message, :string, :required
+    end
+    def send_global_message
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin?
+
+      message_body = params[:message].strip rescue ''
+      render_error 'No message', :unprocessable_entity and return if message_body.blank?
+
+      MessageBroadcaster.perform_async(current_user.id, message_body)
+
+      render_success true
+    end
+
+
     setup_authorization_header(:global_stats)
     swagger_api :global_stats do |api|
       summary 'global stats'

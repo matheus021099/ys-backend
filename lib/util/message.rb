@@ -1,18 +1,25 @@
 class Util::Message
   class << self
     def get_conversation(sender, receiver)
-      conversations = sender.mailbox.conversations
-      conversations.each do |conversation|
-        if (sender.id == conversation.participants[0].id && receiver.id == conversation.participants[1].id) ||
-            (sender.id == conversation.participants[1].id && receiver.id == conversation.participants[0].id)
-          return conversation
-        end
-      end
-      nil
+      # conversations = sender.mailbox.conversations
+      # conversations.each do |conversation|
+      #   if (sender.id == conversation.participants[0].id && receiver.id == conversation.participants[1].id) ||
+      #       (sender.id == conversation.participants[1].id && receiver.id == conversation.participants[0].id)
+      #     return conversation
+      #   end
+      # end
+      # nil
+
+      Mailboxer::Conversation.where(
+        "subject = ? or subject = ?",
+        [sender.id, receiver.id].join(', '),
+        [receiver.id, sender.id].join(', ')
+      ).first
     end
 
     def send(sender, receiver, message_body, message_subject = nil, attachment = nil)
-      message_subject ||= 'Message'
+      # message_subject ||= 'Message'
+      message_subject = [sender.id, receiver.id].join(', ') if message_subject.blank?
       receipt = nil
       conversation = self.get_conversation(sender, receiver)
       if conversation.blank?
