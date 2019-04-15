@@ -10,31 +10,56 @@ module Api::V1
       summary 'get users'
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
-      param :query, :filter, :string, :optional, 'any, artist, '
+      param :query, :filter, :string, :optional, 'any, artist, etc'
+      param :query, :q, :string, :optional, 'query string'
     end
     def users
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
 
       filter = params[:filter] || 'any'
       page = (params[:page] || 1).to_i
-      per_page = (params[:per_page] || 25).to_i
+      per_page = (params[:per_page] || 5).to_i
+      q = params[:q] || '*'
 
-      users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      # users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      # case filter
+      #   when 'artist'
+      #     users = users.where(user_type: User.user_types[:artist])
+      #   when 'listener'
+      #     users = users.where(user_type: User.user_types[:listener])
+      #   when 'moderator'
+      #     users = users.where(user_type: User.user_types[:moderator])
+      #   when 'brand'
+      #     users = users.where(user_type: User.user_types[:brand])
+      #   when 'label'
+      #     users = users.where(user_type: User.user_types[:label])
+      #   when 'suspended'
+      #     users = users.where(status: User.statuses[:suspended])
+      # end
+      # users = users.page(page).per(per_page)
+
+      where = {}
       case filter
-        when 'artist'
-          users = users.where(user_type: User.user_types[:artist])
-        when 'listener'
-          users = users.where(user_type: User.user_types[:listener])
-        when 'moderator'
-          users = users.where(user_type: User.user_types[:moderator])
-        when 'brand'
-          users = users.where(user_type: User.user_types[:brand])
-        when 'label'
-          users = users.where(user_type: User.user_types[:label])
         when 'suspended'
-          users = users.where(status: User.statuses[:suspended])
+          where[:user_type] = {}
+          where[:user_type][:not] = ['superadmin', 'admin']
+          where[:status] = 'suspended'
+        when 'listener', 'artist', 'brand', 'label', 'moderator'
+          where[:user_type] = filter
+        else
+          where[:user_type] = {}
+          where[:user_type][:not] = ['superadmin', 'admin']
       end
-      users = users.page(page).per(per_page)
+      ps = {}
+      ps = ps.merge(
+        fields: [:username, :display_name, :email],
+        match: :word_start,
+        where: where,
+        order: {username: :asc},
+        page: page,
+        per_page: per_page
+      )
+      users = User.search(q.presence || '*', ps)
 
       render_success(
         users: ActiveModel::Serializer::CollectionSerializer.new(

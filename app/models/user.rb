@@ -50,6 +50,7 @@ class User < ApplicationRecord
       id: id,
       email: email,
       username: username,
+      user_type: user_type,
       display_name: display_name,
       contact_url: contact_url,
       status: status
