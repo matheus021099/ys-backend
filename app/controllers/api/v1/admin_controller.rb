@@ -77,8 +77,10 @@ module Api::V1
     setup_authorization_header(:signup_users)
     swagger_api :signup_users do |api|
       summary 'get signup users'
+      param :query, :filter, :string, :optional
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
+      param :query, :q, :string, :optional, 'query string'
     end
     def signup_users
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
@@ -86,30 +88,67 @@ module Api::V1
       filter = params[:filter] || 'any'
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 25).to_i
+      q = params[:q] || '*'
 
-      users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      # users = User.where.not(user_type: [User.user_types[:superadmin], User.user_types[:admin]])
+      # case filter
+      #   when 'co-signed'
+      #     users = users.where(
+      #       user_type: User.user_types[:listener],
+      #       status: User.statuses[:active],
+      #       # request_role: ['artist', 'brand', 'label'],
+      #       request_status: User.request_statuses[:pending]
+      #     ).where.not(inviter_id: nil)
+      #   when 'waiting'
+      #     users = users.where(
+      #       user_type: User.user_types[:listener],
+      #       status: User.statuses[:active],
+      #       # request_role: ['artist', 'brand', 'label'],
+      #       request_status: User.request_statuses[:pending],
+      #       inviter_id: nil
+      #     )
+      #   when 'approved'
+      #     users = users.where(request_status: User.request_statuses[:accepted])
+      #   when 'denied'
+      #     users = users.where(request_status: User.request_statuses[:denied])
+      # end
+      # users = users.page(page).per(per_page)
+
+      where = {}
       case filter
         when 'co-signed'
-          users = users.where(
-            user_type: User.user_types[:listener],
-            status: User.statuses[:active],
-            # request_role: ['artist', 'brand', 'label'],
-            request_status: User.request_statuses[:pending]
-          ).where.not(inviter_id: nil)
+          where[:user_type] = User.user_types[:listener]
+          where[:status] = User.statuses[:active]
+          where[:request_status] = User.request_statuses[:pending]
+          where[:inviter_id] = {}
+          where[:inviter_id][:not] = nil
         when 'waiting'
-          users = users.where(
-            user_type: User.user_types[:listener],
-            status: User.statuses[:active],
-            # request_role: ['artist', 'brand', 'label'],
-            request_status: User.request_statuses[:pending],
-            inviter_id: nil
-          )
+          where[:user_type] = User.user_types[:listener]
+          where[:status] = User.statuses[:active]
+          where[:request_status] = User.request_statuses[:pending]
+          where[:inviter_id] = nil
         when 'approved'
-          users = users.where(request_status: User.request_statuses[:accepted])
+          where[:user_type] = {}
+          where[:user_type][:not] = ['superadmin', 'admin']
+          where[:request_status] = User.request_statuses[:accepted]
         when 'denied'
-          users = users.where(request_status: User.request_statuses[:denied])
+          where[:user_type] = {}
+          where[:user_type][:not] = ['superadmin', 'admin']
+          where[:request_status] = User.request_statuses[:denied]
+        else
+          where[:user_type] = {}
+          where[:user_type][:not] = ['superadmin', 'admin']
       end
-      users = users.page(page).per(per_page)
+      ps = {}
+      ps = ps.merge(
+        fields: [:username, :display_name, :email],
+        match: :word_start,
+        where: where,
+        order: {username: :asc},
+        page: page,
+        per_page: per_page
+      )
+      users = User.search(q.presence || '*', ps)
 
       render_success(
         users: ActiveModel::Serializer::CollectionSerializer.new(

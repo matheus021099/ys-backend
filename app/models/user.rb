@@ -53,6 +53,10 @@ class User < ApplicationRecord
       user_type: user_type,
       display_name: display_name,
       contact_url: contact_url,
+      request_role: request_role,
+      request_status: request_status,
+      inviter_id: inviter_id,
+      created_at: created_at,
       status: status
     }
   end
