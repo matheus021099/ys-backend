@@ -42,14 +42,14 @@ class Album < ApplicationRecord
   # end
 
   belongs_to :user
-  has_many :user_albums
+  has_many :user_albums, dependent: :destroy
   # has_many :labels, -> { where user_albums: { user_type: UserAlbum.user_types[:label], status: UserAlbum.statuses[:accepted] } }, through: :user_albums
   # has_many :collaborators, -> { where user_albums: { user_type: UserAlbum.user_types[:collaborator] } }, through: :user_albums
   has_many :album_tracks, -> { order(position: :asc) }
-  has_many :tracks, through: :album_tracks#, after_remove: :async_generate_zip, after_add: :async_generate_zip
+  has_many :tracks, through: :album_tracks, dependent: :destroy#, after_remove: :async_generate_zip, after_add: :async_generate_zip
   # has_many :album_genres
   # has_many :genres, through: :album_genres
-  has_many :comments, as: :commentable
+  has_many :comments, as: :commentable, dependent: :destroy
   # has_many :feeds
   has_many :samplings, foreign_key: 'sampling_album_id', class_name: 'Sampling'
 
@@ -83,34 +83,8 @@ class Album < ApplicationRecord
     [ :name ]
   end
 
-  def remove
-    paid_repost_exists = Attachment.where(
-      attachable_type: self.class.name,
-      attachable_id: self.id,
-      attachment_type: Attachment.attachment_types[:repost]
-    ).size > 0
-    self.update_attributes(status: Album.statuses[:deleted]) and return if paid_repost_exists
-
-    user_albums = self.user_albums.includes(:user).where(users_albums: {
-      user_type: UserAlbum.user_types[:collaborator],
-      status: UserAlbum.statuses[:accepted]
-    })
-    message_body = "#{self.user.display_name} has deleted an album <#{self.name}>"
-    user_albums.each do |ua|
-      collaborator = ua.user
-      Util::Message.send(user, collaborator, message_body)
-    end
-
-    Attachment.where(
-      attachable_type: self.class.name,
-      attachable_id: self.id,
-    ).each do |attachment|
-      attachment.message.destroy
-      attachment.delete
-    end
-
-    UserAlbum.where(album_id: self.id).delete_all
-
+  before_destroy :do_before_destroy
+  def do_before_destroy
     Activity.where(
       assoc_type: self.class.name,
       assoc_id: self.id
@@ -121,21 +95,68 @@ class Album < ApplicationRecord
       assoc_id: self.id
     ).delete_all
 
-    tracks_count = self.album_tracks.size
+    # remove samplings
+    Sampling.where(
+      'sample_album_id = ? OR sampling_album_id = ?',
+      self.id,
+      self.id
+    ).delete_all
 
-    if tracks_count > 0
-      if self.album_type == Album.album_types[:album]
-        # AlbumTrack.where(track_id: self.tracks.pluck(:id)).delete_all
-        # self.tracks.delete_all
-        self.tracks.each { |t| t.remove }
-      else
-        AlbumTrack.where(album_id: self.id).delete_all
-      end
+    # remove attachment for messages
+    Attachment.where(
+      attachable_type: self.class.name,
+      attachable_id: self.id,
+    ).delete_all
+
+    # notify collaborators album has been deleted
+    user_albums = self.user_albums.includes(:user).where(users_albums: {
+      user_type: UserAlbum.user_types[:collaborator],
+      status: UserAlbum.statuses[:accepted]
+    })
+    message_body = "#{self.user.display_name} has deleted an album <#{self.name}>"
+    user_albums.each do |ua|
+      collaborator = ua.user
+      Util::Message.send(user, collaborator, message_body)
     end
-
-    self.destroy
-    # self.update_attribute(:status, Album.statuses[:deleted])
   end
+
+  # def remove
+  #   ### will remove paid_repost
+  #   # paid_repost_exists = Attachment.where(
+  #   #   attachable_type: self.class.name,
+  #   #   attachable_id: self.id,
+  #   #   attachment_type: Attachment.attachment_types[:repost]
+  #   # ).size > 0
+  #   # self.update_attributes(status: Album.statuses[:deleted]) and return if paid_repost_exists
+  #   user_albums = self.user_albums.includes(:user).where(users_albums: {
+  #     user_type: UserAlbum.user_types[:collaborator],
+  #     status: UserAlbum.statuses[:accepted]
+  #   })
+  #   message_body = "#{self.user.display_name} has deleted an album <#{self.name}>"
+  #   user_albums.each do |ua|
+  #     collaborator = ua.user
+  #     Util::Message.send(user, collaborator, message_body)
+  #   end
+  #   Attachment.where(
+  #     attachable_type: self.class.name,
+  #     attachable_id: self.id,
+  #   ).each do |attachment|
+  #     attachment.message.destroy
+  #     attachment.delete
+  #   end
+  #   ### user_albums destroyed by has_many dependant option
+  #   # UserAlbum.where(album_id: self.id).delete_all
+  #   ### tracks destroyed by has_many dependant option
+  #   # tracks_count = self.album_tracks.size
+  #   # if tracks_count > 0
+  #   #   if self.album_type == Album.album_types[:album]
+  #   #     self.tracks.destroy_all
+  #   #   else
+  #   #     AlbumTrack.where(album_id: self.id).delete_all
+  #   #   end
+  #   # end
+  #   self.destroy
+  # end
 
   def genre_objects
     # Genre.where(name: self.genre_list)

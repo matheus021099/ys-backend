@@ -12,7 +12,10 @@ module Clockwork
   end
 
   # every(1.minute, 'stream_remaining_counter') { StreamRemainingCounter.perform_async }
-  every(1.minute, 'stream_checker') { StreamChecker.perform_async }
+  every(1.minute, 'stream_checker') {
+    StreamChecker.perform_async
+    AlbumChecker.perform_async
+  }
   every(12.hours, 'message_checker') {
     MessageChecker.perform_async
     RepostPriceExpireChecker.perform_async

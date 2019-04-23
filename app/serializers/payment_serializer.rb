@@ -17,7 +17,12 @@ class PaymentSerializer < ActiveModel::Serializer
 
     case object.payment_type
       when 'collaborate'
-        ShopProductSerializer.new(object.assoc, scope: scope, include_collaborators: true, include_collaborators_user: true)
+        ShopProductSerializer.new(
+          object.assoc,
+          scope: scope,
+          include_collaborators: true,
+          include_collaborators_user: true
+        )
       else
         nil
     end

@@ -26,6 +26,18 @@ class Track < ApplicationRecord
   # def add_to_acr
   # end
 
+  before_destroy :do_before_destroy
+  def do_before_destroy
+    Activity.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).delete_all
+
+    AlbumTrack.where(track_id: self.id).delete_all
+
+    Sampling.where('sample_track_id = ? OR sampling_track_id = ?', self.id, self.id).delete_all
+  end
+
   # remove track from acrcloud
   after_destroy :remove_from_acr
   def remove_from_acr
@@ -49,14 +61,15 @@ class Track < ApplicationRecord
     self.audio.url(query: {:"response-content-disposition" => "attachment; filename=\"#{track_name}\""})
   end
 
-  def remove
-    album_ids = AlbumTrack.where(track_id: self.id).pluck(:album_id)
-    AlbumTrack.where(track_id: self.id).delete_all
-    Album.includes(:album_tracks, :tracks).playlists.where(id: album_ids).each do |album|
-      album.remove if album.album_tracks.size == 0
-    end
-    self.destroy
-  end
+  # def remove
+  #   remove track from albums
+  #   album_ids = AlbumTrack.where(track_id: self.id).pluck(:album_id)
+  #   AlbumTrack.where(track_id: self.id).delete_all
+  #   Album.includes(:album_tracks, :tracks).playlists.where(id: album_ids).each do |album|
+  #     album.destroy if album.album_tracks.size == 0
+  #   end
+  #   self.destroy
+  # end
 
   def download(downloader, page_track = nil)
     return true if downloader.id == self.user_id

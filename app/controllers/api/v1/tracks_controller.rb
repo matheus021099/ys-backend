@@ -102,10 +102,7 @@ module Api::V1
     end
     def destroy
       authorize @track, :destroy?
-      # @track.status = Track.statuses[:inacitve]
-      # @track.save
-      @track.remove
-
+      @track.destroy
       render_success(true)
     end
 
