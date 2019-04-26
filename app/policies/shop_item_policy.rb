@@ -10,10 +10,14 @@ class ShopItemPolicy < ApplicationPolicy
   end
 
   def mark_as_shipped?
-    record.merchant == user
+    record.merchant_id == user.id
   end
 
   def mark_as_unshipped?
-    record.merchant == user
+    record.merchant_id == user.id
+  end
+
+  def tickets?
+    record.merchant_id == user.id || user.admin?
   end
 end

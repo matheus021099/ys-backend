@@ -1,7 +1,10 @@
 module Api::V1::Shopping
   class ProductsController < ApiController
-    before_action :set_product, only: [:show, :update, :destroy, :release,
-      :repost, :accept_collaboration, :deny_collaboration]
+    before_action :set_product, only: [
+      :show, :update, :destroy, :release, :repost,
+      :accept_collaboration, :deny_collaboration,
+      :ordered_items, :tickets
+    ]
 
     swagger_controller :products, 'Product'
 
@@ -475,7 +478,56 @@ module Api::V1::Shopping
       render_success true
     end
 
+
+    setup_authorization_header(:ordered_items)
+    swagger_api :ordered_items do |api|
+      summary 'ordered items on the product'
+      param :path, :id, :string, :required
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+    end
+    def ordered_items
+      authorize @product
+
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 5).to_i
+
+      items = ShopItem.order('created_at desc').page(page).per(per_page)
+
+      render_success(
+        items: ActiveModel::SerializableResource.new(items),
+        pagination: pagination(items)
+      )
+    end
+
+
+    setup_authorization_header(:tickets)
+    swagger_api :tickets do |api|
+      summary 'tickets on the product'
+      param :path, :id, :string, :required
+      param :query, :status, :string, :optional, 'any, open, close'
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+    end
+    def tickets
+      authorize @product
+
+      status = params[:status] || 'any'
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 5).to_i
+
+      tickets = Ticket.where(product_id: @product.id).order('created_at desc').page(page).per(per_page)
+      tickets = tickets.where(status: status) unless status.eql?('any')
+
+      render_success(
+        tickets: ActiveModel::SerializableResource.new(tickets),
+        pagination: pagination(tickets)
+      )
+    end
+
+
     private
+
     def set_product
       @product = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).find(params[:id])
     end

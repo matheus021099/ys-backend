@@ -228,6 +228,8 @@ Rails.application.routes.draw do
 
       resources :posts
 
+      resources :tickets
+
       resources :comments, except: [:show] do
         member do
           get :make_public
@@ -298,6 +300,8 @@ Rails.application.routes.draw do
             get :unrepost
             get :accept_collaboration
             get :deny_collaboration
+            get :ordered_items
+            get :tickets
           end
         end
 
@@ -311,6 +315,7 @@ Rails.application.routes.draw do
           member do
             post :mark_as_shipped
             get :mark_as_unshipped
+            get :tickets
           end
         end
 

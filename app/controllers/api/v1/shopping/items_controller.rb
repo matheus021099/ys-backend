@@ -1,6 +1,6 @@
 module Api::V1::Shopping
   class ItemsController < ApiController
-    before_action :set_item, only: [:mark_as_shipped, :mark_as_unshipped]
+    before_action :set_item, only: [ :mark_as_shipped, :mark_as_unshipped, :tickets ]
     skip_after_action :verify_policy_scoped
     skip_after_action :verify_authorized, except: [:mark_as_shipped, :mark_as_unshipped]
 
@@ -162,7 +162,33 @@ module Api::V1::Shopping
       render_success true
     end
 
+
+    setup_authorization_header(:tickets)
+    swagger_api :tickets do |api|
+      summary 'tickets on the item'
+      param :path, :id, :string, :required
+      param :query, :status, :string, :optional, 'any, open, close'
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+    end
+    def tickets
+      authorize @item
+
+      status = params[:status] || 'any'
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 5).to_i
+
+      tickets = Ticket.where(item_id: @item.id).order('created_at desc').page(page).per(per_page)
+      tickets = tickets.where(status: status) unless status.eql?('any')
+
+      render_success(
+        tickets: ActiveModel::SerializableResource.new(tickets),
+        pagination: pagination(tickets)
+      )
+    end
+
     private
+
     def set_item
       @item = ShopItem.includes(:order).find(params[:id])
     end

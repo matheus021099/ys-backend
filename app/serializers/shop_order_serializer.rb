@@ -20,7 +20,7 @@ class ShopOrderSerializer < ActiveModel::Serializer
   # end
 
   def id
-    Util::Number.encode object.id
+    object.external_id
   end
 
   def refund_amount

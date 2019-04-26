@@ -6,6 +6,10 @@ class ShopOrder < ApplicationRecord
   }
 
   after_create :do_after_create
+  def do_after_create
+    ApplicationMailer.to_buyer_order_email(self).deliver
+    ApplicationMailer.to_seller_order_email(self).deliver
+  end
 
   belongs_to :billing_address, class_name: 'ShopAddress'
   belongs_to :shipping_address, class_name: 'ShopAddress'
@@ -18,8 +22,7 @@ class ShopOrder < ApplicationRecord
 
   default_scope { order(created_at: :desc) }
 
-  def do_after_create
-    ApplicationMailer.to_buyer_order_email(self).deliver
-    ApplicationMailer.to_seller_order_email(self).deliver
+  def external_id
+    Util::Number.encode self.id
   end
 end
