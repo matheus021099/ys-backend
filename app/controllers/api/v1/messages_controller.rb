@@ -13,17 +13,54 @@ module Api::V1
       summary 'get messages by a conversation'
       param :query, :conversation_id, :string, :required
       param :query, :user_id, :string, :optional
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
     end
     def index
-      conversation = @user.mailbox.conversations.find(params[:conversation_id])
-      conversation.mark_as_read(current_user)
-      render json: conversation,
-        serializer: ConversationSerializer,
-        scope: OpenStruct.new(
-          current_user: current_user,
-          user: @user
+      @conversation = @user.mailbox.conversations.find(params[:conversation_id])
+      @conversation.mark_as_read(current_user)
+
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 50).to_i
+
+      messages = Mailboxer::Notification.joins(:receipts).where(
+        conversation_id: @conversation.id
+      ).page(page).per(per_page).order(updated_at: :desc)
+
+      if current_user.admin? || (current_user.moderator? && current_user.enabled_view_direct_messages)
+        messages = messages.where(
+          mailboxer_receipts: {
+            receiver_id: @user.id
+          }
+        )
+      else
+        messages = messages.where(
+          mailboxer_receipts: {
+            receiver_id: @user.id,
+            deleted: false
+          }
+        )
+      end
+
+      render_success(
+        messages: ActiveModelSerializers::SerializableResource.new(
+          messages,
+          each_serializer: MessageSerializer,
+          scope: OpenStruct.new(
+            current_user: current_user,
+            user: @user
+          )
         ),
-        include_messages: true
+        pagination: pagination(messages)
+      )
+
+      # render json: @conversation,
+      #   serializer: ConversationSerializer,
+      #   scope: OpenStruct.new(
+      #     current_user: current_user,
+      #     user: @user
+      #   ),
+      #   include_messages: true
     end
 
 
@@ -281,18 +318,27 @@ module Api::V1
     swagger_api :conversations do |api|
       summary 'get conversations'
       param :query, :user_id, :string, :optional
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
     end
     def conversations
       enabled_view_dm = current_user.admin? || (current_user.moderator? && current_user.enabled_view_direct_messages)
       render_error 'You are not authorized', :unprocessable_entity and return unless enabled_view_dm || current_user.id == @user.id
 
-      render_success ActiveModel::Serializer::CollectionSerializer.new(
-        @user.mailbox.conversations,
-        serializer: ConversationSerializer,
-        scope: OpenStruct.new(
-          current_user: current_user,
-          user: @user
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 50).to_i
+      conversations = @user.mailbox.conversations.page(page).per(per_page)
+
+      render_success(
+        conversations: ActiveModelSerializers::SerializableResource.new(
+          conversations,
+          each_serializer: ConversationSerializer,
+          scope: OpenStruct.new(
+            current_user: current_user,
+            user: @user
+          )
         ),
+        pagination: pagination(conversations)
       ) and return if enabled_view_dm
 
       blocked_users = @user.blocked_user_objects
@@ -313,14 +359,18 @@ module Api::V1
       conversations = @user.mailbox.conversations
         .where(id: inbox_conversation_ids + sentbox_conversation_ids)
         .where.not(id: blocked_conversation_ids)
+        .page(page).per(per_page)
 
-      render_success ActiveModel::Serializer::CollectionSerializer.new(
-        conversations,
-        serializer: ConversationSerializer,
-        scope: OpenStruct.new(
-          current_user: current_user,
-          user: @user
+      render_success(
+        conversations: ActiveModelSerializers::SerializableResource.new(
+          conversations,
+          each_serializer: ConversationSerializer,
+          scope: OpenStruct.new(
+            current_user: current_user,
+            user: @user
+          )
         ),
+        pagination: pagination(conversations)
       )
     end
 

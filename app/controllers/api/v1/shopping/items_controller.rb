@@ -2,7 +2,7 @@ module Api::V1::Shopping
   class ItemsController < ApiController
     before_action :set_item, only: [ :mark_as_shipped, :mark_as_unshipped, :tickets ]
     skip_after_action :verify_policy_scoped
-    skip_after_action :verify_authorized, except: [:mark_as_shipped, :mark_as_unshipped]
+    skip_after_action :verify_authorized, except: [ :mark_as_shipped, :mark_as_unshipped, :tickets ]
 
     swagger_controller :items, 'Item'
 

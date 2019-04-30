@@ -18,6 +18,6 @@ class ShopItemPolicy < ApplicationPolicy
   end
 
   def tickets?
-    record.merchant_id == user.id || user.admin?
+    record.customer_id == user.id || record.merchant_id == user.id || user.admin?
   end
 end
