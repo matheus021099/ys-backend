@@ -45,6 +45,14 @@ class ShopProductPolicy < ApplicationPolicy
     true
   end
 
+  def ordered_items?
+    record.merchant_id == user.id || user.admin?
+  end
+
+  def tickets?
+    record.merchant_id == user.id || user.admin?
+  end
+
   def permitted_attributes
     [
       :name,
