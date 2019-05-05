@@ -67,7 +67,7 @@ class ShopProduct < ApplicationRecord
   # def update_carts
   #   if self.stock_status != ShopProduct.stock_statuses[:active] ||
   #     (self.status != ShopProduct.statuses[:published] && self.status != ShopProduct.statuses[:collaborated])
-  #     self.items.not_ordered.delete_all
+  #     self.items.delete_all
   #   end
   # end
 

@@ -14,8 +14,8 @@ class ShopItem < ApplicationRecord
   belongs_to :order, class_name: 'ShopOrder'
 
   # scope :unordered, -> { where('order_id IS NULL') }
-  scope :not_ordered, -> { where.not(status: ShopItem.statuses[:item_ordered]) }
-  scope :ordered, -> { where(status: ShopItem.statuses[:item_ordered]) }
+  scope :not_ordered, -> { where(status: ShopItem.statuses[:item_not_ordered]) }
+  scope :ordered, -> { where.not(status: ShopItem.statuses[:item_not_ordered]) }
 
   def subtotal_cost
     # to calculate the cost of digital product

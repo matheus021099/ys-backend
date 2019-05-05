@@ -492,10 +492,26 @@ module Api::V1::Shopping
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
 
-      items = ShopItem.order('created_at desc').page(page).per(per_page)
+      items = @product.items.includes(order: [:customer, :shipping_address]).where.not(
+        status: ShopItem.statuses[:item_not_ordered]).order('created_at desc'
+      ).page(page).per(per_page)
 
       render_success(
-        items: ActiveModel::SerializableResource.new(items),
+        items: items.as_json(
+          only: [ :id, :price, :quantity, :fee, :shipping_cost, :tax, :tax_percent, :status ],
+          include: {
+            order: {
+              only: [ :amount, :fee, :shipping_cost, :tax_cost, :status, :created_at ],
+              methods: :external_id,
+              include: {
+                customer: {
+                  only: [ :id, :slug, :name, :username, :avatar ]
+                },
+                shipping_address: {}
+              }
+            }
+          }
+        ),
         pagination: pagination(items)
       )
     end
@@ -516,7 +532,7 @@ module Api::V1::Shopping
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
 
-      tickets = Ticket.where(product_id: @product.id).order('created_at desc').page(page).per(per_page)
+      tickets = Ticket.includes(:open_user, :close_user, item: [:product, :order]).where(product_id: @product.id).order('created_at desc').page(page).per(per_page)
       tickets = tickets.where(status: status) unless status.eql?('any')
 
       render_success(

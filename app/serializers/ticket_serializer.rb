@@ -6,13 +6,13 @@ class TicketSerializer < ActiveModel::Serializer
 
   def open_user
     object.open_user.as_json(
-      only: [ :id, :slug, :name, :avatar ]
+      only: [ :id, :slug, :name, :username, :avatar ]
     )
   end
 
   def close_user
     object.close_user.as_json(
-      only: [ :id, :slug, :name, :avatar ]
+      only: [ :id, :slug, :name, :username, :avatar ]
     )
   end
 

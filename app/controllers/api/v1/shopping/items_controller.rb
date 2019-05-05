@@ -178,7 +178,7 @@ module Api::V1::Shopping
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
 
-      tickets = Ticket.where(item_id: @item.id).order('created_at desc').page(page).per(per_page)
+      tickets = Ticket.includes(:open_user, :close_user, item: [:product, :order]).where(item_id: @item.id).order('created_at desc').page(page).per(per_page)
       tickets = tickets.where(status: status) unless status.eql?('any')
 
       render_success(

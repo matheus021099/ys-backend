@@ -6,7 +6,6 @@ class ShopCart < ApplicationRecord
 
   # custom property
   def quantity
-    # items.not_ordered.sum(:quantity)
     items.sum(:quantity)
   end
 
@@ -18,7 +17,6 @@ class ShopCart < ApplicationRecord
 
     quantity ||= 1
     quantity = quantity.to_i
-    # item = items.not_ordered.where(product_variant_id: pv_id).first
     item = items.where(product_variant_id: pv_id).first
     if item.present?
       unless product_variant.product.category.is_digital
@@ -83,7 +81,6 @@ class ShopCart < ApplicationRecord
   end
 
   def clear
-    # items.not_ordered.destroy_all
     items.destroy_all
   end
 
@@ -123,7 +120,6 @@ class ShopCart < ApplicationRecord
         subtotal = 0
         shipping = 0
         tax_cost = 0
-        # items.not_ordered.where(merchant_id: merchant_id).each do |item|
         items.includes(product_variant: :product).where(merchant_id: merchant_id).each do |item|
           item_cost = 0
           item_shipping_price = 0
@@ -224,7 +220,6 @@ class ShopCart < ApplicationRecord
     items_count = items.size
     items.select('shop_items.merchant_id').group('shop_items.merchant_id').map(&:merchant_id).each do |merchant_id|
       merchant = User.find(merchant_id)
-      # items.not_ordered.where(merchant_id: merchant_id).each do |item|
       items.includes(product_variant: :product).where(merchant_id: merchant_id).each do |item|
         if item.product_variant.product.category.is_digital
           item_cost = item.product_variant.price
