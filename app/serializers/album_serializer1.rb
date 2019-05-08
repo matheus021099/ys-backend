@@ -45,7 +45,7 @@ class AlbumSerializer1 < ActiveModel::Serializer
       user_albums,
       each_serializer: UserAlbumSerializer,
       scope: scope,
-      include_user: instance_options[:include_collaborators_user]
+      include_user: true
     )
   end
 end
