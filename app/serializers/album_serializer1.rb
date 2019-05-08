@@ -1,17 +1,20 @@
 # used in search_controller
-class AlbumSerializer1 < ActiveModel::Serializer
-  attributes :id, :slug, :name, :description, :cover, :album_type, :recommended, :collaborators_count
+class AlbumSerializer1 < Panko::Serializer
+  attributes :id, :slug, :name, :cover, :album_type, :recommended, :collaborators_count
 
-  attribute :user
-  attributes :genres, :tracks
+  attributes :user, :genres, :tracks
   attributes :collaborators, :can_edit_collaborators
 
+  def cover
+    {
+      url: object.cover.url
+    }
+  end
+
   def user
-    ActiveModel::Serializer::UserSerializer.new(
+    ActiveModel::Serializer::UserSerializer1.new(
       object.user,
-      scope: scope,
-      include_recent_reposted: instance_options[:include_user_recent],
-      recent_count: 4
+      scope: scope
     )
   end
 

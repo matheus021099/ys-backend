@@ -105,6 +105,8 @@ gem 'skylight'
 # automatic eager loading
 gem 'goldiloader'
 
+gem 'panko_serializer'
+
 # JSON optimization
 gem 'oj'
 gem 'oj_mimic_json'

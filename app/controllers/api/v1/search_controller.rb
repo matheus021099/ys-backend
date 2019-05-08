@@ -155,11 +155,12 @@ module Api::V1
           albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page}, current_user)
           # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
 
-          render_success(
-            albums: ActiveModelSerializers::SerializableResource.new(
-              albums,
-              each_serializer: AlbumSerializer1,
-              scope: OpenStruct.new(current_user: current_user)
+          render_success Panko::Response.new(
+            albums: Panko::ArraySerializer.new(
+              albums, {
+                each_serializer: AlbumSerializer1,
+                scope: OpenStruct.new(current_user: current_user)
+              }
             ),
             pagination: pagination(albums)
           )
@@ -170,11 +171,12 @@ module Api::V1
           albums.body[:query] = random_query
           albums.body[:sort] = {}
 
-          render_success(
-            albums: ActiveModelSerializers::SerializableResource.new(
-              albums,
-              each_serializer: AlbumSerializer1,
-              scope: OpenStruct.new(current_user: current_user)
+          render_success Panko::Response.new(
+            albums: Panko::ArraySerializer.new(
+              albums, {
+                each_serializer: AlbumSerializer1,
+                scope: OpenStruct.new(current_user: current_user)
+              }
             ),
             pagination: pagination(albums)
           )
