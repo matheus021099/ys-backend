@@ -95,14 +95,15 @@ module Api::V1
       genre = params[:genre] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
+
       albums = @user.album_query(filter, genre).includes(album_tracks: :track).page(page).per(per_page)
-      render_success(
-        albums: ActiveModel::Serializer::CollectionSerializer.new(
-          albums,
-          serializer: AlbumSerializer,
-          scope: OpenStruct.new(current_user: current_user),
-          include_collaborators: true,
-          include_collaborators_user: true
+
+      render_success Panko::Response.new(
+        albums: Panko::ArraySerializer.new(
+          albums, {
+            each_serializer: AlbumSerializer1,
+            scope: OpenStruct.new(current_user: current_user)
+          }
         ),
         pagination: pagination(albums)
       )
@@ -158,14 +159,15 @@ module Api::V1
       genre = params[:genre] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
+
       albums = @user.download_query(filter, genre).page(page).per(per_page)
-      render_success(
-        albums: ActiveModel::Serializer::CollectionSerializer.new(
-          albums,
-          serializer: AlbumSerializer,
-          scope: OpenStruct.new(current_user: current_user),
-          include_collaborators: true,
-          include_collaborators_user: true
+
+      render_success Panko::Response.new(
+        albums: Panko::ArraySerializer.new(
+          albums, {
+            each_serializer: AlbumSerializer1,
+            scope: OpenStruct.new(current_user: current_user)
+          }
         ),
         pagination: pagination(albums)
       )
@@ -184,7 +186,9 @@ module Api::V1
       genre = params[:genre] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
+
       feeds = @user.repost_query(filter, genre).page(page).per(per_page)
+
       render_success(
         feeds: ActiveModel::Serializer::CollectionSerializer.new(
           feeds,
@@ -212,12 +216,15 @@ module Api::V1
       genre = params[:genre] || 'any'
       page = params[:page] || 1
       per_page = params[:per_page] || 24
+
       albums = @user.playlist_query(filter, genre).page(page).per(per_page)
-      render_success(
-        albums: ActiveModel::Serializer::CollectionSerializer.new(
-          albums,
-          serializer: AlbumSerializer,
-          scope: OpenStruct.new(current_user: current_user)
+
+      render_success Panko::Response.new(
+        albums: Panko::ArraySerializer.new(
+          albums, {
+            each_serializer: AlbumSerializer1,
+            scope: OpenStruct.new(current_user: current_user)
+          }
         ),
         pagination: pagination(albums)
       )
