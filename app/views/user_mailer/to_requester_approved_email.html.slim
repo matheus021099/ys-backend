@@ -3,17 +3,14 @@ p
   strong = @requester.display_name
 
 p
-  | your account was verified by&nbsp;
-  strong = @verifier.display_name
-  | , and your account has been verified.
-  br
-  | You account has been converted from Listener to&nbsp;
-  = @requester.request_role.capitalize
-  | .
+  | Your account has been verified.
 
 p
   | You can login now and start uploading content.
   br
+  | If you are already logged in, please sign out then login to update your account status.
+
+p
   = login_url(nil)
 
 p

@@ -20,6 +20,7 @@ class ApplicationController < ActionController::API
   def authenticate_token
     payload = JsonWebToken.decode(auth_token)
     @current_user = User.find(payload['id'])
+    AuthenticatorConcern.current_user = @current_user
   rescue => ex
     # puts "\n\n #{ex.message} \n\n\n"
   end
@@ -28,6 +29,7 @@ class ApplicationController < ActionController::API
     payload = JsonWebToken.decode(auth_token)
     @current_user = User.find(payload['id'])
     @current_cart = current_user.current_cart
+    AuthenticatorConcern.current_user = @current_user
   rescue JWT::ExpiredSignature
     render_error('Auth token has expired', :unauthorized)
   rescue JWT::DecodeError

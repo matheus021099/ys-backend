@@ -1,4 +1,6 @@
 class Album < ApplicationRecord
+  # include AuthenticatorConcern
+
   # enum status: [:draft, :privated, :published, :pending, :collaborated, :deleted]
   enum status: {
     draft: 'draft',
@@ -76,13 +78,6 @@ class Album < ApplicationRecord
     self.released ||= false
   end
 
-  # slug
-  extend FriendlyId
-  friendly_id :slug_candidates, use: :slugged
-  def slug_candidates
-    [ :name ]
-  end
-
   before_destroy :do_before_destroy
   def do_before_destroy
     Activity.where(
@@ -118,6 +113,13 @@ class Album < ApplicationRecord
       collaborator = ua.user
       Util::Message.send(user, collaborator, message_body)
     end
+  end
+
+  # slug
+  extend FriendlyId
+  friendly_id :slug_candidates, use: :slugged
+  def slug_candidates
+    [ :name ]
   end
 
   # def remove

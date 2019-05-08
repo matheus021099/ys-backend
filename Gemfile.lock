@@ -897,6 +897,9 @@ GEM
       activerecord (>= 4.0.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
+    goldiloader (3.1.0)
+      activerecord (>= 4.2, < 6.1)
+      activesupport (>= 4.2, < 6.1)
     hashie (3.5.7)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
@@ -1178,6 +1181,7 @@ DEPENDENCIES
   fog
   foreman
   friendly_id
+  goldiloader
   jwt
   kaminari
   listen (>= 3.0.5, < 3.2)

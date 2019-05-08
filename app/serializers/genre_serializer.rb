@@ -12,9 +12,9 @@ class GenreSerializer < ActiveModel::Serializer
   def children
     # child_genres = Genre.where(id: object.child_ids)
     child_genres = object.children
-    ActiveModel::Serializer::CollectionSerializer.new(
+    ActiveModelSerializers::SerializableResource.new(
       child_genres,
-      serializer: GenreSerializer,
+      each_serializer: GenreSerializer,
       scope: scope,
       include_children: false
     )

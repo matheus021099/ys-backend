@@ -5,7 +5,6 @@ class AlbumSerializer < ActiveModel::Serializer
     :recommended, :played, :downloaded, :reposted, :commented, :enabled_sample,
     :created_at, :released_at, :recommended_at, :location
   attributes :tracks
-  # has_many :tracks
   attribute :products, if: :include_product?
   attribute :collaborators, if: :include_collaborators?
   attribute :can_edit_collaborators, if: :include_collaborators?
@@ -14,7 +13,6 @@ class AlbumSerializer < ActiveModel::Serializer
   attribute :samplings, if: :include_samplings?
   # attribute :is_reposted
 
-  # belongs_to :user
   attribute :user
 
   def user
@@ -28,9 +26,9 @@ class AlbumSerializer < ActiveModel::Serializer
 
   def genres
     if object.genre_objects
-      ActiveModel::Serializer::CollectionSerializer.new(
+      ActiveModelSerializers::SerializableResource.new(
         object.genre_objects,
-        serializer: GenreSerializer,
+        each_serializer: GenreSerializer,
         scope: scope
       )
     end
@@ -39,7 +37,12 @@ class AlbumSerializer < ActiveModel::Serializer
   def tracks
     object.album_tracks.map{ |at|
       next unless at.present? && at.track.present?
-      result = TrackSerializer.new(at.track, scope: scope, include_user: object.playlist?).as_json
+      result = TrackSerializer.new(
+        at.track,
+        scope: scope,
+        include_user: object.playlist?,
+        include_user_is_following: true
+      ).as_json
       result['position'] = at.position
       result
     }.compact
@@ -64,7 +67,8 @@ class AlbumSerializer < ActiveModel::Serializer
       user_albums,
       serializer: UserAlbumSerializer,
       scope: scope,
-      include_user: instance_options[:include_collaborators_user]
+      include_user: instance_options[:include_collaborators_user],
+      include_user_is_following: true
     )
   end
 
@@ -74,7 +78,8 @@ class AlbumSerializer < ActiveModel::Serializer
       user_albums,
       serializer: UserAlbumSerializer,
       scope: scope,
-      include_user: instance_options[:include_contributors_user]
+      include_user: instance_options[:include_contributors_user],
+      include_user_is_following: true
     )
   end
 

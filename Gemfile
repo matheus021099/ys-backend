@@ -102,6 +102,9 @@ gem 'foreman'
 
 gem 'skylight'
 
+# automatic eager loading
+gem 'goldiloader'
+
 # JSON optimization
 gem 'oj'
 gem 'oj_mimic_json'

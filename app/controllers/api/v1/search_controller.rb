@@ -22,9 +22,9 @@ module Api::V1
       per_page = params[:per_page] || 4
       users = current_user.feed_query_v2(filter, genre).page(page).per(per_page)
       render_success(
-        users: ActiveModel::Serializer::CollectionSerializer.new(
+        users: ActiveModelSerializers::SerializableResource.new(
           users,
-          serializer: UserSerializer,
+          each_serializer: UserSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_recent: filter === 'any',
           include_recent_uploaded: filter === 'uploaded',
@@ -53,9 +53,9 @@ module Api::V1
       per_page = params[:per_page] || 24
       feeds = current_user.feed_query(filter, genre).page(page).per(per_page)
       render_success(
-        feeds: ActiveModel::Serializer::CollectionSerializer.new(
+        feeds: ActiveModelSerializers::SerializableResource.new(
           feeds,
-          serializer: FeedSerializer,
+          each_serializer: FeedSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_publisher: true
         ),
@@ -94,25 +94,25 @@ module Api::V1
           products = ShopProduct.explore_query(category, {page: page, per_page: per_page}, current_user)
 
           render_success(
-            recommended: ActiveModel::Serializer::CollectionSerializer.new(
+            recommended: ActiveModelSerializers::SerializableResource.new(
               albums_recommended,
-              serializer: AlbumSerializer,
+              each_serializer: AlbumSerializer,
               scope: OpenStruct.new(current_user: current_user)
             ),
-            new: ActiveModel::Serializer::CollectionSerializer.new(
+            new: ActiveModelSerializers::SerializableResource.new(
               albums_new,
-              serializer: AlbumSerializer,
+              each_serializer: AlbumSerializer,
               scope: OpenStruct.new(current_user: current_user)
             ),
             # popular: albums_popular,
-            playlist: ActiveModel::Serializer::CollectionSerializer.new(
+            playlist: ActiveModelSerializers::SerializableResource.new(
               playlists,
-              serializer: AlbumSerializer,
+              each_serializer: AlbumSerializer,
               scope: OpenStruct.new(current_user: current_user)
             ),
-            merch: ActiveModel::Serializer::CollectionSerializer.new(
+            merch: ActiveModelSerializers::SerializableResource.new(
               products,
-              serializer: ShopProductSerializer,
+              each_serializer: ShopProductSerializer,
               scope: OpenStruct.new(current_user: current_user),
               include_collaborators: true,
               include_collaborators_user: true
@@ -124,9 +124,9 @@ module Api::V1
           streams = Stream.order("random()").page(page).per(per_page)
 
           render_success(
-            streams: ActiveModel::Serializer::CollectionSerializer.new(
+            streams: ActiveModelSerializers::SerializableResource.new(
               streams,
-              serializer: StreamSerializer,
+              each_serializer: StreamSerializer,
               scope: OpenStruct.new(current_user: current_user)
             ),
             pagination: pagination(streams)
@@ -141,9 +141,9 @@ module Api::V1
           # categories = ShopCategory.all.pluck(:name)
           categories = ShopProduct.categories_query(current_user).pluck(:name)
           render_success(
-            products: ActiveModel::Serializer::CollectionSerializer.new(
+            products: ActiveModelSerializers::SerializableResource.new(
               products,
-              serializer: ShopProductSerializer,
+              each_serializer: ShopProductSerializer,
               scope: OpenStruct.new(current_user: current_user),
               include_collaborators: true,
               include_collaborators_user: true
@@ -156,12 +156,10 @@ module Api::V1
           # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
 
           render_success(
-            albums: ActiveModel::Serializer::CollectionSerializer.new(
+            albums: ActiveModelSerializers::SerializableResource.new(
               albums,
-              serializer: AlbumSerializer,
-              scope: OpenStruct.new(current_user: current_user),
-              include_collaborators: true,
-              include_collaborators_user: true
+              each_serializer: AlbumSerializer1,
+              scope: OpenStruct.new(current_user: current_user)
             ),
             pagination: pagination(albums)
           )
@@ -173,12 +171,10 @@ module Api::V1
           albums.body[:sort] = {}
 
           render_success(
-            albums: ActiveModel::Serializer::CollectionSerializer.new(
+            albums: ActiveModelSerializers::SerializableResource.new(
               albums,
-              serializer: AlbumSerializer,
-              scope: OpenStruct.new(current_user: current_user),
-              include_collaborators: true,
-              include_collaborators_user: true
+              each_serializer: AlbumSerializer1,
+              scope: OpenStruct.new(current_user: current_user)
             ),
             pagination: pagination(albums)
           )
@@ -222,35 +218,35 @@ module Api::V1
       streams = streams.where('name ILIKE ?', "%#{q.downcase}%") if q.presence
 
       render_success(
-        users: ActiveModel::Serializer::CollectionSerializer.new(
+        users: ActiveModelSerializers::SerializableResource.new(
           users,
-          serializer: UserSerializer,
+          each_serializer: UserSerializer,
           scope: OpenStruct.new(current_user: current_user)
         ),
-        albums: ActiveModel::Serializer::CollectionSerializer.new(
+        albums: ActiveModelSerializers::SerializableResource.new(
           albums,
-          serializer: AlbumSerializer,
+          each_serializer: AlbumSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        playlists: ActiveModel::Serializer::CollectionSerializer.new(
+        playlists: ActiveModelSerializers::SerializableResource.new(
           playlists,
-          serializer: AlbumSerializer,
+          each_serializer: AlbumSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        products: ActiveModel::Serializer::CollectionSerializer.new(
+        products: ActiveModelSerializers::SerializableResource.new(
           products,
-          serializer: ShopProductSerializer,
+          each_serializer: ShopProductSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        streams: ActiveModel::Serializer::CollectionSerializer.new(
+        streams: ActiveModelSerializers::SerializableResource.new(
           streams,
-          serializer: StreamSerializer,
+          each_serializer: StreamSerializer,
           scope: OpenStruct.new(current_user: current_user)
         )
       )
@@ -298,30 +294,30 @@ module Api::V1
       streams = Stream.order("random()").page(page).per(per_page)
 
       render_success(
-        albums: ActiveModel::Serializer::CollectionSerializer.new(
+        albums: ActiveModelSerializers::SerializableResource.new(
           albums,
-          serializer: AlbumSerializer,
+          each_serializer: AlbumSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        playlists: ActiveModel::Serializer::CollectionSerializer.new(
+        playlists: ActiveModelSerializers::SerializableResource.new(
           playlists,
-          serializer: AlbumSerializer,
+          each_serializer: AlbumSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        products: ActiveModel::Serializer::CollectionSerializer.new(
+        products: ActiveModelSerializers::SerializableResource.new(
           products,
-          serializer: ShopProductSerializer,
+          each_serializer: ShopProductSerializer,
           scope: OpenStruct.new(current_user: current_user),
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        streams: ActiveModel::Serializer::CollectionSerializer.new(
+        streams: ActiveModelSerializers::SerializableResource.new(
           streams,
-          serializer: StreamSerializer,
+          each_serializer: StreamSerializer,
           scope: OpenStruct.new(current_user: current_user)
         )
       )
