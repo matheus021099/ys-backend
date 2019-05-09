@@ -86,11 +86,11 @@ module Api::V1
       @track.attributes = permitted_attributes(@track)
       @track.save(validate: false)
 
-      Util::Audio.update_in_acr(
-        acr_id: @track.acr_id,
-        track_name: @track.name,
-        artist_name: current_user.name.blank? ? current_user.display_name : current_user.name
-      ) unless @track.acr_id.blank?
+      # Util::Audio.update_in_acr(
+      #   acr_id: @track.acr_id,
+      #   track_name: @track.name,
+      #   artist_name: current_user.name.blank? ? current_user.display_name : current_user.name
+      # ) unless @track.acr_id.blank?
 
       render_success @track
     end

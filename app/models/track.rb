@@ -39,10 +39,10 @@ class Track < ApplicationRecord
   end
 
   # remove track from acrcloud
-  after_destroy :remove_from_acr
-  def remove_from_acr
-    Util::Audio.remove_from_acr(self.acr_id) unless self.acr_id.blank?
-  end
+  # after_destroy :remove_from_acr
+  # def remove_from_acr
+  #   Util::Audio.remove_from_acr(self.acr_id) unless self.acr_id.blank?
+  # end
 
   # slug
   extend FriendlyId
