@@ -14,7 +14,7 @@ class AlbumChecker
       "at.track_id IS NULL"
     ).each do |album|
       if album.playlist?
-        album.destory
+        album.destroy
       else
         album.make_private
       end

@@ -3,7 +3,7 @@ class AlbumSerializer1 < Panko::Serializer
   attributes :id, :slug, :name, :cover, :album_type, :recommended, :collaborators_count
 
   attributes :user, :genres, :tracks
-  attributes :collaborators, :can_edit_collaborators
+  attributes :collaborators
 
   def cover
     {

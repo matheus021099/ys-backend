@@ -386,7 +386,7 @@ module Api::V1
       # if @conversation.participants.count == 0 # if all participants deleted this conversation
       #   message_ids = @conversation.messages.pluck(:id)
       #   @conversation.messages.destroy_all     # destroy all conversation's messages
-      #   @conversation.destory                  # destroy the conversation
+      #   @conversation.destroy                  # destroy the conversation
       #   # puts "\n\n"
       #   # p message_ids
       #   # puts "\n\n\n"

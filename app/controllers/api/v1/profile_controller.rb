@@ -189,13 +189,12 @@ module Api::V1
 
       feeds = @user.repost_query(filter, genre).page(page).per(per_page)
 
-      render_success(
-        feeds: ActiveModel::Serializer::CollectionSerializer.new(
-          feeds,
-          serializer: FeedSerializer,
-          scope: OpenStruct.new(current_user: current_user),
-          include_collaborators: true,
-          include_collaborators_user: true
+      render_success Panko::Response.new(
+        feeds: Panko::ArraySerializer.new(
+          feeds, {
+            each_serializer: FeedSerializer1,
+            scope: OpenStruct.new(current_user: current_user)
+          }
         ),
         pagination: pagination(feeds)
       )
