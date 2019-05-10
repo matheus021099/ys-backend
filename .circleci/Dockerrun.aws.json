@@ -199,6 +199,14 @@
           "value": "<NEWRELIC_KEY>"
         },
         {
+          "name": "SENTRY_DSN",
+          "value": "<SENTRY_DSN>"
+        },
+        {
+          "name": "SENTRY_CURRENT_ENV",
+          "value": "<SENTRY_CURRENT_ENV>"
+        },
+        {
           "name": "SUPERADMIN_EMAIL",
           "value": "<SUPERADMIN_EMAIL>"
         },
