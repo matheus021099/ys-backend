@@ -248,7 +248,7 @@ module Api::V1
       render_success(
         users: ActiveModelSerializers::SerializableResource.new(
           users,
-          serializer: UserSerializer1,
+          each_serializer: UserSerializer1,
           scope: OpenStruct.new(current_user: current_user)
         ),
         pagination: pagination(users)

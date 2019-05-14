@@ -681,7 +681,7 @@ class User < ApplicationRecord
         }
       ).group(:id).count.keys
 
-    User.find(users_ids)
+    User.where(id: users_ids)
   end
 
   class << self
