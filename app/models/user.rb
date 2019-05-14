@@ -663,6 +663,27 @@ class User < ApplicationRecord
     end
   end
 
+  def sample_following_query
+    users_ids = User
+      .joins("RIGHT JOIN follows ON users.id = follows.followable_id")
+      .joins("JOIN albums ON users.id = albums.user_id")
+      .where(
+        users: {
+          status: User.statuses[:active],
+          user_type: User.user_types[:artist]
+        },
+        follows: {
+          blocked: false,
+          follower_id: self.id
+        },
+        albums: {
+          enabled_sample: true
+        }
+      ).group(:id).count.keys
+
+    User.find(users_ids)
+  end
+
   class << self
     # def find_by_username(username)
     #   User.where('lower(username) = ?', username.downcase).first

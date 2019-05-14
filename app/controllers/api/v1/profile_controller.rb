@@ -230,6 +230,32 @@ module Api::V1
     end
 
 
+    swagger_api :sample_followings do |api|
+      summary 'followings have albums cleared to sample'
+      param :header, 'Authorization', :string, :optional, 'Authentication token'
+      param :form, :filter, :string, :optional, 'any, listener, artist'
+      param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
+      param :form, :per_page, :integer, :optional, '10, 50, 100 etc. default is 50'
+      param :path, :id, :string, :required, 'user id or slug'
+    end
+    def sample_followings
+      filter = params[:filter] || 'any'
+      page = params[:page] || 1
+      per_page = params[:per_page] || 50
+
+      users = @user.sample_following_query
+      users = users.page(page).per(per_page)
+      render_success(
+        users: ActiveModelSerializers::SerializableResource.new(
+          users,
+          serializer: UserSerializer1,
+          scope: OpenStruct.new(current_user: current_user)
+        ),
+        pagination: pagination(users)
+      )
+    end
+
+
     swagger_api :followings do |api|
       summary 'followings'
       param :header, 'Authorization', :string, :optional, 'Authentication token'
@@ -280,7 +306,6 @@ module Api::V1
         pagination: pagination(users)
       )
     end
-
 
     private
     def set_user

@@ -129,6 +129,7 @@ Rails.application.routes.draw do
           post :downloaded
           post :reposted
           post :playlists
+          post :sample_followings
           post :followings
           post :followers
         end
