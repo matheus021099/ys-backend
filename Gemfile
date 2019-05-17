@@ -18,6 +18,7 @@ gem 'redis', '~> 3.0'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'newrelic_rpm'
+gem "sentry-raven"
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

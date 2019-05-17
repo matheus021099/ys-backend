@@ -118,6 +118,8 @@ jobs:
             sed -i "s/<SIDEKIQ_USERNAME>/$SIDEKIQ_USERNAME/g" Dockerrun.aws.json
             sed -i "s/<SIDEKIQ_PASSWORD>/$SIDEKIQ_PASSWORD/g" Dockerrun.aws.json
             sed -i "s/<NEWRELIC_KEY>/$NEWRELIC_KEY/g" Dockerrun.aws.json
+            sed -i "s/<SENTRY_DSN>/$SENTRY_DSN/g" Dockerrun.aws.json
+            sed -i "s/<SENTRY_CURRENT_ENV>/$SENTRY_CURRENT_ENV/g" Dockerrun.aws.json
             sed -i "s/<SUPERADMIN_EMAIL>/$SUPERADMIN_EMAIL/g" Dockerrun.aws.json
             sed -i "s/<ADMIN_EMAIL>/$ADMIN_EMAIL/g" Dockerrun.aws.json
             sed -i "s/<ACRCLOUD_ACCESS_KEY>/$ACRCLOUD_ACCESS_KEY/g" Dockerrun.aws.json
