@@ -46,5 +46,10 @@ module YouSoundApi
     # directories must be added to the eager load paths:
     # https://github.com/mperham/sidekiq/wiki/FAQ#why-doesnt-sidekiq-autoload-my-rails-application-code
     config.eager_load_paths.push(Rails.root.join('lib'))
+
+    # Sentry report all uncaught exceptions
+    Raven.configure do |config|
+      config.dsn = ENV["SENTRY_DSN"]
+    end
   end
 end
