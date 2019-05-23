@@ -1,6 +1,6 @@
 module Api::V1
   class PostsController < ApiController
-    before_action :set_post, only: [:update, :show, :destroy]
+    before_action :set_post, only: [:update, :show, :destroy, :view]
 
     swagger_controller :posts, 'Posts'
 
@@ -82,6 +82,18 @@ module Api::V1
 
       @post.destroy
 
+      render_success true
+    end
+
+
+    setup_authorization_header(:view)
+    swagger_api :view do |api|
+      summary 'view a post'
+      param :path, :id, :string, :required
+    end
+    def view
+      authorize @post
+      @post.play(current_user)
       render_success true
     end
 

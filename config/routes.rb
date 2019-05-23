@@ -227,7 +227,11 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :posts
+      resources :posts do
+        member do
+          get :view
+        end
+      end
 
       resources :tickets
 
