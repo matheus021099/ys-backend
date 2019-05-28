@@ -74,7 +74,8 @@ module Api::V1::Shopping
         @product,
         serializer: ShopProductSerializer,
         scope: OpenStruct.new(current_user: current_user),
-        include_collaborators: true
+        include_collaborators: true,
+        include_collaborators_user: true
     end
 
 

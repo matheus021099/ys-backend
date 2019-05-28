@@ -16,6 +16,9 @@ module Clockwork
     StreamChecker.perform_async
     AlbumChecker.perform_async
   }
+  every(1.hour, 'post_checker') {
+    PostChecker.perform_async
+  }
   every(12.hours, 'message_checker') {
     MessageChecker.perform_async
     RepostPriceExpireChecker.perform_async

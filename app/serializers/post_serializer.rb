@@ -1,5 +1,5 @@
 class PostSerializer < ActiveModel::Serializer
-  attributes :id, :media_type, :media_name, :media_url, :description, :assoc_type, :assoc_selector
+  attributes :id, :media_type, :media_name, :media_url, :description, :played, :assoc_type, :assoc_selector
 
   attribute :assoc
   attribute :user
