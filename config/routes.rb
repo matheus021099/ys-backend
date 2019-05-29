@@ -8,9 +8,8 @@ Rails.application.routes.draw do
 
   get '/albums/:album_id/download_as_zip', to: 'web#download_as_zip'
 
-  scope module: 'api' do
+  scope module: 'api', format: false, constraints: { id: %r{[^/]+} } do
     namespace :v2 do
-
       resources :genres do
       end
 
@@ -20,11 +19,9 @@ Rails.application.routes.draw do
           # post :search_discover
         end
       end
-
     end
 
     namespace :v1 do
-
       resources :settings, only: [:index, :create]
 
       resources :twitter, only: [] do
@@ -338,7 +335,6 @@ Rails.application.routes.draw do
 
         resources :addresses
       end
-
     end
   end
 
