@@ -179,7 +179,7 @@ class UserSerializer < ActiveModel::Serializer
     filter = 'merch' if instance_options[:include_recent_merch]
     filter = 'video' if instance_options[:include_recent_video]
 
-    feeds = object.recent_items(scope.current_user, filter, instance_options[:recent_count] || 5)
+    feeds = object.recent_items(scope.current_user, filter, instance_options[:recent_count] || 4)
     if feeds.size > 0
       ActiveModel::Serializer::CollectionSerializer.new(
         feeds,
