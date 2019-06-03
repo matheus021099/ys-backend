@@ -17,7 +17,7 @@ module Api::V1
       activities = policy_scope(Activity).order('updated_at desc')
       activities = activities.where.not(sender_id: exclude_user_ids)
       activities = activities.where.not(sender_id: current_user.id) unless include_own
-      activities = activities.where.not(action_type: Activity.action_types[:play])
+      activities = activities.where.not(action_type: [Activity.action_types[:play], Activity.action_types[:unfollow]])
       activities = activities.where(action_type: action_types) unless action_types.include?('any')
       activities = activities.where.not(module_type: Activity.module_types[:log])
       activities = activities.page(params[:page] || 1).per(params[:per_page] || 10)
