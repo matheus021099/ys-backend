@@ -23,9 +23,9 @@ module Api::V1
       activities = activities.page(params[:page] || 1).per(params[:per_page] || 10)
       # render_success(activities)
       render_success(
-        activities: ActiveModel::Serializer::CollectionSerializer.new(
+        activities: ActiveModelSerializers::SerializableResource.new(
           activities,
-          serializer: ActivitySerializer,
+          each_serializer: ActivitySerializer,
           scope: OpenStruct.new(current_user: current_user),
         ),
         pagination: pagination(activities)
