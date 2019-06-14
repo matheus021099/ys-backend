@@ -31,6 +31,7 @@ class PostPolicy < ApplicationPolicy
       :media_type,
       :media,
       :media_name,
+      :cover,
       :description,
       :cover,
       :assoc_type,

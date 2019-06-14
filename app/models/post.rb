@@ -18,6 +18,7 @@ class Post < ApplicationRecord
   has_many :activities, as: :assoc, dependent: :destroy
 
   mount_uploader :media, FileUploader
+  mount_uploader :cover, CoverUploader
 
   def media_url
     if media_name.blank?

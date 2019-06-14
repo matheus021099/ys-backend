@@ -26,6 +26,7 @@ module Api::V1
       param :form, 'post[media_type]', :string, :required, 'image, video'
       param :form, 'post[media]', :File, :optional
       param :form, 'post[media_name]', :string, :optional
+      param :form, 'post[cover]', :File, :optional
       param :form, 'post[description]', :string, :required
       param :form, 'post[assoc_type]', :string, :optional, 'Album, ShopProduct'
       param :form, 'post[assoc_id]', :string, :optional
@@ -51,6 +52,7 @@ module Api::V1
       param :form, 'post[media_type]', :string, :required, 'image, video'
       param :form, 'post[media]', :File, :optional
       param :form, 'post[media_name]', :string, :optional
+      param :form, 'post[cover]', :File, :optional
       param :form, 'post[description]', :string, :required
       param :form, 'post[assoc_type]', :string, :optional, 'Album, ShopProduct'
       param :form, 'post[assoc_id]', :string, :optional
