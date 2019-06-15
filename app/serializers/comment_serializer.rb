@@ -8,15 +8,15 @@ class CommentSerializer < ActiveModel::Serializer
   def commentable
     case object.commentable_type
       when 'Album'
-        object.assoc.as_json(
+        object.commentable.as_json(
           only: [ :id, :slug, :name, :cover, :album_type ]
         )
       when 'Post'
-        object.assoc.as_json(
+        object.commentable.as_json(
           only: [ :id, :cover, :media_name ]
         )
       when 'ShopProduct'
-        object.assoc.as_json(
+        object.commentable.as_json(
           only: [ :id, :name, :cover ]
         )
     end
