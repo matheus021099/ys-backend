@@ -52,6 +52,7 @@ class Album < ApplicationRecord
   # has_many :album_genres
   # has_many :genres, through: :album_genres
   has_many :comments, as: :commentable, dependent: :destroy
+  has_many :activities, as: :assoc, dependent: :destroy
   # has_many :feeds
   has_many :samplings, foreign_key: 'sampling_album_id', class_name: 'Sampling'
 

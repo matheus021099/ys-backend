@@ -9,6 +9,7 @@ class Comment < ApplicationRecord
 
   belongs_to :user
   belongs_to :commentable, polymorphic: true
+  has_many :activities, as: :assoc, dependent: :destroy
 
   # default
   after_initialize :set_default_values
