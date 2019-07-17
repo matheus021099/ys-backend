@@ -22,6 +22,7 @@ class Activity < ApplicationRecord
     play: 'play',
     download: 'download',
     comment: 'comment',
+    share: 'share',
     signin: 'signin',
     signout: 'signout',
     signup: 'signup',

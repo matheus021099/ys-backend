@@ -91,6 +91,10 @@ class UserPolicy < ApplicationPolicy
     user.artist? && record.label?
   end
 
+  def share?
+    user.id != record.id
+  end
+
   def update_status?
     user.admin? || user.moderator?
   end

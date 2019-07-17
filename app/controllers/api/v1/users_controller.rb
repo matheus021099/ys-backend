@@ -14,6 +14,7 @@ module Api::V1
       :has_followed, :follow, :unfollow, :block, :unblock, :favorite, :unfavorite,
       :hidden_genres, :available_stream_period,
       :send_label_request, :remove_label, :accept_label_request, :deny_label_request,
+      :share,
       :update_status, :update_role
     ]
 
@@ -886,6 +887,57 @@ module Api::V1
       )
       relation.update_attributes(status: Relation.statuses[:denied])
 
+      render_success true
+    end
+
+
+    setup_authorization_header(:share)
+    swagger_api :share
+      summary 'share album / product'
+      param :path, :id, :string, :required
+      param :form, 'assoc_type', :string, :required
+      param :form, 'assoc_id', :integer, :required
+      param :form, 'comment', :string, :required
+    end
+    def share
+      authorization @user
+      render_error 'Empty parameters' and return if params[:assoc_type].blank? || params[:assoc_id].blank?
+      render_error 'Invalid parameters' and return unless ['Album', 'ShopProduct'].include?(parms[:assoc_type])
+
+      assoc = params[:assoc_type].constantize.find(params[:assoc_id]) rescue nil
+      render_error 'Invalid parameters' unless assoc.present?
+
+      comment = params[:comment] || ''
+      # if params[:comment].present?
+      #   comment = params[:comment]
+      # else
+      #   if params[:assoc_type] == 'Album'
+      #   else
+      #   end
+      # end
+
+      Activity.insert(
+        sender_id: current_user.id,
+        receiver_id: @user.id,
+        message: comment,
+        assoc_type: assoc.class.name,
+        assoc_id: assoc.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:share],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:unread]
+      )
+      Activity.insert(
+        sender_id: current_user.id,
+        receiver_id: current_user.id,
+        message: comment,
+        assoc_type: assoc.class.name,
+        assoc_id: assoc.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:share],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:read]
+      )
       render_success true
     end
 

@@ -73,6 +73,7 @@ Rails.application.routes.draw do
           get :remove_label
           get :accept_label_request
           get :deny_label_request
+          post :share
           post :update_status
           post :update_role
         end
