@@ -177,6 +177,7 @@ class ShopCart < ApplicationRecord
           payment_token: stripe_charge_id,
           status: ShopOrder.statuses[:order_pending]
         }
+        # order.merchant = merchant
         order.save!
 
         payment = Payment.buy(
@@ -202,6 +203,29 @@ class ShopCart < ApplicationRecord
     end
 
     orders.each do |order|
+      Activity.create(
+        sender_id: current_user.id,
+        receiver_id: order.merchant_id,
+        message: "#{current_user.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",,
+        assoc_type: order.class.name,
+        assoc_id: order.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:order],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:unread]
+      )
+      Activity.create(
+        sender_id: current_user.id,
+        receiver_id: current_user.id,
+        message: "purchased [#{order.items.collect{|item| item.product.name}.join(', ')}] from #{order.merchant.display_name}",
+        assoc_type: order.class.name,
+        assoc_id: order.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:order],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:read]
+      )
+
       ActionCable.server.broadcast("notification_#{order.merchant_id}", {sell: 1})
       order.items.each do |item|
         item.mark_as_shipped if item.product.category.is_digital

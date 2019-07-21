@@ -23,6 +23,8 @@ class Activity < ApplicationRecord
     download: 'download',
     comment: 'comment',
     share: 'share',
+    order: 'order',
+    donation: 'donation',
     signin: 'signin',
     signout: 'signout',
     signup: 'signup',

@@ -431,6 +431,29 @@ module Api::V1
       message_body = "I just sent you #{number_to_currency(amount / 100.0)} for #{description}"
       Util::Message.send(sender, receiver, message_body)
 
+      Activity.create(
+        sender_id: current_user.id,
+        receiver_id: @user.id,
+        message: "#{current_user.display_name} sent you #{number_to_currency(amount / 100.0)} for #{description}",
+        assoc_type: payment.class.name,
+        assoc_id: payment.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:donation],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:unread]
+      )
+      Activity.create(
+        sender_id: current_user.id,
+        receiver_id: current_user.id,
+        message: "sent #{@user.display_name} #{number_to_currency(amount / 100.0)} for #{description}",
+        assoc_type: payment.class.name,
+        assoc_id: payment.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:donation],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:read]
+      )
+
       render json: current_user,
         serializer: UserSerializer,
         scope: OpenStruct.new(current_user: current_user),
