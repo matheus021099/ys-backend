@@ -206,11 +206,11 @@ class ShopCart < ApplicationRecord
       Activity.create(
         sender_id: current_user.id,
         receiver_id: order.merchant_id,
-        message: "#{current_user.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",,
+        message: "#{current_user.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",
         assoc_type: order.class.name,
         assoc_id: order.id,
         module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:order],
+        action_type: Activity.action_types[:order_product],
         alert_type: Activity.alert_types[:both],
         status: Activity.statuses[:unread]
       )
@@ -221,7 +221,7 @@ class ShopCart < ApplicationRecord
         assoc_type: order.class.name,
         assoc_id: order.id,
         module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:order],
+        action_type: Activity.action_types[:order_product],
         alert_type: Activity.alert_types[:both],
         status: Activity.statuses[:read]
       )

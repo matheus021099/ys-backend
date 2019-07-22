@@ -915,7 +915,7 @@ module Api::V1
 
 
     setup_authorization_header(:share)
-    swagger_api :share
+    swagger_api :share do |api|
       summary 'share album / product'
       param :path, :id, :string, :required
       param :form, 'assoc_type', :string, :required
