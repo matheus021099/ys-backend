@@ -191,7 +191,7 @@ module Api::V1
     end
     def search_global
       q = params[:q]
-      limit = 10
+      limit = 20
       users = User.search(
         q.presence || '*',
         fields: [:email, :username, :display_name],
@@ -199,15 +199,29 @@ module Api::V1
         where: {status: 'active'},
         limit: limit
       )
-      albums_all = Album.search(
+      # albums_all = Album.search(
+      #   q.presence || '*',
+      #   fields: [:name, :description, :owner_username, :owner_display_name],
+      #   match: :word_start,
+      #   where: {status: ['published', 'collaborated'], slug: {not: nil}},
+      #   limit: limit
+      # )#, load: false)
+      # albums = albums_all.select{|a| a.album_type == 'album'}
+      # playlists = albums_all.select{|a| a.album_type == 'playlist'}
+      albums = Album.search(
         q.presence || '*',
         fields: [:name, :description, :owner_username, :owner_display_name],
         match: :word_start,
-        where: {status: ['published', 'collaborated'], slug: {not: nil}},
+        where: {album_type: 'album', status: ['published', 'collaborated'], slug: {not: nil}},
         limit: limit
-      )#, load: false)
-      albums = albums_all.select{|a| a.album_type == 'album'}
-      playlists = albums_all.select{|a| a.album_type == 'playlist'}
+      )
+      playlists = Album.search(
+        q.presence || '*',
+        fields: [:name, :description, :owner_username, :owner_display_name],
+        match: :word_start,
+        where: {album_type: 'playlist', status: ['published', 'collaborated'], slug: {not: nil}},
+        limit: limit
+      )
       products = ShopProduct.search(
         q.presence || '*',
         fields: [:name, :description, :merchant_username, :merchant_display_name],
