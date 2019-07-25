@@ -163,10 +163,10 @@ module Api::V1
       contributors_hash = {}
       contributors = []
       contributor = nil
-      unless params[:album][:contributors].blank?
+      if params[:album][:contributors].present?
         begin
           data = JSON.parse(params[:album][:contributors])
-          contributors_hash = data.inject({}){|o, c| o[c['user_id']] = c; o}
+          contributors_hash = data.inject({}){|o, c| o[c['user_id']] ||= []; o[c['user_id']] << c; o}
           contributors = User.where(id: contributors_hash.keys)
         rescue => ex
         end
@@ -176,7 +176,7 @@ module Api::V1
       collaborators_hash = {}
       collaborators = []
       collaborator = nil
-      unless params[:album][:collaborators].blank?
+      if params[:album][:collaborators].present?
         begin
           data = JSON.parse(params[:album][:collaborators])
           collaborators_hash = data.inject({}){|o, c| o[c['user_id']] = c; o}
@@ -199,13 +199,15 @@ module Api::V1
         )
 
         contributors.each do |contributor|
-          UserAlbum.create(
-            user_id: contributor.id,
-            album_id: @album.id,
-            user_type: UserAlbum.user_types[:contributor],
-            user_role: contributors_hash[contributor.id]['user_role'],
-            status: UserAlbum.statuses[:accepted]
-          )
+          contributors_hash[contributor.id].each do |contributor_hash|
+            UserAlbum.create(
+              user_id: contributor.id,
+              album_id: @album.id,
+              user_type: UserAlbum.user_types[:contributor],
+              user_role: contributor_hash['user_role'],
+              status: UserAlbum.statuses[:accepted]
+            )
+          end
         end
 
         message_body = "#{current_user.display_name} wants to upload this ablum collaboration"
@@ -348,10 +350,10 @@ module Api::V1
       contributors_hash = {}
       contributors = []
       contributor = nil
-      unless params[:album][:contributors].blank?
+      if params[:album][:contributors].present?
         begin
           data = JSON.parse(params[:album][:contributors])
-          contributors_hash = data.inject({}){|o, c| o[c['user_id']] = c; o}
+          contributors_hash = data.inject({}){|o, c| o[c['user_id']] ||= []; o[c['user_id']] << c; o}
           contributors = User.where(id: contributors_hash.keys)
         rescue => ex
         end
@@ -361,7 +363,7 @@ module Api::V1
       collaborators_hash = {}
       collaborators = []
       collaborator = nil
-      unless params[:album][:collaborators].blank?
+      if params[:album][:collaborators].present?
         begin
           data = JSON.parse(params[:album][:collaborators])
           collaborators_hash = data.inject({}){|o, c| o[c['user_id']] = c; o}
@@ -391,24 +393,26 @@ module Api::V1
         end
       end
 
-      unless params[:album][:contributors].blank?
+      if params[:album][:contributors].present?
         ActiveRecord::Base.transaction do
           UserAlbum.where(album_id: @album.id, user_type: UserAlbum.user_types[:contributor]).delete_all
           contributors.each do |contributor|
-            contributors_hash[contributor.id].delete('user')
-            contributors_hash[contributor.id].delete('status')
-            UserAlbum.create(
-              contributors_hash[contributor.id].merge(
-                album_id: @album.id,
-                user_type: UserAlbum.user_types[:contributor],
-                status: UserAlbum.statuses[:accepted]
+            contributors_hash[contributor.id].each do |contributor_hash|
+              contributor_hash.delete('user')
+              contributor_hash.delete('status')
+              UserAlbum.create(
+                contributor_hash.merge(
+                  album_id: @album.id,
+                  user_type: UserAlbum.user_types[:contributor],
+                  status: UserAlbum.statuses[:accepted]
+                )
               )
-            )
+            end
           end
         end
       end
 
-      unless params[:album][:collaborators].blank?
+      if params[:album][:collaborators].present?
         ActiveRecord::Base.transaction do
           UserAlbum.where(album_id: @album.id, user_type: UserAlbum.user_types[:collaborator]).delete_all
           collaborators.each do |collaborator|
