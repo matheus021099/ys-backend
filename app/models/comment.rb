@@ -36,7 +36,7 @@ class Comment < ApplicationRecord
       Activity.create(
         sender_id: self.user_id,
         receiver_id: self.commentable.user_id,
-        message: 'commented on album',
+        message: "commented on #{commentable_type}",
         module_type: Activity.module_types[:activity],
         action_type: Activity.action_types[:comment],
         alert_type: Activity.alert_types[:both],
@@ -54,7 +54,7 @@ class Comment < ApplicationRecord
       Activity.create(
         sender_id: self.user_id,
         receiver_id: user.id,
-        message: 'commented on album',
+        message: "commented on #{commentable_type}",
         module_type: Activity.module_types[:activity],
         action_type: Activity.action_types[:comment],
         alert_type: Activity.alert_types[:both],

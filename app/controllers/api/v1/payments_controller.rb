@@ -8,9 +8,29 @@ module Api::V1
 
     swagger_api :index do |api|
       summary 'list payments'
+      param :query, :q, :string, :optional
+      param :query, :payment_types, :string, :optional, 'any, refund'
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
     end
     def index
-      render_success true
+      render_error "Not authorized" and return unless current_user.admin?
+      payment_types = params[:payment_types].present? ? params[:payment_types].split(',').map(&:strip) : ['any']
+      payments = Payment
+        .joins("LEFT JOIN users sender ON sender.id = payments.sender_id")
+        .page(params[:page] || 1)
+        .per(params[:per_page] || 10)
+        # .order("created_at DESC")
+      payments = payments.where("sender.display_name ILIKE ?", "#{params[:q]}%") unless params[:q].blank?
+      payments = payments.where(payment_type: payment_types) unless payment_types.include?('any')
+      render_success(
+        payments: ActiveModel::Serializer::CollectionSerializer.new(
+          payments,
+          serializer: PaymentSerializer,
+          scope: OpenStruct.new(current_user: current_user)
+        ),
+        pagination: pagination(payments)
+      )
     end
 
 
