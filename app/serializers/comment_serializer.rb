@@ -13,7 +13,13 @@ class CommentSerializer < ActiveModel::Serializer
         )
       when 'ShopProduct'
         object.commentable.as_json(
-          only: [ :id, :name, :cover ]
+          only: [ :id, :name ],
+          # methods: :covers,
+          include: {
+            covers: {
+              only: [ :id, :cover, :position ]
+            }
+          }
         )
       when 'Post'
         object.commentable.as_json(

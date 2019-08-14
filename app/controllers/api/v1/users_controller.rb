@@ -923,9 +923,9 @@ module Api::V1
       param :form, 'comment', :string, :required
     end
     def share
-      authorization @user
+      authorize @user
       render_error 'Empty parameters' and return if params[:assoc_type].blank? || params[:assoc_id].blank?
-      render_error 'Invalid parameters' and return unless ['Album', 'ShopProduct'].include?(parms[:assoc_type])
+      render_error 'Invalid parameters' and return unless ['Album', 'ShopProduct'].include?(params[:assoc_type])
 
       assoc = params[:assoc_type].constantize.find(params[:assoc_id]) rescue nil
       render_error 'Invalid parameters' unless assoc.present?

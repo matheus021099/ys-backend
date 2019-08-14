@@ -26,6 +26,10 @@ class PostPolicy < ApplicationPolicy
     user.id == record.user_id
   end
 
+  def view?
+    user.id != record.user_id
+  end
+
   def permitted_attributes
     [
       :media_type,

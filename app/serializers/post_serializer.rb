@@ -27,8 +27,12 @@ class PostSerializer < ActiveModel::Serializer
         )
       when 'ShopProduct'
         object.assoc.as_json(
-          only: [ :id, :name, :cover ],
+          only: [ :id, :name ],
+          # methods: :covers,
           include: {
+            covers: {
+              only: [ :id, :cover, :position ]
+            },
             merchant: {
               only: [ :id, :slug, :username, :display_name, :avatar ]
             }
