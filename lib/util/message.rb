@@ -28,7 +28,8 @@ class Util::Message
         receipt = sender.reply_to_conversation(conversation, message_body, nil, true, false)
       end
 
-      unless attachment.nil?
+      # unless attachment.nil?
+      if attachment.present?
         attachment.mailboxer_notification_id = receipt.message.id
         attachment.save!
       end
@@ -41,7 +42,18 @@ class Util::Message
 
     def broadcast(message)
       message.recipients.each do |user|
-        ActionCable.server.broadcast("message_#{user.id}", MessageSerializer.new(message, scope: OpenStruct.new(current_user: user)).as_json)
+        message_json = MessageSerializer.new(
+          message,
+          scope: OpenStruct.new(current_user: user)
+        ).as_json
+
+        PushNotificationWorker.perform_async(
+          user.devices.where(enabled: true).pluck(:token),
+          'MESSAGE_BROADCAST',
+          message_json
+        )
+
+        ActionCable.server.broadcast("message_#{user.id}", message_json)
       end
     end
   end

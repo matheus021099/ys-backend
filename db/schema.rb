@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190614191049) do
+ActiveRecord::Schema.define(version: 20190815041329) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -117,6 +117,17 @@ ActiveRecord::Schema.define(version: 20190614191049) do
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable_type_and_commentable_id", using: :btree
+  end
+
+  create_table "devices", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "platform",   default: "ios"
+    t.string   "token"
+    t.boolean  "enabled",    default: true
+    t.string   "status"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["user_id"], name: "index_devices_on_user_id", using: :btree
   end
 
   create_table "feeds", force: :cascade do |t|

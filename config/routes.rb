@@ -84,6 +84,8 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :devices, only: [:create]
+
       resources :admin, only: [] do
         collection do
           get :users

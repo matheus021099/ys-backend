@@ -82,6 +82,7 @@ class User < ApplicationRecord
 
   has_one :stream, -> { where.not status: Stream.statuses[:deleted] }
 
+  has_many :devices
   has_many :user_albums
   has_many :albums, through: :user_albums
   # has_many :albums, -> { where status: UserAlbum.statuses[:accepted] }, through: :user_albums

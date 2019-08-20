@@ -48,13 +48,16 @@ module Api::V1
     setup_authorization_header(:sign_out)
     swagger_api :sign_out do |api|
       summary "Sign out"
+      param :form, 'device[token]', :string, :optional, 'device token'
     end
     def sign_out
       skip_authorization
+      device_token = param[:device][:token] || nil
       # current_user.update_attributes(
       #   current_sign_in_at: nil,
       #   current_sign_in_ip: nil
       # )
+      current_user.devices.where(token: device_token).update(enabled: false) unless device_token.blank?
       current_user.stream.remove if current_user.stream.present?
       Activity.create(
         sender_id: current_user.id,

@@ -27,7 +27,7 @@ class MessageSerializer < ActiveModel::Serializer
     )
   end
 
-  def include_sender?
-    instance_options[:include_sender] || false
-  end
+  # def include_sender?
+  #   instance_options[:include_sender] || false
+  # end
 end
