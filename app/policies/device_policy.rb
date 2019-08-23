@@ -15,6 +15,7 @@ class DevicePolicy < ApplicationPolicy
 
   def permitted_attributes
     [
+      :identifier,
       :token,
       :platform
     ]

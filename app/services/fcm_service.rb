@@ -1,14 +1,14 @@
 require 'fcm'
 
 class FCMService
-  def send_push(user_push_tokens, message, data = {}, icon = nil, title = 'YouSound')
+  def send_push(user_push_tokens, type, message, data = {}, icon = nil, title = 'YouSound')
     @title = title
     @message = message
     @icon = icon
     @data = data
+    @data[:push_notification_type] = type
 
     user_push_tokens = [user_push_tokens] if user_push_tokens.is_a?(String)
-    # options = platform.eql?('ios') ? prepare_ios_options : prepare_options
     response = fcm.send(user_push_tokens, options)
     response
   end
@@ -20,7 +20,7 @@ class FCMService
   end
 
   def api_key
-    $env.firebase.authorization
+    ENV['FCM_SERVER_KEY']
   end
 
   def options

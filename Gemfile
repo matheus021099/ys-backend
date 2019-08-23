@@ -92,6 +92,9 @@ gem 'faker'
 # enable elastic-search
 gem 'searchkick'
 
+# firebase clouding message
+gem 'fcm'
+
 gem 'countries'
 gem 'slim-rails'
 gem 'swagger-docs'

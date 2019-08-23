@@ -7,11 +7,11 @@ class MessageSerializer < ActiveModel::Serializer
   # belongs_to :conversation
 
   def is_read
-    object.is_read?(scope.user)
+    object.is_read?(scope.current_user)
   end
 
   def sender
-    UserSerializer.new(
+    UserSerializer1.new(
       object.sender,
       scope: scope
     )

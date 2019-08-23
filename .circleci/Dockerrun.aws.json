@@ -167,6 +167,10 @@
           "value": "<INTERCOM_SECRET_KEY>"
         },
         {
+          "name": "FCM_SERVER_KEY",
+          "value": "<FCM_SERVER_KEY>"
+        },
+        {
           "name": "SKYLIGHT_AUTHENTICATION",
           "value": "<SKYLIGHT_AUTHENTICATION>"
         },

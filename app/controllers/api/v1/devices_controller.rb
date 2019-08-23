@@ -3,14 +3,14 @@ module Api::V1
     swagger_controller :devices, 'device'
 
 
-    setup_authorization_header(:create)
     swagger_api :create do |api|
       summary 'create a device'
-      param :form, 'device[token]', :string, :required, 'device token'
+      param :form, 'device[identifier]', :string, :required, 'device id'
+      param :form, 'device[token]', :string, :required, 'fcm token'
       param :form, 'device[platform]', :string, :required, 'ios, android'
     end
     def create
-      @device = Device.new(user: current_user)
+      @device = current_user.devices.find_or_create_by!(identifier: params[:device][:identifier])
       authorize @device
       @device.attributes = permitted_attributes(@device)
       @device.enabled = true

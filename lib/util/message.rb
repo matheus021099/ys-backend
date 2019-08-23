@@ -34,6 +34,17 @@ class Util::Message
         attachment.save!
       end
 
+      # PushNotificationWorker.new.perform(
+      PushNotificationWorker.perform_async(
+        receiver.devices.where(enabled: true).pluck(:token),
+        'MESSAGE_RECEIVED',
+        message_body,
+        MessageSerializer.new(
+          receipt.message,
+          scope: OpenStruct.new(current_user: sender)
+        ).as_json
+      )
+
       self.broadcast(receipt.message)
       ActionCable.server.broadcast("notification_#{receiver.id}", {message: 1})
 
@@ -46,12 +57,6 @@ class Util::Message
           message,
           scope: OpenStruct.new(current_user: user)
         ).as_json
-
-        PushNotificationWorker.perform_async(
-          user.devices.where(enabled: true).pluck(:token),
-          'MESSAGE_BROADCAST',
-          message_json
-        )
 
         ActionCable.server.broadcast("message_#{user.id}", message_json)
       end

@@ -38,7 +38,18 @@ class Attachment < ApplicationRecord
       assoc_id: self.attachable_id,
       attachment_id: self.id
     )
+
     self.update_attributes(status: Attachment.statuses[:accepted])
+
+    PushNotificationWorker.perform_async(
+      receiver.devices.where(enabled: true).pluck(:token),
+      'MESSAGE_ATTACHMENT_ACCEPTED',
+      "[#{attachable.name}] has been accepted",
+      MessageSerializer.new(
+        message,
+        scope: OpenStruct.new(current_user: sender)
+      ).as_json
+    )
   end
 
   # def repost_deny
@@ -50,7 +61,17 @@ class Attachment < ApplicationRecord
       assoc_id: self.attachable_id,
       attachment_id: self.id
     )
+
     self.update_attributes(status: Attachment.statuses[:denied])
+
+    PushNotificationWorker.perform_async(
+      receiver.devices.where(enabled: true).pluck(:token),
+      'MESSAGE_ATTACHMENT_DENIED',
+      "[#{attachable.name}] has been denied",
+      MessageSerializer.new(
+        message
+      ).as_json
+    )
   end
 
   def auto_cancel(sender: nil, receiver: nil)
@@ -59,7 +80,18 @@ class Attachment < ApplicationRecord
       assoc_id: self.attachable_id,
       attachment_id: self.id
     )
+
     self.update_attributes(status: Attachment.statuses[:canceled])
+
+    # message.recipients.each do |user|
+    #   PushNotificationWorker.perform_async(
+    #     user.devices.where(enabled: true).pluck(:token),
+    #     'MESSAGE_ATTACHMENT_CANCELED',
+    #     "[#{attachable.name}] has been auto canceled",
+    #     MessageSerializer.new(
+    #       message
+    #     ).as_json
+    # end
   end
 
   def accept_on_free(sender: nil, receiver: nil)
@@ -70,7 +102,18 @@ class Attachment < ApplicationRecord
       assoc_id: self.attachable_id,
       attachment_id: self.id
     )
+
     self.update_attributes(status: Attachment.statuses[:accepted])
+
+    PushNotificationWorker.perform_async(
+      receiver.devices.where(enabled: true).pluck(:token),
+      'MESSAGE_ATTACHMENT_ACCEPTED',
+      "[#{attachable.name}] has been accepted for free",
+      MessageSerializer.new(
+        message,
+        scope: OpenStruct.new(current_user: sender)
+      ).as_json
+    )
   end
 
   def self.find_pending(sender: nil, receiver: nil, attachment_type: '', attachable: nil)
