@@ -15,6 +15,7 @@ module Api::V1
         disable_sign_up: ActiveModel::Type::Boolean.new.cast(settings[:disable_sign_up]),
         disable_live_video: ActiveModel::Type::Boolean.new.cast(settings[:disable_live_video]),
         disable_merch_upload: ActiveModel::Type::Boolean.new.cast(settings[:disable_merch_upload]),
+        audio_reminder_tracks_count: settings[:audio_reminder_tracks_count].to_i
       }
     end
 
@@ -26,6 +27,7 @@ module Api::V1
       param :form, :value, :string, :required
     end
     def create
+      render_error 'Permission denied', :unauthorized and return unless current_user.admin?
       render_error 'Please enter key and value', :unprocessable_entity and return unless params[:key].present? && params[:value].present?
       render_error 'Invalid key', :unprocessable_entity and return unless Setting::OPTIONS.keys.include?(params[:key].to_sym)
       setting = Setting.find_or_create_by(key: params[:key])

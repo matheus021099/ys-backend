@@ -17,6 +17,7 @@ class Activity < ApplicationRecord
     follow: 'follow',
     unfollow: 'unfollow',
     repost: 'repost',
+    repost_by_following: 'repost_by_following',
     unrepost: 'unrepost',
     hide: 'hide',
     play: 'play',

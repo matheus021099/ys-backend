@@ -1,6 +1,6 @@
 class Device < ApplicationRecord
   enum platform: {
-    ios: 'iOS',
+    ios: 'ios',
     android: 'android'
   }
 

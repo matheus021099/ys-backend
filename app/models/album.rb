@@ -348,7 +348,7 @@ class Album < ApplicationRecord
           assoc_type: self.class.name,
           assoc_id: self.id,
           module_type: Activity.module_types[:stream],
-          action_type: Activity.action_types[:repost],
+          action_type: Activity.action_types[:repost_by_following],
           alert_type: Activity.alert_types[:both],
           page_track: page_track,
           status: Activity.statuses[:unread]

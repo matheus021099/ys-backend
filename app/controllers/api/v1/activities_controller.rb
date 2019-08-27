@@ -8,16 +8,34 @@ module Api::V1
       param :query, :include_own, :boolean, :optional
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
+      # param :query, :device_platform, :string, :optional, 'ios, android, web. default is ios'
     end
     def index
       action_types = params[:action_types].present? ? params[:action_types].split(',').map(&:strip) : ['any']
       include_own = params[:include_own].present? ? ActiveModel::Type::Boolean.new.cast(params[:include_own]) : false
+      # device_platform = params[:device_platform] || 'ios'
       exclude_user_ids = current_user.block_list
 
       activities = policy_scope(Activity).order('updated_at desc')
       activities = activities.where.not(sender_id: exclude_user_ids)
       activities = activities.where.not(sender_id: current_user.id) unless include_own
-      activities = activities.where.not(action_type: [Activity.action_types[:play], Activity.action_types[:unfollow]])
+      # if device_platform.blank?
+      #   activities = activities.where.not(action_type: [
+      #     Activity.action_types[:play],
+      #     Activity.action_types[:unfollow]
+      #   ])
+      # else
+      #   activities = activities.where.not(action_type: [
+      #     Activity.action_types[:play],
+      #     Activity.action_types[:unfollow],
+      #     Activity.action_types[:repost_by_following]
+      #   ])
+      # end
+      activities = activities.where.not(action_type: [
+        Activity.action_types[:play],
+        Activity.action_types[:unfollow],
+        Activity.action_types[:repost_by_following]
+      ])
       activities = activities.where(action_type: action_types) unless action_types.include?('any')
       activities = activities.where.not(module_type: Activity.module_types[:log])
       activities = activities.page(params[:page] || 1).per(params[:per_page] || 10)

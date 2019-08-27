@@ -129,11 +129,16 @@ module Api::V1::Shopping
 
     setup_authorization_header(:received_export)
     swagger_api :received_export do |api|
-      summary 'export orders a user received in csv format '
+      summary 'export orders a user received in csv format'
+      param :query, :start_date, :string, :optional
+      param :query, :end_date, :string, :optional
     end
     def received_export
       skip_policy_scope
       skip_authorization
+
+      start_date = DateTime.parse(params[:start_date]) rescue nil
+      end_date = DateTime.parse(params[:end_date]) rescue nil
 
       order_ids = ShopItem
         .where.not(order_id: nil)
@@ -144,6 +149,9 @@ module Api::V1::Shopping
       orders = ShopOrder.includes(:customer, :shipping_address, items: [:product, :product_variant])
         .where(id: order_ids)
         .order(created_at: :desc)
+
+      orders = orders.where('created_at >= ?', start_date) unless start_date.blank?
+      orders = orders.where('created_at <= ?', end_date) unless end_date.blank?
 
       csv_string = CSV.generate do |csv|
         csv << [
@@ -166,7 +174,12 @@ module Api::V1::Shopping
         end
       end
 
-      filename = "order-items-#{Time.zone.now.strftime('%Y%m%d%H%M%S')}.csv"
+      if start_date.blank? && end_date.blank?
+        # filename = "order-items-#{Time.zone.now.strftime('%Y%m%d%H%M%S')}.csv"
+        filename = "order-items-#{Time.zone.now.strftime('%Y%m%d')}.csv"
+      else
+        filename = "order-items-#{[start_date, end_date].compact.map{|d| d.strftime('%Y%m%d')}.join('-')}"
+      end
       send_data csv_string, :type => 'text/csv; charset=utf-8; header=present', disposition: :attachment, filename: filename
     end
 

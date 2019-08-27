@@ -53,8 +53,7 @@ module Api::V1
     end
     def sign_out
       skip_authorization
-      device_identifier = params[:device][:identifier] || nil
-      # device_token = param[:device][:token] || nil
+      device_identifier = params.dig(:device, :identifier)
       # current_user.update_attributes(
       #   current_sign_in_at: nil,
       #   current_sign_in_ip: nil
