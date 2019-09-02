@@ -69,7 +69,8 @@ class Attachment < ApplicationRecord
       'MESSAGE_ATTACHMENT_DENIED',
       "[#{attachable.name}] has been denied",
       MessageSerializer.new(
-        message
+        message,
+        scope: OpenStruct.new(current_user: sender)
       ).as_json
     )
   end

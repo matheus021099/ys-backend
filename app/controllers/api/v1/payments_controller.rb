@@ -34,6 +34,15 @@ module Api::V1
     end
 
 
+    swagger_api :has_transaction_in_period do |api|
+      summary 'check if has a transaction within 30 days'
+      param :header, 'Authorization', :string, :optional, 'Authorization token'
+    end
+    def has_transaction_in_period
+      render_success Payment.sent_from(current_user.id).where("created_at < ?", 1.month.ago).size > 0
+    end
+
+
     setup_authorization_header(:sent)
     swagger_api :sent do |api|
       summary 'sent payments'
