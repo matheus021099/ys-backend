@@ -699,7 +699,7 @@ module Api::V1
     end
     def unblock
       authorize @user
-      current_user.block_list.remove(@user.id)
+      current_user.block_list.remove(@user.id.to_s)
       current_user.save
       render_success true
     end

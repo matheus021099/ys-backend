@@ -24,9 +24,9 @@ class ShopProductSerializer < ActiveModel::Serializer
     object.variants[0].price
   end
 
-  def stock
-    object.stock
-  end
+  # def stock
+  #   object.stock
+  # end
 
   def sold
     total = 0
