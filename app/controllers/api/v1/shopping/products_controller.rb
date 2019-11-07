@@ -5,6 +5,8 @@ module Api::V1::Shopping
       :accept_collaboration, :deny_collaboration,
       :ordered_items, :tickets
     ]
+    skip_before_action :authenticate_token!, only: [:show]
+    before_action :authenticate_token, only: [:show]
 
     swagger_controller :products, 'Product'
 
