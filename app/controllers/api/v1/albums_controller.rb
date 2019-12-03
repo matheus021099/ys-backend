@@ -75,7 +75,7 @@ module Api::V1
 
       albums = Album.search(
         q,
-        fields: [:name, :description, :artis_name],
+        fields: [:name, :description, :artist_name],
         where: {id: {not: current_user.id}},
         includes: [:tracks, :album_tracks, :user_albums, :user],
         order: orders,

@@ -42,24 +42,43 @@ module Api::V1::Shopping
 
     setup_authorization_header(:search)
     swagger_api :search do |api|
-      summary 'search products - used in manage / products'
-      # param :query, :q, :string, :optional
+      summary 'search products'
+      param :query, :q, :string, :optional
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
     end
     def search
-      # q = params[:q] || '*'
+      skip_policy_scope
+
+      q = params[:q] || '*'
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
-      # orders = {username: :asc}
+      orders = {}
 
-      products = policy_scope(ShopProduct).page(page).per(per_page)
+      # products = policy_scope(ShopProduct).page(page).per(per_page)
+      products = ShopProduct.search(
+        q,
+        fields: [:name, :description, :merchant_username, :merchant_display_name],
+        match: :word_start,
+        where: {
+          id: {not: current_user.id},
+          status: ['published', 'collaborated'],
+          stock_status: 'active',
+          show_status: 'show_all'
+        },
+        includes: [:merchant, :category, :variants, :shipments, :covers, :user_products],
+        order: orders,
+        limit: per_page,
+        offset: (page - 1) * per_page
+      )
+
       # render json: ActiveModel::Serializer::CollectionSerializer.new(products, serializer: ShopProductSerializer)
+      ActiveModelSerializers::SerializableResource
       render_success(
-        products: ActiveModel::Serializer::CollectionSerializer.new(
+        products: ActiveModelSerializers::SerializableResource.new(
           products,
-          serializer: ShopProductSerializer,
-          scope: OpenStruct.new(current_user: current_user),
+          each_serializer: ShopProductSerializer,
+          scope: OpenStruct.new(current_user: current_user)
         ),
         pagination: pagination(products)
       )

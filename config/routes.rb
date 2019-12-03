@@ -297,7 +297,7 @@ Rails.application.routes.draw do
 
         resources :products do
           collection do
-            post :search
+            get :search
           end
 
           member do
