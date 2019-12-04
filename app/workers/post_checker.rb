@@ -8,6 +8,9 @@ class PostChecker
   end
 
   def remove_over_24_hrs
-    Post.where("created_at < ?", 1.day.ago).destroy_all
+    Post.joins(:user)
+      .where.not(users: {username: ENV['PUBLIC_RELATIONS_USERNAME']})
+      .where("posts.created_at < ?", 1.day.ago)
+      .destroy_all
   end
 end

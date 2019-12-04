@@ -123,6 +123,7 @@ jobs:
             sed -i "s/<SENTRY_CURRENT_ENV>/$SENTRY_CURRENT_ENV/g" Dockerrun.aws.json
             sed -i "s/<SUPERADMIN_EMAIL>/$SUPERADMIN_EMAIL/g" Dockerrun.aws.json
             sed -i "s/<ADMIN_EMAIL>/$ADMIN_EMAIL/g" Dockerrun.aws.json
+            sed -i "s/<PUBLIC_RELATIONS_USERNAME>/$PUBLIC_RELATIONS_USERNAME/g" Dockerrun.aws.json
             sed -i "s/<ACRCLOUD_ACCESS_KEY>/$ACRCLOUD_ACCESS_KEY/g" Dockerrun.aws.json
             sed -i "s/<ACRCLOUD_ACCESS_SECRET>/$ACRCLOUD_ACCESS_SECRET/g" Dockerrun.aws.json
             sed -i "s/<ACRCLOUD_1_HOST>/$ACRCLOUD_1_HOST/g" Dockerrun.aws.json

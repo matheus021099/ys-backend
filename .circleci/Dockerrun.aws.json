@@ -219,6 +219,10 @@
           "value": "<ADMIN_EMAIL>"
         },
         {
+          "name": "PUBLIC_RELATIONS_USERNAME",
+          "value": "<PUBLIC_RELATIONS_USERNAME>"
+        },
+        {
           "name": "ACRCLOUD_ACCESS_KEY",
           "value": "<ACRCLOUD_ACCESS_KEY>"
         },
