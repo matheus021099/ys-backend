@@ -204,9 +204,9 @@ class ShopCart < ApplicationRecord
 
     orders.each do |order|
       Activity.create(
-        sender_id: current_user.id,
+        sender_id: self.customer_id,
         receiver_id: order.merchant_id,
-        message: "#{current_user.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",
+        message: "#{self.customer.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",
         assoc_type: order.class.name,
         assoc_id: order.id,
         module_type: Activity.module_types[:activity],
@@ -215,8 +215,8 @@ class ShopCart < ApplicationRecord
         status: Activity.statuses[:unread]
       )
       Activity.create(
-        sender_id: current_user.id,
-        receiver_id: current_user.id,
+        sender_id: self.customer_id,
+        receiver_id: self.customer_id,
         message: "purchased [#{order.items.collect{|item| item.product.name}.join(', ')}] from #{order.merchant.display_name}",
         assoc_type: order.class.name,
         assoc_id: order.id,

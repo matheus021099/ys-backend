@@ -142,7 +142,7 @@ module Api::V1
     def withdraw
       payment = Payment.withdraw(
         user_id: current_user.id,
-        amount: params[:amount]
+        amount: params[:amount].to_i
       )
       # render_error('Failed in withdraw', :unprocessable_entity) and return unless payment.instance_of? Payment
       render_error(payment, :unprocessable_entity) and return unless payment.instance_of? Payment
