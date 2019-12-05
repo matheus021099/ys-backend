@@ -12,7 +12,9 @@ module Api::V1
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 10).to_i
 
-      posts = policy_scope(Post).order('created_at desc').page(page).per(per_page)
+      posts = policy_scope(Post)
+        .where.not(user_id: current_user.block_list)
+        .order('created_at desc').page(page).per(per_page)
 
       render_success(
         posts: ActiveModel::SerializableResource.new(posts),
