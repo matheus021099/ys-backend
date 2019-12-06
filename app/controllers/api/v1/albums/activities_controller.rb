@@ -5,7 +5,7 @@ module Api::V1
     skip_after_action :verify_policy_scoped
     before_action :set_album
 
-    swagger_controller :activities, 'album/{id}/activities'
+    swagger_controller :activities, 'albums/{id}/activities'
 
     swagger_api :index do |api|
       summary 'list activities'

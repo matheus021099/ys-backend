@@ -56,6 +56,7 @@ class Activity < ApplicationRecord
   scope :stream, -> { where(module_type: Activity.module_types[:stream]) }
 
   scope :for_album, -> (album_id) { where(assoc_type: 'Album', assoc_id: album_id) }
+  scope :for_product, -> (product_id) { where(assoc_type: 'ShopProduct', assoc_id: product_id) }
 
   # class method
   class << self

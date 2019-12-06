@@ -309,6 +309,12 @@ Rails.application.routes.draw do
             get :ordered_items
             get :tickets
           end
+
+          resources :activities, controller: 'products/activities', only: [:index] do
+            collection do
+              get :stats
+            end
+          end
         end
 
         resources :items do

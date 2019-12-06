@@ -22,6 +22,10 @@ class ShopOrder < ApplicationRecord
 
   default_scope { order(created_at: :desc) }
 
+  scope :for_product, -> (product_id) {
+    joins(:items => [:product]).where(shop_products: { id: product_id })
+  }
+
   def external_id
     Util::Number.encode self.id
   end
