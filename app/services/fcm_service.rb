@@ -1,6 +1,12 @@
 require 'fcm'
 
 class FCMService
+  enum push_notification_type: {
+    message_attachment_denied: 'MESSAGE_ATTACHMENT_DENIED',
+    user_followed: 'USER_FOLLOWED',
+    product_purchased: 'PRODUCT_PURCHASED'
+  }
+
   def send_push(user_push_tokens, type, message, data = {}, icon = nil, title = 'YouSound')
     @title = title
     @message = message

@@ -630,6 +630,16 @@ module Api::V1
         end
       end
 
+      PushNotificationWorker.perform_async(
+        @user.devices.where(enabled: true).pluck(:token),
+        FCMService::push_notification_types[:user_follow],
+        "[#{current_user.display_name}] has followed you",
+        UserSerializer1.new(
+          @user,
+          scope: OpenStruct.new(current_user: current_user)
+        ).as_json
+      )
+
       render_success(true)
     end
 
