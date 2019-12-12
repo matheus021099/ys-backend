@@ -206,7 +206,9 @@ module Api::V1::Shopping
         @product.release
       end
 
-      render json: @product, serializer: ShopProductSerializer, scope: OpenStruct.new(current_user: current_user)
+      render json: @product,
+        serializer: ShopProductSerializer,
+        scope: OpenStruct.new(current_user: current_user)
     end
 
 
@@ -386,7 +388,9 @@ module Api::V1::Shopping
         @product.release
       end
 
-      render json: @product, serializer: ShopProductSerializer, scope: OpenStruct.new(current_user: current_user)
+      render json: @product,
+        serializer: ShopProductSerializer,
+        scope: OpenStruct.new(current_user: current_user)
     end
 
 

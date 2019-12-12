@@ -203,10 +203,11 @@ class ShopCart < ApplicationRecord
     end
 
     orders.each do |order|
+      message_body = "#{self.customer.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]"
       Activity.create(
         sender_id: self.customer_id,
         receiver_id: order.merchant_id,
-        message: "#{self.customer.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]",
+        message: message_body,
         assoc_type: order.class.name,
         assoc_id: order.id,
         module_type: Activity.module_types[:activity],
@@ -230,6 +231,16 @@ class ShopCart < ApplicationRecord
       order.items.each do |item|
         item.mark_as_shipped if item.product.category.is_digital
       end
+
+      PushNotificationWorker.perform_async(
+        order.merchant.devices.where(enabled: true).pluck(:token),
+        FCMService::push_notification_types[:product_purchased],
+        message_body,
+        ShopOrderSerializer.new(
+          order,
+          scope: OpenStruct.new(current_user: customer),
+        ).as_json
+      )
     end
 
     ActionCable.server.broadcast("notification_#{self.customer_id}", {cart: -items_count})

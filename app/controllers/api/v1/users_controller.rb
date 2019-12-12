@@ -429,7 +429,7 @@ module Api::V1
       sender = current_user
       receiver = @user
       message_body = "I just sent you #{number_to_currency(amount / 100.0)} for #{description}"
-      Util::Message.send(sender, receiver, message_body)
+      Util::Message.send(sender, receiver, message_body, nil, nil, FCMService::push_notification_types[:user_donated])
 
       Activity.create(
         sender_id: current_user.id,
@@ -632,7 +632,7 @@ module Api::V1
 
       PushNotificationWorker.perform_async(
         @user.devices.where(enabled: true).pluck(:token),
-        FCMService::push_notification_types[:user_follow],
+        FCMService::push_notification_types[:user_followed],
         "[#{current_user.display_name}] has followed you",
         UserSerializer1.new(
           @user,

@@ -356,6 +356,14 @@ class Album < ApplicationRecord
       end
     end
 
+    message_body = "#{reposter.display_name} reposted [#{self.name}]"
+    PushNotificationWorker.perform_async(
+      self.user.devices.where(enabled: true).pluck(:token),
+      FCMService::push_notification_types[:album_reposted],
+      message_body,
+      AlbumSerializer1.new(scope: scope).serialize(object.assoc).as_json
+    )
+
     true
   end
 

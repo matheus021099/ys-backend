@@ -305,7 +305,10 @@ module Api::V1
         end
       end
 
-      render json: @album, serializer: AlbumSerializer, scope: OpenStruct.new(current_user: current_user), include_meta: false
+      render json: @album,
+        serializer: AlbumSerializer,
+        scope: OpenStruct.new(current_user: current_user),
+        include_meta: false
     end
 
 
@@ -489,7 +492,10 @@ module Api::V1
         end
       end
 
-      render json: @album, serializer: AlbumSerializer, scope: OpenStruct.new(current_user: current_user), include_meta: false
+      render json: @album,
+        serializer: AlbumSerializer,
+        scope: OpenStruct.new(current_user: current_user),
+        include_meta: false
     end
 
 

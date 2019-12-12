@@ -321,6 +321,17 @@ class ShopProduct < ApplicationRecord
       end
     end
 
+    message_body = "#{reposter.display_name} reposted [#{self.name}]"
+    PushNotificationWorker.perform_async(
+      self.merchant.devices.where(enabled: true).pluck(:token),
+      FCMService::push_notification_types[:product_reposted],
+      message_body,
+      ShopProductSerializer.new(
+        self,
+        scope: OpenStruct.new(current_user: reposter),
+      ).as_json
+    )
+
     true
   end
 

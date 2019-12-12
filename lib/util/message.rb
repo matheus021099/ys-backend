@@ -17,7 +17,7 @@ class Util::Message
       ).first
     end
 
-    def send(sender, receiver, message_body, message_subject = nil, attachment = nil)
+    def send(sender, receiver, message_body, message_subject = nil, attachment = nil, notification_type = nil)
       # message_subject ||= 'Message'
       message_subject = [sender.id, receiver.id].join(', ') if message_subject.blank?
       receipt = nil
@@ -34,10 +34,12 @@ class Util::Message
         attachment.save!
       end
 
+      notification_type ||= FCMService::push_notification_types[:message_sent]
+
       # PushNotificationWorker.new.perform(
       PushNotificationWorker.perform_async(
         receiver.devices.where(enabled: true).pluck(:token),
-        'MESSAGE_RECEIVED',
+        notification_type,
         message_body,
         MessageSerializer.new(
           receipt.message,
