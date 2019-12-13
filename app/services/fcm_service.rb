@@ -12,7 +12,8 @@ class FCMService
     message_attachment_canceled: 'MESSAGE_ATTACHMENT_CANCELED',
     album_reposted: 'ALBUM_REPOSTED'
     product_purchased: 'PRODUCT_PURCHASED',
-    product_reposted: 'PRODUCT_REPOSTED'
+    product_reposted: 'PRODUCT_REPOSTED',
+    commented: 'COMMENTED'
   }
 
   def send_push(user_push_tokens, type, message, data = {}, icon = nil, title = 'YouSound')

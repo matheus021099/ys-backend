@@ -759,7 +759,7 @@ class User < ApplicationRecord
 
       exclude_album_ids = [0]
       unless user.blank?
-         exclude_album_ids = user.blocked_album_ids
+        exclude_album_ids = user.blocked_album_ids
       end
       unless exclude_album_ids.blank?
         where[:id] = {} if where[:id].blank?

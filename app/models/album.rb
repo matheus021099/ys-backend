@@ -361,7 +361,7 @@ class Album < ApplicationRecord
       self.user.devices.where(enabled: true).pluck(:token),
       FCMService::push_notification_types[:album_reposted],
       message_body,
-      AlbumSerializer1.new(scope: scope).serialize(object.assoc).as_json
+      AlbumSerializer1.new(scope: OpenStruct.new(current_user: reposter)).serialize(self).as_json
     )
 
     true

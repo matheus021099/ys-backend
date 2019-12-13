@@ -257,7 +257,7 @@ class ShopProduct < ApplicationRecord
       consumer_id: reposter.id,
       # publisher_id: self.merchant_id,
       publisher_id: reposter.id,
-      assoc_type: 'ShopProduct',
+      assoc_type: self.class.name,
       assoc_id: self.id,
       feed_type: Feed.feed_types[:repost]
     )
@@ -266,7 +266,7 @@ class ShopProduct < ApplicationRecord
       sender_id: reposter.id,
       receiver_id: self.merchant_id,
       message: 'reposted your product',
-      assoc_type: 'ShopProduct',
+      assoc_type: self.class.name,
       assoc_id: self.id,
       module_type: Activity.module_types[:activity],
       action_type: Activity.action_types[:repost],
@@ -279,7 +279,7 @@ class ShopProduct < ApplicationRecord
       sender_id: reposter.id,
       receiver_id: reposter.id,
       message: 'reposted a product',
-      assoc_type: 'ShopProduct',
+      assoc_type: self.class.name,
       assoc_id: self.id,
       module_type: Activity.module_types[:stream],
       action_type: Activity.action_types[:repost],

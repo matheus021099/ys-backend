@@ -44,6 +44,17 @@ class Comment < ApplicationRecord
         assoc_type: 'Comment',
         assoc_id: self.id
       )
+
+      message_body = "#{self.user.display_name} commented on #{commentable_type}"
+      PushNotificationWorker.perform_async(
+        self.commentable.user.devices.where(enabled: true).pluck(:token),
+        FCMService::push_notification_types[:commented],
+        message_body,
+        CommentSerializer.new(
+          self,
+          scope: OpenStruct.new(current_user: self.user),
+        ).as_json
+      )
     end
 
     self.body.gsub /@(\w+)/ do |username|
