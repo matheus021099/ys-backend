@@ -13,6 +13,7 @@ module Api::V1
       settings = Setting.all.inject(Setting::OPTIONS.clone){|obj, r| obj[r[:key].to_sym] = r[:value]; obj;}
       render json: {
         disable_sign_up: ActiveModel::Type::Boolean.new.cast(settings[:disable_sign_up]),
+        disable_verification: ActiveModel::Type::Boolean.new.cast(settings[:disable_verification]),
         disable_live_video: ActiveModel::Type::Boolean.new.cast(settings[:disable_live_video]),
         disable_merch_upload: ActiveModel::Type::Boolean.new.cast(settings[:disable_merch_upload]),
         audio_reminder_tracks_count: settings[:audio_reminder_tracks_count].to_i

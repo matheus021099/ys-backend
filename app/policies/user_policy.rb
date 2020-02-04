@@ -40,7 +40,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def info?
-    true
+    !(record.superadmin? || record.admin?)
   end
 
   def invite?
