@@ -57,7 +57,7 @@ gem 'cloudfront-signer'
 gem 'fog'
 # stream dynamically generated zip
 gem 'zip_tricks'
-gem 'zipline'
+# gem 'zipline'
 
 # audio fingerprinting
 gem 'openssl'

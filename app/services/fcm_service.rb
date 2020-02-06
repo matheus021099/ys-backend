@@ -1,6 +1,6 @@
 require 'fcm'
 
-class FCMService
+class FCMService < ApplicationRecord
   enum push_notification_type: {
     user_followed: 'USER_FOLLOWED',
     user_donated: 'USER_DONATED',
@@ -10,7 +10,7 @@ class FCMService
     message_attachment_denied: 'MESSAGE_ATTACHMENT_DENIED',
     message_attachment_accepted: 'MESSAGE_ATTACHMENT_ACCEPTED',
     message_attachment_canceled: 'MESSAGE_ATTACHMENT_CANCELED',
-    album_reposted: 'ALBUM_REPOSTED'
+    album_reposted: 'ALBUM_REPOSTED',
     product_purchased: 'PRODUCT_PURCHASED',
     product_reposted: 'PRODUCT_REPOSTED',
     commented: 'COMMENTED'
