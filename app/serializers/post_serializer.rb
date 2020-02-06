@@ -11,7 +11,7 @@ class PostSerializer < ActiveModel::Serializer
   end
 
   def user
-    object.user.as_json(only: [ :id, :slug, :username, :display_name, :user_type, :avatar ])
+    object.user.as_json(only: [ :id, :slug, :username, :display_name, :user_type, :avatar, :status ])
   end
 
   def assoc
@@ -21,7 +21,7 @@ class PostSerializer < ActiveModel::Serializer
           only: [ :id, :slug, :name, :cover, :album_type ],
           include: {
             user: {
-              only: [ :id, :slug, :username, :display_name, :avatar ]
+              only: [ :id, :slug, :username, :display_name, :user_type, :avatar, :status ]
             }
           }
         )
@@ -34,7 +34,7 @@ class PostSerializer < ActiveModel::Serializer
               only: [ :id, :cover, :position ]
             },
             merchant: {
-              only: [ :id, :slug, :username, :display_name, :avatar ]
+              only: [ :id, :slug, :username, :display_name, :user_type, :avatar, :status ]
             }
           }
         )
