@@ -7,6 +7,7 @@ class MessageSerializer < ActiveModel::Serializer
   # belongs_to :conversation
 
   def is_read
+    return false unless object.receipt_for(scope.current_user).first
     object.is_read?(scope.current_user)
   end
 
