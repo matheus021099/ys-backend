@@ -171,6 +171,14 @@
           "value": "<FCM_SERVER_KEY>"
         },
         {
+          "name": "SSL_CERT_DIR",
+          "value": "<SSL_CERT_DIR>"
+        },
+        {
+          "name": "SSL_CERT_FILE",
+          "value": "<SSL_CERT_FILE>"
+        },
+        {
           "name": "SKYLIGHT_AUTHENTICATION",
           "value": "<SKYLIGHT_AUTHENTICATION>"
         },
