@@ -696,6 +696,7 @@ GEM
       sixarm_ruby_unaccent (~> 1.1)
       unicode_utils (~> 1.4)
     crass (1.0.4)
+    curb (0.9.10)
     devise (4.4.3)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -1179,6 +1180,7 @@ DEPENDENCIES
   clockwork!
   cloudfront-signer
   countries
+  curb
   devise
   dotenv-rails
   faker
