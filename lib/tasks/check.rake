@@ -93,9 +93,23 @@ namespace :db do
   desc 'Clean tracks which never used'
   task :clean_tracks => :environment do
     puts 'Cleaning tracks which never used...'
-    Track.joins('LEFT JOIN album_tracks at ON at.track_id = tracks.id').where('at.album_id IS NULL').each do |track|
+    Track.joins('LEFT JOIN albums_tracks at ON at.track_id = tracks.id').where('at.album_id IS NULL').each do |track|
       track.destroy
     end
     puts 'Cleaned'
+  end
+
+  desc 'Set origianl album to tracks'
+  task :set_album_to_tracks => :environment do
+    puts 'Assigning original album to the tracks...'
+    Track.where(album_id: nil).each do |track|
+      album = Album.joins('LEFT JOIN albums_tracks at ON at.album_id = albums.id').where(
+        at: { track_id: track.id },
+        album_type: Album.album_types[:album]
+      ).order('albums.created_at ASC').first
+
+      track.update(album_id: album.id) if album.present?
+    end
+    puts 'Assigned'
   end
 end

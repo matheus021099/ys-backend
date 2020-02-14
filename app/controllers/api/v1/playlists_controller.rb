@@ -9,12 +9,10 @@ module Api::V1
     end
     def index
       skip_policy_scope
-      # albums = policy_scope(Album.playlists)
-      albums = current_user.playlists.where('albums.status = ? OR albums.status = ?', Album.statuses[:privated], Album.statuses[:published])
-      # render_success(albums)
-      render json: ActiveModel::Serializer::CollectionSerializer.new(
+      albums = current_user.playlists.includes(tracks: [:user]).where(status: [Album.statuses[:privated], Album.statuses[:published]])
+      render ActiveModelSerializers::SerializableResource.new(
         albums,
-        serializer: AlbumSerializer,
+        each_serializer: AlbumSerializer,
         scope: OpenStruct.new(current_user: current_user)
       )
     end

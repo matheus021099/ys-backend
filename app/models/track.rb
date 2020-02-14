@@ -15,6 +15,9 @@ class Track < ApplicationRecord
 
   belongs_to :user
 
+  # original album
+  belongs_to :album
+
   # default
   after_initialize :set_default_values
   def set_default_values

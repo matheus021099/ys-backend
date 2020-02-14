@@ -72,8 +72,6 @@ module Api::V1::Shopping
         offset: (page - 1) * per_page
       )
 
-      # render json: ActiveModel::Serializer::CollectionSerializer.new(products, serializer: ShopProductSerializer)
-      ActiveModelSerializers::SerializableResource
       render_success(
         products: ActiveModelSerializers::SerializableResource.new(
           products,

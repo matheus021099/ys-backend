@@ -148,7 +148,8 @@ module Api::V1
       @album = Album.new(user: current_user, status: Album.statuses[:pending])
       authorize @album
       album_attributes = permitted_attributes(@album)
-      album_attributes[:album_tracks_attributes] = params[:album][:track_ids].split(',').map.with_index(0) {|x, i| {track_id: x, position: i}} if params[:album][:track_ids].present?
+      track_ids = params[:album][:track_ids].present? ? params[:album][:track_ids].split(',') : []
+      album_attributes[:album_tracks_attributes] = params[:album][:track_ids].split(',').map.with_index(0) {|x, i| {track_id: x, position: i}} if track_ids.size > 0
       @album.attributes = album_attributes
       if params[:album][:genre_ids].present?
         genre_ids = params[:album][:genre_ids].split(',').compact
@@ -188,6 +189,9 @@ module Api::V1
       end
 
       render_errors(@album, :unprocessable_entity) and return unless @album.save
+
+      # assign original album to the tracks
+      Track.where(id: track_ids).update_all(album_id: @album.id)
 
       ActiveRecord::Base.transaction do
         UserAlbum.create(
