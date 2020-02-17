@@ -10,10 +10,11 @@ module Api::V1
     def index
       skip_policy_scope
       albums = current_user.playlists.includes(tracks: [:user]).where(status: [Album.statuses[:privated], Album.statuses[:published]])
-      render ActiveModelSerializers::SerializableResource.new(
-        albums,
-        each_serializer: AlbumSerializer,
-        scope: OpenStruct.new(current_user: current_user)
+      render_success Panko::Response.new(
+        Panko::ArraySerializer.new(albums, {
+          each_serializer: AlbumSerializer1,
+          scope: OpenStruct.new(current_user: current_user)
+        })
       )
     end
 
