@@ -234,7 +234,7 @@ class Album < ApplicationRecord
       released_at: self.released_at || Time.now.utc
     )
 
-    return if self.is_only_for_live_stream
+    return if self.is_only_for_live_stream || self.playlist?
 
     Feed.insert(
       consumer_id: self.user_id,
@@ -490,7 +490,7 @@ class Album < ApplicationRecord
     return true if downloader.id == self.user_id
 
     # doesn't count the number of download if is_only_for_live_stream
-    return true if self.is_only_for_live_stream
+    return true if self.is_only_for_live_stream || self.playlist?
 
     feed = Feed.insert(
       consumer_id: downloader.id,
