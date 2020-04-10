@@ -5,6 +5,7 @@ class FCMService
     {
       user_followed: 'USER_FOLLOWED',
       user_donated: 'USER_DONATED',
+      user_shared: 'USER_SHARED',
       video_started: 'VIDEO_STARTED',
       message_sent: 'MESSAGE_SENT',
       message_received: 'MESSAGE_RECEIVED',
