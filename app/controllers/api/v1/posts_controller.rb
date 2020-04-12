@@ -13,6 +13,10 @@ module Api::V1
       per_page = (params[:per_page] || 10).to_i
 
       posts = policy_scope(Post)
+        .joins("RIGHT JOIN follows ON posts.user_id = follows.followable_id")
+        .where(
+          follows: {blocked: false, follower_id: current_user.id}
+        )
         .where.not(user_id: current_user.block_list)
         .order('created_at desc').page(page).per(per_page)
 
