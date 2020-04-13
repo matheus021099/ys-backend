@@ -725,12 +725,12 @@ class User < ApplicationRecord
           }
           where[:album_type] = 'album'
         when 'popular'
-          order[:created_at] = {
+          order[:played] = {
             order: 'desc',
             # ignore_unmapped: true,
             unmapped_type: 'long'
           }
-          where[:playlist] = 'album'
+          # where[:album_type] = 'album'
         when 'playlist'
           order[:created_at] = {
             order: 'desc',
