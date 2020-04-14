@@ -44,7 +44,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def invite?
-    user.artist? && record.listener? && ['artist', 'brand', 'label'].include?(record.request_role)
+    !user.listener? && record.listener? && ['artist', 'brand', 'label'].include?(record.request_role)
   end
 
   def follow?
