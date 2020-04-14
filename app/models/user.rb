@@ -73,7 +73,7 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: { case_sensitive: false }
   # validates :email, presence: { if: -> { social_user_id.blank? } }
   validates :username, presence: :true, uniqueness: { case_sensitive: false }
-  validates_format_of :username, with: /^[a-z0-9_.]{3,20}$/, multiline: true
+  validates_format_of :username, with: /^[A-Za-z0-9_.]{3,20}$/, multiline: true
 
   belongs_to :approver, foreign_key: 'approver_id', class_name: 'User'
   belongs_to :inviter, foreign_key: 'inviter_id', class_name: 'User'
