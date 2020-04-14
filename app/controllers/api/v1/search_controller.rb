@@ -67,7 +67,7 @@ module Api::V1
     setup_authorization_header(:search_discover)
     swagger_api :search_discover do |api|
       summary 'search discover'
-      param :form, :filter, :string, :optional, 'any, merch, new, recommended, videos, popular, playlist'
+      param :form, :filter, :string, :optional, 'any, merch, album, new, recommended, videos, popular, playlist'
       param :form, :genre, :string, :optional, 'any, Alt Rock, genre name'
       param :form, :category, :string, :optional, 'any, Tee, Shirt, shop_category name'
       param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
@@ -151,7 +151,7 @@ module Api::V1
             pagination: pagination(products),
             categories: categories
           )
-        when 'recommended', 'popular'
+        when 'recommended', 'popular', 'new'
           albums = User.explore_query(q, filter, genre, {page: page, per_page: per_page}, current_user)
           # genres = albums.map { |track| track.tags }.flatten.uniq.map { |tag| tag.name }.select { |tag_name| tag_name.start_with?('#') }.sort_by! { |genre| genre.downcase }
 

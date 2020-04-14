@@ -730,7 +730,7 @@ class User < ApplicationRecord
             # ignore_unmapped: true,
             unmapped_type: 'long'
           }
-          # where[:album_type] = 'album'
+          where[:album_type] = 'album'
         when 'playlist'
           order[:created_at] = {
             order: 'desc',
@@ -745,6 +745,8 @@ class User < ApplicationRecord
             unmapped_type: 'long'
           }
           where[:recommended] = true
+        else
+          where[:album_type] = 'album'
       end
 
       unless genre.eql?('any')
