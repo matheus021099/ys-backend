@@ -39,8 +39,8 @@ class UserSerializer < ActiveModel::Serializer
   # attribute :social_token, if: :include_social_info?
   # attribute :social_token_secret, if: :include_social_info?
 
-  attribute :request_role, if: :include_social_info?
-  attribute :request_status, if: :include_social_info?
+  attribute :request_role
+  attribute :request_status
 
   attribute :genre_id, if: :include_social_info?
   belongs_to :genre, if: :include_social_info?
