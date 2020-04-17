@@ -131,11 +131,15 @@ class User < ApplicationRecord
 
   # superadmin
   def self.superadmin
-    @@superadmin ||= User.find_by(email: ENV['SUPERADMIN_EMAIL']) || User.where(user_type: User.user_type[:superadmin]).first
+    @@superadmin ||= User.find_by(email: ENV['SUPERADMIN_EMAIL']) || User.where(user_type: User.user_types[:superadmin]).first
   end
 
   def self.admin
-    @@admin ||= User.find_by(email: ENV['ADMIN_EMAIL']) || User.where(user_type: User.user_type[:admin]).first
+    @@admin ||= User.find_by(email: ENV['ADMIN_EMAIL']) || User.where(user_type: User.user_types[:admin]).first
+  end
+
+  def self.public_relations_user
+    @@public_relations_user ||= User.find_by(username: ENV['PUBLIC_RELATIONS_USERNAME'])
   end
 
   def current_cart

@@ -9,16 +9,19 @@ module Api::V1
       param :query, :per_page, :integer, :optional
     end
     def index
+      skip_policy_scope
+
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 10).to_i
 
-      posts = policy_scope(Post)
-        .joins("RIGHT JOIN follows ON posts.user_id = follows.followable_id")
-        .where(
-          follows: {blocked: false, follower_id: current_user.id}
+      posts = Post.joins("RIGHT JOIN follows ON posts.user_id = follows.followable_id")
+        .where("(follows.blocked = ? AND follows.follower_id = ? AND posts.user_id NOT IN (?)) OR posts.user_id = ?",
+          false,
+          current_user.id,
+          current_user.block_list,
+          User.public_relations_user&.id
         )
-        .where.not(user_id: current_user.block_list)
-        .order('created_at desc').page(page).per(per_page)
+        .order('posts.created_at desc').page(page).per(per_page)
 
       render_success(
         posts: ActiveModel::SerializableResource.new(posts),

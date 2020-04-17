@@ -162,20 +162,22 @@ module Api::V1
         end
         ### send a welcome message
         if validate_need
-          sender = User.admin
+          sender = User.public_relations_user
           receiver = user
-          message_body = "Welcome to YouSound!<br><br>Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room to hang out with friends & build relationships within the YouSound community.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
-          receipt = Util::Message.send(sender, receiver, message_body)
-          conversation = receipt.conversation
+          if sender.present?
+            message_body = "Welcome to YouSound!<br><br>Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room to hang out with friends & build relationships within the YouSound community.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
+            receipt = Util::Message.send(sender, receiver, message_body)
+            conversation = receipt.conversation
 
-          ### send a message that account is pending to approve
-          unless user.request_role.blank?
-            message_body = "Your request to become a Verified User is pending. We will send you an email when the verification process is complete. In the meantime you can browse as a listener."
-            sender.reply_to_conversation(conversation, message_body, nil, true, false)
+            ### send a message that account is pending to approve
+            unless user.request_role.blank?
+              message_body = "Your request to become a Verified User is pending. We will send you an email when the verification process is complete. In the meantime you can browse as a listener."
+              sender.reply_to_conversation(conversation, message_body, nil, true, false)
+            end
+
+            ### user follow public_relations_user
+            receiver.follow(sender)
           end
-
-          ### admin follow user
-          sender.follow(receiver)
         end
         user.send_confirmation_instructions
         render_success(user)
@@ -377,7 +379,7 @@ module Api::V1
     end
     def is_username_available
       skip_authorization
-      render_json and return unless params[:username].present?
+      render_error 'Username is blank', :unprocessable_entity and return unless params[:username].present?
 
       user = User.find_by(username: params[:username].downcase)
       render_error 'Already exists', :unprocessable_entity and return if user.present?

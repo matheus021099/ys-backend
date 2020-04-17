@@ -124,52 +124,6 @@ module Api::V1
 
       render_success true
     end
-    # def invite_attendee
-    #   render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin?
-    #   attendee = Attendee.find(params[:attendee_id])
-    #   names = attendee.full_name.split(' ').map(&:strip)
-    #   first_name = names.shift
-    #   last_name = names.join(' ')
-    #   username = attendee.display_name.downcase.gsub(/\s+/, '_')
-    #   # password = [*('a'..'z'),*('0'..'9')].shuffle[0,8].join
-    #   begin
-    #     password = 'password'
-    #     user = User.new(
-    #       first_name: first_name,
-    #       last_name: last_name,
-    #       email: attendee.email,
-    #       display_name: attendee.display_name,
-    #       username: username,
-    #       password: password,
-    #     )
-    #     user.skip_confirmation_notification!
-    #     user.save!
-    #     attendee.update_attributes(status: Attendee.statuses[:invited])
-    #   rescue => ex
-    #     Rails.logger.info ex.message
-    #     attendee.update_attributes(status: Attendee.statuses[:existed])
-    #     render_error ex.message, :unprocessable_entity and return
-    #   end
-    #   user.apply_role(attendee.account_type)
-    #   ### send a message that account is pending to approve
-    #   message_body = ''
-    #   case attendee.account_type
-    #     when 'brand'
-    #       message_body = "Welcome to YouSound!<br><br>Brands are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room and can hang out with your friends, and build relationships with the YouSound community.<br><br>As a Brand you can sell your products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
-    #     when 'label'
-    #       message_body = "Welcome to YouSound!<br><br>Labels are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room and can hang out with friends & build relationships within the YouSound community.<br><br>As a Label you can request artists and their albums to be apart of your roster, sell products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
-    #     else
-    #       message_body = "Welcome to YouSound!<br><br>Artists are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>You have the ability to help Artists, Brands, and Labels reach more users. You can also earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room and can hang out with your friends, and build relationships with the YouSound community.<br><br>As an artist you can upload albums, sell products, collaborate on albums with other artists, collaborate on products with other artists, brands, and labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
-    #   end
-    #   sender = User.admin
-    #   receiver = user
-    #   receipt = Util::Message.send(sender, receiver, message_body)
-    #   ### admin follow user
-    #   sender.follow(receiver)
-    #   ### confirm message to activate an account
-    #   user.send_confirmation_instructions
-    #   render_success true
-    # end
 
     private
     def set_attendee

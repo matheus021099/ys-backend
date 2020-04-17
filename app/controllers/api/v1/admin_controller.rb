@@ -188,10 +188,11 @@ module Api::V1
           message_body = "Welcome to YouSound!<br><br>Artists are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>You have the ability to help Artists, Brands, and Labels reach more users. You can also earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room and can hang out with your friends, and build relationships with the YouSound community.<br><br>As an artist you can upload albums, sell products, collaborate on albums with other artists, collaborate on products with other artists, brands, and labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
       end
 
-      sender = User.admin
+      sender = User.public_relations_user
       receiver = user
-      receipt = Util::Message.send(sender, receiver, message_body)
-      conversation = receipt.conversation
+      if sender.present?
+        Util::Message.send(sender, receiver, message_body)
+      end
 
       ApplicationMailer.to_requester_approved_email(current_user, user).deliver
 
