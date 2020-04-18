@@ -194,8 +194,13 @@ class User < ApplicationRecord
     User.where(id: self.favorite_list)
   end
 
+  def self.maximum_repost_price
+    # $100,000
+    10_000_0000
+  end
+
   def repost_price_proration(new_repost_price = 100)
-    new_repost_price  ||= 100
+    new_repost_price ||= 100
     now = Time.zone.now
 
     return {
