@@ -263,7 +263,9 @@ module Api::V1
     def repost_price_proration
       authorize @user
       new_repost_price = params[:new_repost_price].to_i rescue 100
-      proration = @user.repost_price_proration(new_repost_price)
+      upgrade_repost_price = new_repost_price
+      upgrade_repost_price = User.maximum_repost_price if new_repost_price > User.maximum_repost_price
+      proration = @user.repost_price_proration(upgrade_repost_price)
       render_success proration
     end
 

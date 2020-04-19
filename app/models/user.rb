@@ -196,7 +196,7 @@ class User < ApplicationRecord
 
   def self.maximum_repost_price
     # $100,000
-    10_000_0000
+    10_000_000
   end
 
   def repost_price_proration(new_repost_price = 100)
