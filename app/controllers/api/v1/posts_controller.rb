@@ -15,11 +15,11 @@ module Api::V1
       per_page = (params[:per_page] || 10).to_i
 
       posts = Post.joins("LEFT JOIN follows ON posts.user_id = follows.followable_id")
-        .where("(follows.blocked = ? AND follows.follower_id = ? AND posts.user_id NOT IN (?)) OR posts.user_id = ?",
+        .where("(follows.blocked = ? AND follows.follower_id = ? AND posts.user_id NOT IN (?)) OR posts.user_id IN (?)",
           false,
           current_user.id,
           current_user.block_list,
-          User.public_relations_user&.id
+          [current_user.id, User.public_relations_user&.id]
         )
         .order('posts.created_at desc').distinct.page(page).per(per_page)
 
