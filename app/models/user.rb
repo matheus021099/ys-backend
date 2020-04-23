@@ -315,7 +315,8 @@ class User < ApplicationRecord
             .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds "\
                 "WHERE publisher_id = '#{self.id}' "\
                 "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
-            .where('t1.assoc_type != ? OR (t1.assoc_type = ? AND t1.assoc_id NOT IN (?))', 'Album', 'Album', self.blocked_album_ids)
+            .joins("LEFT JOIN albums t3 ON t1.assoc_type = 'Album' AND t1.assoc_id = t3.id")
+            .where('t1.assoc_type != ? OR (t3.album_type = ? AND t1.assoc_id NOT IN (?))', 'Album', Album.album_types[:album], self.blocked_album_ids)
             .most_recent
             .limit(count)
       when 'uploaded'
@@ -323,7 +324,7 @@ class User < ApplicationRecord
             .select('t1.*')
             .from('feeds t1')
             .joins("RIGHT JOIN (SELECT MAX(feeds.id) AS id, assoc_id, assoc_type FROM feeds "\
-                "WHERE publisher_id = '#{self.id}' AND assoc_type='Album' "\
+                "WHERE publisher_id = '#{self.id}' AND assoc_type = 'Album' "\
                 "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
             .joins("LEFT JOIN albums t3 ON t1.assoc_id = t3.id")
             .where('t3.album_type = ? AND t1.assoc_id NOT IN (?)', Album.album_types[:album], self.blocked_album_ids)
@@ -753,6 +754,7 @@ class User < ApplicationRecord
             # ignore_unmapped: true,
             unmapped_type: 'long'
           }
+          where[:album_type] = 'album'
           where[:recommended] = true
         else
           where[:album_type] = 'album'

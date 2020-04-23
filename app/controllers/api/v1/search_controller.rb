@@ -90,7 +90,7 @@ module Api::V1
           albums_recommended = User.explore_query(q, 'recommended', genre, {page: page, per_page: per_page}, current_user)
           albums_new = User.explore_query(q, 'new', genre, {page: page, per_page: per_page}, current_user)
           # albums_popular = User.explore_query(q, 'popular', genre, {page: page, per_page: per_page}, current_user)
-          playlists = User.explore_query(q, 'playlist', genre, {page: page, per_page: per_page}, current_user)
+          # playlists = User.explore_query(q, 'playlist', genre, {page: page, per_page: per_page}, current_user)
           products = ShopProduct.explore_query(category, {page: page, per_page: per_page}, current_user)
 
           render_success(
@@ -105,11 +105,11 @@ module Api::V1
               scope: OpenStruct.new(current_user: current_user)
             ),
             # popular: albums_popular,
-            playlist: ActiveModelSerializers::SerializableResource.new(
-              playlists,
-              each_serializer: AlbumSerializer,
-              scope: OpenStruct.new(current_user: current_user)
-            ),
+            # playlist: ActiveModelSerializers::SerializableResource.new(
+            #   playlists,
+            #   each_serializer: AlbumSerializer,
+            #   scope: OpenStruct.new(current_user: current_user)
+            # ),
             merch: ActiveModelSerializers::SerializableResource.new(
               products,
               each_serializer: ShopProductSerializer,
@@ -215,13 +215,13 @@ module Api::V1
         where: {album_type: 'album', status: ['published', 'collaborated'], slug: {not: nil}},
         limit: limit
       )
-      playlists = Album.search(
-        q.presence || '*',
-        fields: [:name, :description, :owner_username, :owner_display_name],
-        match: :word_start,
-        where: {album_type: 'playlist', status: ['published', 'collaborated'], slug: {not: nil}},
-        limit: limit
-      )
+      # playlists = Album.search(
+      #   q.presence || '*',
+      #   fields: [:name, :description, :owner_username, :owner_display_name],
+      #   match: :word_start,
+      #   where: {album_type: 'playlist', status: ['published', 'collaborated'], slug: {not: nil}},
+      #   limit: limit
+      # )
       products = ShopProduct.search(
         q.presence || '*',
         fields: [:name, :description, :merchant_username, :merchant_display_name],
@@ -246,13 +246,13 @@ module Api::V1
           include_collaborators: true,
           include_collaborators_user: true
         ),
-        playlists: ActiveModelSerializers::SerializableResource.new(
-          playlists,
-          each_serializer: AlbumSerializer,
-          scope: OpenStruct.new(current_user: current_user),
-          include_collaborators: true,
-          include_collaborators_user: true
-        ),
+        # playlists: ActiveModelSerializers::SerializableResource.new(
+        #   playlists,
+        #   each_serializer: AlbumSerializer,
+        #   scope: OpenStruct.new(current_user: current_user),
+        #   include_collaborators: true,
+        #   include_collaborators_user: true
+        # ),
         products: ActiveModelSerializers::SerializableResource.new(
           products,
           each_serializer: ShopProductSerializer,
