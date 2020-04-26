@@ -232,14 +232,24 @@ class ShopCart < ApplicationRecord
         item.mark_as_shipped if item.product.category.is_digital
       end
 
+      message_body = "[#{self.customer.display_name}] purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]"
+
+      data = {
+        products: order.items.collect{|item| item.product.as_json(
+          only: [ :id, :name ],
+          include: {
+            covers: {
+              only: [ :id, :cover, :position ]
+            }
+          }
+        )}
+      }
+
       PushNotificationWorker.perform_async(
         order.merchant.devices.where(enabled: true).pluck(:token),
         FCMService::push_notification_types[:product_purchased],
         message_body,
-        ShopOrderSerializer.new(
-          order,
-          scope: OpenStruct.new(current_user: customer),
-        ).as_json
+        data
       )
     end
 
