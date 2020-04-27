@@ -295,6 +295,7 @@ class User < ApplicationRecord
     payment
   end
 
+  # user is current_user
   def recent_items(user, filter = 'any', count = 6)
     case filter
       when 'uploaded'
@@ -385,6 +386,46 @@ class User < ApplicationRecord
   end
 
   # queries
+
+  def feed_query_v3(filter, genre)
+    blocked_user_ids = []
+    blocked_user_ids << self.id
+    blocked_user_ids.concat self.block_list
+
+    case filter
+      when 'albums'
+        query = Feed
+          .select('t1.*')
+          .from('feeds t1')
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds "\
+            "WHERE consumer_id = '#{self.id}' AND publisher_id NOT IN ('#{blocked_user_ids.join("', '")}') AND assoc_type='Album' "\
+            "GROUP BY assoc_id, assoc_type) t2 "\
+            "ON t1.id = t2.id")
+          .joins('JOIN albums t3 ON t3.id = t2.assoc_id')
+          .where('t3.album_type = ? AND t1.assoc_id NOT IN (?)', Album.album_types[:album], self.blocked_album_ids)
+          .most_recent
+      when 'products'
+        query = Feed
+          .select('t1.*')
+          .from('feeds t1')
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds "\
+            "WHERE consumer_id = '#{self.id}' AND publisher_id NOT IN ('#{blocked_user_ids.join("', '")}') AND assoc_type='ShopProduct' "\
+            "GROUP BY assoc_id, assoc_type) t2 "\
+            "ON t1.id = t2.id")
+          .most_recent
+      else
+        query = Feed
+          .select('t1.*')
+          .from('feeds t1')
+          .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds "\
+            "WHERE consumer_id = '#{self.id}' AND publisher_id NOT IN ('#{blocked_user_ids.join("', '")}')"\
+            "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+          .joins("LEFT JOIN albums t3 ON t1.assoc_id = t3.id")
+          .where('t1.assoc_type != ? OR (t3.album_type = ?  AND t1.assoc_id NOT IN (?))', 'Album', Album.album_types[:album], self.blocked_album_ids)
+          .most_recent
+    end
+  end
+
   def feed_query_v2(filter, genre)
     case filter
       when 'uploaded'

@@ -36,5 +36,31 @@ module Api::V2
       )
     end
 
+
+    setup_authorization_header(:search_feed)
+    swagger_api :search_feed do |api|
+      summary 'search stream for mobile version'
+      param :form, :filter, :string, :optional, 'any, albums, products'
+      # param :form, :genre, :string, :optional, 'any, Alt Rock, genre name'
+      param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
+      param :form, :per_page, :integer, :optional, '10, 20, etc. default is 10'
+    end
+    def search_feed
+      filter = params[:filter] || 'any'
+      genre = params[:genre] || 'any'
+      page = params[:page] || 1
+      per_page = params[:per_page] || 10
+      feeds = current_user.feed_query_v3(filter, genre).page(page).per(per_page)
+      render_success(
+        feeds: ActiveModelSerializers::SerializableResource.new(
+          feeds,
+          each_serializer: FeedSerializer,
+          scope: OpenStruct.new(current_user: current_user),
+          include_publisher: true
+        ),
+        pagination: pagination(feeds)
+      )
+    end
+
   end
 end
