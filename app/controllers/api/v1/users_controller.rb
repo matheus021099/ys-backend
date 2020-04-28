@@ -263,9 +263,7 @@ module Api::V1
     def repost_price_proration
       authorize @user
       new_repost_price = params[:new_repost_price].to_i rescue 100
-      upgrade_repost_price = new_repost_price
-      upgrade_repost_price = User.maximum_repost_price if new_repost_price > User.maximum_repost_price
-      proration = @user.repost_price_proration(upgrade_repost_price)
+      proration = @user.repost_price_proration(new_repost_price)
       render_success proration
     end
 
@@ -284,9 +282,7 @@ module Api::V1
       payment_token = params[:payment_token] || nil
       payment_amount = params[:payment_amount].to_i rescue 0
       repost_price = params[:repost_price].to_i rescue 100
-      upgrade_repost_price = repost_price
-      upgrade_repost_price = User.maximum_repost_price if repost_price > User.maximum_repost_price
-      proration = @user.repost_price_proration(upgrade_repost_price)
+      proration = @user.repost_price_proration(repost_price)
       render_error 'Not enough payment amount', :unprocessable_entity and return if payment_amount < proration[:add_amount]
 
       if payment_amount == 0
@@ -301,8 +297,8 @@ module Api::V1
         end
         Payment.set_repost_price(sender: @user, sent_amount: payment_amount, payment_token: stripe_charge_id)
 
-        @user.max_repost_price = repost_price
         @user.repost_price = repost_price
+        @user.max_repost_price = proration[:max_repost_price]
         @user.repost_price_end_at = proration[:expire_at]
       end
 

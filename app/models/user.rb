@@ -203,34 +203,37 @@ class User < ApplicationRecord
     new_repost_price ||= 100
     now = Time.zone.now
 
-    return {
-      # max_repost_price: self.max_repost_price,
-      add_amount: 0,
-      expire_at: self.repost_price_end_at
-    } if new_repost_price == 100
+    new_rp = new_repost_price > User.maximum_repost_price ? User.maximum_repost_price : new_repost_price
+    max_rp = self.max_repost_price > User.maximum_repost_price ? User.maximum_repost_price : self.max_repost_price
 
     return {
-      # max_repost_price: new_repost_price,
-      add_amount: new_repost_price,
+      max_repost_price: self.max_repost_price,
+      add_amount: 0,
+      expire_at: self.repost_price_end_at
+    } if new_rp == 100
+
+    return {
+      max_repost_price: new_repost_price,
+      add_amount: new_rp,
       expire_at: now.since(1.year)
     } if self.repost_price_end_at.nil? || self.repost_price_end_at <= now
 
     return {
-      # max_repost_price: self.max_repost_price,
+      max_repost_price: self.max_repost_price,
       add_amount: 0,
       expire_at: self.repost_price_end_at
-    } if new_repost_price <= self.max_repost_price
+    } if new_rp <= max_rp
 
     return {
-      # max_repost_price: new_repost_price,
-      add_amount: new_repost_price,
+      max_repost_price: new_repost_price,
+      add_amount: new_rp,
       expire_at: self.repost_price_end_at.since(1.year)
     } if self.repost_price_end_at.ago(6.months) < now
 
-    spent_amount = self.max_repost_price > 100 ? self.max_repost_price / 2 : 0
+    spent_amount = max_rp > 100 ? max_rp / 2 : 0
     return {
-      # max_repost_price: new_repost_price,
-      add_amount: new_repost_price - spent_amount,
+      max_repost_price: new_repost_price,
+      add_amount: new_rp - spent_amount,
       expire_at: self.repost_price_end_at
     }
   end
