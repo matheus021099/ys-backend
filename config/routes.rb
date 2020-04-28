@@ -16,7 +16,7 @@ Rails.application.routes.draw do
       resources :search, only: [] do
         collection do
           post :search_stream
-          # post :search_discover
+          post :search_feed
         end
       end
     end

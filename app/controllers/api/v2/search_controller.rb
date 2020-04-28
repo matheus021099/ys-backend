@@ -39,9 +39,9 @@ module Api::V2
 
     setup_authorization_header(:search_feed)
     swagger_api :search_feed do |api|
-      summary 'search stream for mobile version'
+      summary 'search feed for mobile version'
       param :form, :filter, :string, :optional, 'any, albums, products'
-      # param :form, :genre, :string, :optional, 'any, Alt Rock, genre name'
+      param :form, :genre, :string, :optional, 'any, Alt Rock, genre name'
       param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
       param :form, :per_page, :integer, :optional, '10, 20, etc. default is 10'
     end
