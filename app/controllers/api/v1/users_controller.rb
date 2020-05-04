@@ -89,7 +89,7 @@ module Api::V1
 
       users = User.search(
         q,
-        fields: [:username, :email],
+        fields: [:username, :display_name, :email],
         where: {id: {not: exclude_ids}, status: {not: User.statuses[:deleted]}},
         order: orders,
         limit: per_page,
