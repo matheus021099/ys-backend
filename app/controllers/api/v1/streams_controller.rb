@@ -6,9 +6,39 @@ module Api::V1
       :can_view, :pay_view, :view
     ]
     # skip_after_action :verify_authorized
-    skip_after_action :verify_policy_scoped
+    # skip_after_action :verify_policy_scoped
 
     swagger_controller :streams, 'stream'
+
+    swagger_api :index do |api|
+      summary 'get live streams from who current_user follows'
+      # param :query, :statuses, :string, :optional, 'running'
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+    end
+    def index
+      skip_policy_scope
+
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 10).to_i
+
+      streams = Stream
+        .joins("LEFT JOIN follows ON streams.user_id = follows.followable_id")
+        .where("streams.status = ? AND follows.blocked = ? AND follows.follower_id = ?",
+          Stream.statuses[:running],
+          false,
+          current_user.id
+        ).order('streams.created_at DESC').page(page).per(per_page)
+
+      render_success(
+        streams: ActiveModel::SerializableResource.new(
+          streams,
+          scope: OpenStruct.new(current_user: current_user)
+        ),
+        pagination: pagination(streams)
+      )
+    end
+
 
     swagger_api :show do |api|
       summary 'get a stream'

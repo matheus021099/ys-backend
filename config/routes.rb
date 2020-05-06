@@ -280,7 +280,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :streams, only: [:show, :create, :update, :destroy] do
+      resources :streams do
         member do
           get :start
           get :stop
