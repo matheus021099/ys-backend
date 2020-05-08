@@ -701,16 +701,51 @@ module Api::V1
 
       # Rails.logger.info("\n\n\nparams: #{params[:stream][:assoc_type]} - #{params[:stream][:assoc_type] && params[:stream][:assoc_id].present?} \n\n\n")
       if params[:stream][:assoc_type] && params[:stream][:assoc_id].present?
+        assoc = @stream.assoc
+
         result = {}
-        case @stream.assoc_type
+        case assoc.class.name
           when 'Album'
-            result = AlbumSerializer.new(@stream.assoc).as_json
+            result = AlbumSerializer.new(assoc).as_json
           when 'ShopProduct'
-            result = ShopProductSerializer.new(@stream.assoc).as_json
+            result = ShopProductSerializer.new(assoc).as_json
           when 'User'
-            result = UserSerializer.new(@stream.assoc).as_json
+            result = UserSerializer.new(assoc).as_json
         end
         ActionCable.server.broadcast("stream_#{@stream.id}", {assoc_type: @stream.assoc_type, assoc: result})
+
+        # send push notification to watchers
+        data = case assoc.class.name
+          when 'Album'
+            assoc.as_json(
+              only: [ :id, :slug, :name, :cover, :album_type ]
+            )
+          when 'ShopProduct'
+            assoc.as_json(
+              only: [ :id, :name ],
+              include: {
+                covers: {
+                  only: [ :id, :cover, :position ]
+                }
+              }
+            )
+          when 'User'
+            assoc.as_json(
+              only: [ :id, :slug, :display_name, :avatar, :user_type ]
+            )
+        end
+
+        user_ids = Activity.where(
+          action_type: Activity.action_types[:view_stream],
+          page_track: "#{@stream.class.name}: #{@stream.id}"
+        ).group(:sender_id).pluck(:sender_id)
+
+        PushNotificationWorker.perform_async(
+          Device.where(user_id: user_ids, enabled: true).pluck(:token),
+          FCMService::push_notification_types[:video_attachment_changed],
+          "[#{current_user.display_name}] has updated the video attachment",
+          data
+        )
       end
 
       render_success StreamSerializer.new(@stream, scope: OpenStruct.new(current_user: current_user)).as_json
