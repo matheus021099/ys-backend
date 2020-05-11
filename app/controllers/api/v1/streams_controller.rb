@@ -854,7 +854,7 @@ module Api::V1
 
     setup_authorization_header(:pay_view)
     swagger_api :pay_view do |api|
-      summary 'can view a stream'
+      summary 'pay to view a stream'
       param :path, :id, :string, :required
       param :form, :amount, :integer, :required, 'amount in cent'
       param :form, :payment_token, :string, :optional

@@ -9,7 +9,7 @@ class StreamChecker
   end
 
   def remaining_time
-    Stream.where("status = ? AND started_at + valid_period * interval '1 second' < ?", Stream.statuses[:running], Time.now).each do |stream|
+    Stream.where("status = ? AND started_at + valid_period * interval '1 second' < ?", Stream.statuses[:running], 10.minutes.ago).each do |stream|
       stream.remove
     end
   end

@@ -7,6 +7,7 @@ class FCMService
       user_donated: 'USER_DONATED',
       user_shared: 'USER_SHARED',
       video_started: 'VIDEO_STARTED',
+      video_attachment_changed: 'VIDEO_ATTACHMENT_CHANGED',
       message_sent: 'MESSAGE_SENT',
       message_received: 'MESSAGE_RECEIVED',
       message_attachment_denied: 'MESSAGE_ATTACHMENT_DENIED',
