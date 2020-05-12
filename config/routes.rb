@@ -282,6 +282,7 @@ Rails.application.routes.draw do
 
       resources :streams do
         member do
+          get :notify
           get :start
           get :stop
           get :repost

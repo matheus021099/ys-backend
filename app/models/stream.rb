@@ -72,12 +72,12 @@ class Stream < ApplicationRecord
         )
       end
 
-      PushNotificationWorker.perform_async(
-        follower.devices.where(enabled: true).pluck(:token),
-        FCMService::push_notification_types[:video_started],
-        message_body,
-        StreamSerializer.new(self, scope: OpenStruct.new(current_user: self.user)).as_json
-      )
+      # PushNotificationWorker.perform_async(
+      #   follower.devices.where(enabled: true).pluck(:token),
+      #   FCMService::push_notification_types[:video_started],
+      #   message_body,
+      #   StreamSerializer.new(self, scope: OpenStruct.new(current_user: self.user)).as_json
+      # )
     end
 
     true

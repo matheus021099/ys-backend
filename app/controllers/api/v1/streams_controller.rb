@@ -1,7 +1,7 @@
 module Api::V1
   class StreamsController < ApiController
     before_action :set_stream, only: [
-      :show, :update, :destroy,
+      :show, :update, :destroy, :notify,
       :start, :stop, :repost,
       :can_view, :pay_view, :view
     ]
@@ -662,6 +662,10 @@ module Api::V1
           cf_domain: nil,
           status: Stream.statuses[:active]
         )
+        if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
+          @stream.assoc_id = params[:stream][:assoc_id]
+          @stream.assoc_type = params[:stream][:assoc_type]
+        end
         @stream.save!
 
         StreamStartWorker.perform_async(@stream.id)
@@ -700,7 +704,7 @@ module Api::V1
       @stream.save!
 
       # Rails.logger.info("\n\n\nparams: #{params[:stream][:assoc_type]} - #{params[:stream][:assoc_type] && params[:stream][:assoc_id].present?} \n\n\n")
-      if params[:stream][:assoc_type] && params[:stream][:assoc_id].present?
+      if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
         assoc = @stream.assoc
 
         result = {}
@@ -774,6 +778,28 @@ module Api::V1
         serializer: UserSerializer,
         scope: OpenStruct.new(current_user: current_user),
         include_all: true
+    end
+
+
+    setup_authorization_header(:notify)
+    swagger_api :notify do |api|
+      summary 'notify followers that live stream is broadcasting'
+      param :path, :id, :string, :required, 'stream id'
+    end
+    def notify
+      authorize @stream
+
+      user_ids = current_user.followers.pluck(:id)
+      message_body = "#{current_user.display_name} broadcast a live stream"
+
+      PushNotificationWorker.perform_async(
+        Device.where(user_id: user_ids, enabled: true).pluck(:token),
+        FCMService::push_notification_types[:video_started],
+        message_body,
+        StreamSerializer.new(@stream, scope: OpenStruct.new(current_user: current_user)).as_json
+      )
+
+      render_success true
     end
 
 

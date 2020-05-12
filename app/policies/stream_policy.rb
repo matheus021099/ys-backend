@@ -26,6 +26,10 @@ class StreamPolicy < ApplicationPolicy
     !record.deleted? && (record.user_id == user.id || user.admin?)
   end
 
+  def notify?
+    record.user_id == user.id && record.running?
+  end
+
   def start?
     record.user_id == user.id && record.active?
   end
