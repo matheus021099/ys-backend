@@ -202,10 +202,6 @@ module Api::V1
       skip_authorization
 
       user = User.where(social_user_id: params[:user][:social_user_id]).first
-      # render_error('you should register your facebook account first', 200) and return if user.blank?
-      # render_error('your facebook account is being verified', 200) and return if user.pending?
-      # render_error('something is wrong', 200) and return unless user.verified?
-
       render_error 'Social account already exists', :unprocessable_entity and return if user.present?
 
       user = User.new(status: User.statuses[:inactive])

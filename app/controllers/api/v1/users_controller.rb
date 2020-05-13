@@ -934,11 +934,11 @@ module Api::V1
     end
     def share
       authorize @user
-      render_error 'Empty parameters' and return if params[:assoc_type].blank? || params[:assoc_id].blank?
-      render_error 'Invalid parameters' and return unless ['Album', 'ShopProduct'].include?(params[:assoc_type])
+      render_error 'Empty parameters', :unprocessable_entity and return if params[:assoc_type].blank? || params[:assoc_id].blank?
+      render_error 'Invalid parameters', :unprocessable_entity and return unless ['Album', 'ShopProduct'].include?(params[:assoc_type])
 
       assoc = params[:assoc_type].constantize.find(params[:assoc_id]) rescue nil
-      render_error 'Invalid parameters' unless assoc.present?
+      render_error 'Invalid parameters', :unprocessable_entity and return unless assoc.present?
 
       comment = params[:comment] || ''
       # if params[:comment].present?

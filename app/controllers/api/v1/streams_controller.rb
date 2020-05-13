@@ -719,7 +719,7 @@ module Api::V1
         ActionCable.server.broadcast("stream_#{@stream.id}", {assoc_type: @stream.assoc_type, assoc: result})
 
         # send push notification to watchers
-        data = case assoc.class.name
+        assocJson = case assoc.class.name
           when 'Album'
             assoc.as_json(
               only: [ :id, :slug, :name, :cover, :album_type ]
@@ -738,6 +738,13 @@ module Api::V1
               only: [ :id, :slug, :display_name, :avatar, :user_type ]
             )
         end
+
+        data = {
+          id: @stream.id,
+          user_id: @stream.user_id,
+          assoc_type: assoc.class.name,
+          assoc: assocJson
+        }
 
         user_ids = Activity.where(
           action_type: Activity.action_types[:view_stream],
@@ -814,7 +821,7 @@ module Api::V1
       begin
         medialive = Aws::MediaLive::Client.new(region: ENV['AWS_REGION'])
         medialive.start_channel({
-          channel_id: @stream.ml_channel_id  
+          channel_id: @stream.ml_channel_id
         })
         @stream.update_attributes(
           started_at: Time.now,
@@ -841,7 +848,7 @@ module Api::V1
       begin
         medialive = Aws::MediaLive::Client.new(region: ENV['AWS_REGION'])
         medialive.stop_channel({
-          channel_id: @stream.ml_channel_id  
+          channel_id: @stream.ml_channel_id
         })
         @stream.update_attributes(stopped_at: Time.now, status: Stream.statuses[:active])
       rescue => e
