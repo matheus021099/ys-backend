@@ -10,7 +10,8 @@ class StreamPolicy < ApplicationPolicy
   end
 
   def show?
-    record.user_id == user.id
+    true
+    # record.user_id == user.id
   end
 
   def create?
