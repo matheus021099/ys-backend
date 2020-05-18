@@ -62,6 +62,7 @@ module Api::V1
       if device_identifier
         # current_user.devices.where(identifier: device_identifier).update(enabled: false) unless device_identifier.blank?
         Device.where(identifier: device_identifier).delete_all
+      else
         current_user.stream.remove if current_user.stream.present?
       end
 
