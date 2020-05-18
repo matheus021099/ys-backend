@@ -3,7 +3,8 @@ class ShopItem < ApplicationRecord
   enum status: {
     item_not_ordered: 'item_not_ordered',
     item_ordered: 'item_ordered',
-    item_shipped: 'item_shipped'
+    item_shipped: 'item_shipped',
+    item_refunded: 'item_refunded'
   }
 
   belongs_to :merchant, class_name: 'User'

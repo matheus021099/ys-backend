@@ -58,8 +58,13 @@ module Api::V1
       #   current_sign_in_at: nil,
       #   current_sign_in_ip: nil
       # )
-      current_user.devices.where(identifier: device_identifier).update(enabled: false) unless device_identifier.blank?
-      current_user.stream.remove if current_user.stream.present?
+
+      if device_identifier
+        # current_user.devices.where(identifier: device_identifier).update(enabled: false) unless device_identifier.blank?
+        Device.where(identifier: device_identifier).delete_all
+        current_user.stream.remove if current_user.stream.present?
+      end
+
       Activity.create(
         sender_id: current_user.id,
         receiver_id: current_user.id,
@@ -165,7 +170,7 @@ module Api::V1
           sender = User.public_relations_user
           receiver = user
           if sender.present?
-            message_body = "Welcome to YouSound!<br><br>Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests. Each user has their own chat room to hang out with friends & build relationships within the YouSound community.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
+            message_body = "Welcome to YouSound!<br><br>Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
             receipt = Util::Message.send(sender, receiver, message_body)
             conversation = receipt.conversation
 
@@ -310,9 +315,9 @@ module Api::V1
     #   skip_authorization
     #   info = JWT.decode params[:auth_token], nil, false
     #   user = User.from_omniauth(:google, {
-    #     email: info[0]['email'], 
+    #     email: info[0]['email'],
     #     uid: info[0]['sub'],
-    #     first_name: info[0]['given_name'], 
+    #     first_name: info[0]['given_name'],
     #     last_name: info[0]['family_name']
     #   })
     #   if user.persisted?
@@ -354,8 +359,8 @@ module Api::V1
       param :form, :password, :string, :required
     end
     def set_password
-      user = User.reset_password_by_token({ 
-        reset_password_token: params[:reset_token], 
+      user = User.reset_password_by_token({
+        reset_password_token: params[:reset_token],
         password: params[:password],
         password_confirmation: params[:password],
       })

@@ -196,7 +196,7 @@ module Api::V1
         q.presence || '*',
         fields: [:email, :username, :display_name],
         match: :word_start,
-        where: {status: 'active'},
+        where: {status: 'active', user_type: {not: ['admin', 'superadmin']}},
         limit: limit
       )
       # albums_all = Album.search(
