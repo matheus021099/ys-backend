@@ -68,7 +68,7 @@ class Payment < ApplicationRecord
     )
 
     if fee > 0
-      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee) 
+      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee)
 
       Payment.create!(
         sender_id: sender.id,

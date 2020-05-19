@@ -574,25 +574,25 @@ module Api::V1
       current_user.follow(@user)
       page_track = params[:page_track] || ''
 
-      @user.albums.published.each do |album|
-        Feed.insert(
-          consumer_id: current_user.id,
-          publisher_id: @user.id,
-          assoc_type: 'Album',
-          assoc_id: album.id,
-          feed_type: Feed.feed_types[:release]
-        )
-      end
+      # @user.albums.published.each do |album|
+      album = @user.albums.published.last
+      Feed.insert(
+        consumer_id: current_user.id,
+        publisher_id: @user.id,
+        assoc_type: 'Album',
+        assoc_id: album.id,
+        feed_type: Feed.feed_types[:release]
+      )
 
-      @user.products.published.each do |product|
-        Feed.insert(
-          consumer_id: current_user.id,
-          publisher_id: @user.id,
-          assoc_type: 'ShopProduct',
-          assoc_id: product.id,
-          feed_type: Feed.feed_types[:release]
-        )
-      end
+      # @user.products.published.each do |product|
+      product = @user.products.published.last
+      Feed.insert(
+        consumer_id: current_user.id,
+        publisher_id: @user.id,
+        assoc_type: 'ShopProduct',
+        assoc_id: product.id,
+        feed_type: Feed.feed_types[:release]
+      )
 
       Activity.create(
         sender_id: current_user.id,

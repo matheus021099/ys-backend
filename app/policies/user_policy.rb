@@ -52,7 +52,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def unfollow?
-    user.id != record.id
+    user.id != record.id && user.username != ENV['PUBLIC_RELATIONS_USERNAME']
   end
 
   def block?
@@ -171,7 +171,7 @@ class UserPolicy < ApplicationPolicy
 
       :status
     ]
-    
+
     # if user.present? && user.admin?
     #   # attributes << :role
     # end
