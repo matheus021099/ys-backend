@@ -73,12 +73,14 @@ class Stream < ApplicationRecord
       # end
 
       ### create streams/:id/notify and call it when stream is available
-      # PushNotificationWorker.perform_async(
-      #   follower.devices.where(enabled: true).pluck(:token),
-      #   FCMService::push_notification_types[:video_started],
-      #   message_body,
-      #   StreamSerializer.new(self, scope: OpenStruct.new(current_user: self.user)).as_json
-      # )
+      data = self.as_json(only: [:id, :user_id, :name, :cover])
+      data.assoc = assocJson = Util::Serializer.polymophic_serializer(self.assoc)
+      PushNotificationWorker.perform_async(
+        follower.devices.where(enabled: true).pluck(:token),
+        FCMService::push_notification_types[:video_started],
+        message_body,
+        data
+      )
     end
 
     true
