@@ -37,6 +37,10 @@ class ShopProductPolicy < ApplicationPolicy
     moderate?
   end
 
+  def hide?
+    moderate?
+  end
+
   def accept_collaboration?
     true
   end

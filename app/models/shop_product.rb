@@ -348,6 +348,40 @@ class ShopProduct < ApplicationRecord
     true
   end
 
+  def hide(actor)
+    return 'You are trying to hide your product' if actor.id == self.merchant_id
+
+    Feed.where({
+      publisher_id: actor.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    }).delete_all
+
+    feed = Feed.insert(
+      consumer_id: actor.id,
+      publisher_id: actor.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      feed_type: Feed.feed_types[:hide]
+    )
+
+    if feed
+      Activity.create(
+        sender_id: actor.id,
+        receiver_id: actor.id,
+        message: 'hide a product',
+        assoc_type: self.class.name,
+        assoc_id: self.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:hide],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:read]
+      )
+    end
+
+    true
+  end
+
   class << self
     # def explore_query(category, params = {}, user = nil)
     #   query = ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers, :user_products).where(

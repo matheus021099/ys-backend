@@ -1,7 +1,7 @@
 module Api::V1::Shopping
   class ProductsController < ApiController
     before_action :set_product, only: [
-      :show, :update, :destroy, :release, :repost,
+      :show, :update, :destroy, :release, :repost, :hide,
       :accept_collaboration, :deny_collaboration,
       :ordered_items, :tickets
     ]
@@ -436,6 +436,18 @@ module Api::V1::Shopping
     def unrepost
       authorize @product
       @product.unrepost
+      render_success(true)
+    end
+
+
+    setup_authorization_header(:hide)
+    swagger_api :hide do |api|
+      summary 'hide an product'
+      param :path, :id, :string, :required
+    end
+    def hide
+      authorize @product
+      @product.hide(current_user)
       render_success(true)
     end
 

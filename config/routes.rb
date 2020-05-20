@@ -305,6 +305,7 @@ Rails.application.routes.draw do
             get :release
             get :repost
             get :unrepost
+            get :hide
             get :accept_collaboration
             get :deny_collaboration
             get :ordered_items

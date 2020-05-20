@@ -719,13 +719,11 @@ module Api::V1
         ActionCable.server.broadcast("stream_#{@stream.id}", {assoc_type: @stream.assoc_type, assoc: result})
 
         # send push notification to watchers
-        assocJson = Util::Serializer.polymophic_serializer(assoc)
-
         data = {
           id: @stream.id,
           user_id: @stream.user_id,
           assoc_type: assoc.class.name,
-          assoc: assocJson
+          assoc: Util::Serializer.polymophic_serializer(assoc)
         }
 
         user_ids = Activity.where(

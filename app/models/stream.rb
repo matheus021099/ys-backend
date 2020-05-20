@@ -46,6 +46,8 @@ class Stream < ApplicationRecord
     )
 
     message_body = "#{self.user.display_name} broadcast a live stream"
+    data = self.as_json(only: [ :id, :user_id, :name, :cover ])
+    data[:assoc] = Util::Serializer.polymophic_serializer(self.assoc)
 
     self.user.followers.each do |follower|
       next if follower.blank?
@@ -73,8 +75,6 @@ class Stream < ApplicationRecord
       # end
 
       ### create streams/:id/notify and call it when stream is available
-      data = self.as_json(only: [:id, :user_id, :name, :cover])
-      data.assoc = assocJson = Util::Serializer.polymophic_serializer(self.assoc)
       PushNotificationWorker.perform_async(
         follower.devices.where(enabled: true).pluck(:token),
         FCMService::push_notification_types[:video_started],
