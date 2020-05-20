@@ -29,6 +29,16 @@ module Api::V1
     end
 
 
+    swagger_api :show do |api|
+      param :path, :id, :string, :required
+    end
+    def show
+      authorize @post
+
+      render_success @post
+    end
+
+
     swagger_api :create do |api|
       summary 'add a post'
       param :form, 'post[media_type]', :string, :required, 'image, video'
