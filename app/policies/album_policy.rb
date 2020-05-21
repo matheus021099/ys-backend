@@ -91,7 +91,8 @@ class AlbumPolicy < ApplicationPolicy
   end
 
   def hide?
-    moderate?
+    # moderate?
+    true
   end
 
   def download?
