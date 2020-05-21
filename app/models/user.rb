@@ -189,7 +189,7 @@ class User < ApplicationRecord
   def blocked_product_ids
     exclude_product_ids = [0]
 
-    hidden_product_ids = ShopProduct.where(user_id: self.block_list).pluck(:id)
+    hidden_product_ids = ShopProduct.where(merchant_id: self.block_list).pluck(:id)
     exclude_product_ids.concat hidden_product_ids
 
     hidden_product_ids = Feed.where(publisher_id: self.id, feed_type: Feed.feed_types[:hide], assoc_type: 'ShopProduct').pluck(:assoc_id)
