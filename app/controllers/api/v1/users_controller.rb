@@ -155,7 +155,7 @@ module Api::V1
         attributes.delete('avatar')
       end
 
-      @user.request_status = User.request_statuses[:pending] if params[:user][:request_resend].present?
+      @user.request_status = User.request_statuses[:pending] if params[:user][:request_resend].present? || params[:user][:request_role].present?
 
       if @user.update(attributes)
         render json: @user,
