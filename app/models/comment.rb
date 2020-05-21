@@ -58,21 +58,22 @@ class Comment < ApplicationRecord
     end
 
     self.body.gsub /@(\w+)/ do |username|
-      username = username.gsub('@', '')
-      user = User::find_by_username(username)
-      user.add_role :reader, self
-
-      Activity.create(
-        sender_id: self.user_id,
-        receiver_id: user.id,
-        message: "commented on #{commentable_type}",
-        module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:comment],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:unread],
-        assoc_type: 'Comment',
-        assoc_id: self.id
-      )
+      username = username.gsub('@', '').downcase
+      user = User.find_by_username(username)
+      if user.present?
+        user.add_role :reader, self
+        Activity.create(
+          sender_id: self.user_id,
+          receiver_id: user.id,
+          message: "commented on #{commentable_type}",
+          module_type: Activity.module_types[:activity],
+          action_type: Activity.action_types[:comment],
+          alert_type: Activity.alert_types[:both],
+          status: Activity.statuses[:unread],
+          assoc_type: 'Comment',
+          assoc_id: self.id
+        )
+      end
     end.html_safe
   end
 

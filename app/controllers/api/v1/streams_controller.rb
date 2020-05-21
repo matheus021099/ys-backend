@@ -12,7 +12,8 @@ module Api::V1
 
     swagger_api :index do |api|
       summary 'get live streams from who current_user follows'
-      # param :query, :statuses, :string, :optional, 'running'
+      param :query, :genre_id, :integer, :options
+      param :query, :only_follows, :boolean, :options
       param :query, :page, :integer, :optional
       param :query, :per_page, :integer, :optional
     end
@@ -21,14 +22,17 @@ module Api::V1
 
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 10).to_i
+      only_follows = params[:only_follows].present? ? ActiveModel::Type::Boolean.new.cast(params[:only_follows]) : false
+      genre_id = params[:genre_id].to_i rescue 0
 
       streams = Stream
-        .joins("LEFT JOIN follows ON streams.user_id = follows.followable_id")
-        .where("streams.status = ? AND follows.blocked = ? AND follows.follower_id = ?",
-          Stream.statuses[:running],
-          false,
-          current_user.id
-        ).order('streams.created_at DESC').page(page).per(per_page)
+        .joins("LEFT JOIN follows "\
+          "ON streams.user_id = follows.followable_id AND follows.blocked = false AND follows.follower_id = #{current_user.id}"
+        )
+        .where("streams.status = ?", Stream.statuses[:running])
+      streams = streams.where("follows.follower_id = ?", current_user.id) if only_follows
+      streams = streams.where("streams.genre_id = ?", genre_id) if genre_id > 0
+      streams = streams.order('follows.created_at ASC').page(page).per(per_page)
 
       render_success(
         streams: ActiveModel::SerializableResource.new(
