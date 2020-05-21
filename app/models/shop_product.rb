@@ -403,8 +403,12 @@ class ShopProduct < ApplicationRecord
       }
       where[:category_name] = category unless category.blank? || category == 'any'
       if user
+        #TODO - blocked_product_ids consider the block_list
         where[:merchant_id] = {} if where[:merchant_id].blank?
         where[:merchant_id][:not] = user.block_list
+
+        where[:id] = {} if where[:id].blank?
+        where[:id][:not] = user.blocked_product_ids
       end
       order = {created_at: :desc}
       params = params.merge(per_page: ShopProduct.default_per_page) if params[:per_page].blank?
