@@ -707,8 +707,8 @@ module Api::V1
       @stream.attributes = permitted_attributes(@stream)
       @stream.save!
 
-      # Rails.logger.info("\n\n\nparams: #{params[:stream][:assoc_type]} - #{params[:stream][:assoc_type] && params[:stream][:assoc_id].present?} \n\n\n")
-      if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
+      Rails.logger.info("\n\n\n streams/:id/update: #{params[:stream][:assoc_type].present?}, #{params[:stream][:assoc_id].present?}\n\n\n")
+      if params[:stream][:assoc_id].present?
         assoc = @stream.assoc
 
         result = {}
@@ -726,7 +726,7 @@ module Api::V1
         data = {
           id: @stream.id,
           user_id: @stream.user_id,
-          assoc_type: assoc.class.name,
+          assoc_type: @stream.assoc_type,
           assoc: Util::Serializer.polymophic_serializer(assoc)
         }
 
