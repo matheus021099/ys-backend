@@ -398,6 +398,7 @@ class User < ApplicationRecord
             .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds "\
                 "WHERE publisher_id = '#{self.id}' AND feed_type = '#{feed_type}' "\
                 "GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
+            .joins("LEFT JOIN albums t3 ON t1.assoc_type = 'Album' AND t1.assoc_id = t3.id")
             .where(
               "t1.assoc_type = 'Stream' "\
               "OR (t1.assoc_type = 'ShopProduct' AND t1.assoc_id NOT IN(?)) "\
