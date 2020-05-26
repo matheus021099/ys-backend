@@ -251,7 +251,7 @@ Rails.application.routes.draw do
         end
 
         member do
-          get :remove_request_repost
+          get :remove_repost_request
           get :accept_repost
           get :deny_repost
           get :accept_repost_on_free

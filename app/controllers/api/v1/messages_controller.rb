@@ -139,12 +139,12 @@ module Api::V1
     end
 
 
-    setup_authorization_header(:remove_request_repost)
-    swagger_api :remove_request_repost do |api|
+    setup_authorization_header(:remove_repost_request)
+    swagger_api :remove_repost_request do |api|
       summary 'remove a pending repost'
       param :path, :id, :string, :required
     end
-    def remove_request_repost
+    def remove_repost_request
       message = Mailboxer::Notification.find_by_id(params[:id]) rescue nil
       render_error 'Invalid message id', :unprocessable_entity and return if message.blank?
 
