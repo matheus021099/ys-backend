@@ -163,7 +163,7 @@ class Stream < ApplicationRecord
     } if current_user.id == @stream.user_id
 
     # allow the user who paid with in a day
-    Payment.where(
+    payment = Payment.where(
       sender_id: current_user.id,
       receiver_id: self.user_id,
       payment_type: Payment.payment_types[:pay_view_stream],
@@ -172,7 +172,7 @@ class Stream < ApplicationRecord
     return {
       code: true,
       message: 'Allowed'
-    } unless payment_type.blank?
+    } unless payment.blank?
 
     page_track = "#{@stream.class.name}: #{@stream.id}"
     activity = Activity.where(
