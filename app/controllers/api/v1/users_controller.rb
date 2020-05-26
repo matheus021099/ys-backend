@@ -582,7 +582,7 @@ module Api::V1
         assoc_type: 'Album',
         assoc_id: album.id,
         feed_type: Feed.feed_types[:release]
-      )
+      ) if album.present?
 
       # @user.products.published.each do |product|
       product = @user.products.published.last
@@ -592,7 +592,7 @@ module Api::V1
         assoc_type: 'ShopProduct',
         assoc_id: product.id,
         feed_type: Feed.feed_types[:release]
-      )
+      ) if product.present?
 
       Activity.create(
         sender_id: current_user.id,
