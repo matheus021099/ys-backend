@@ -1,7 +1,7 @@
 # serializer for PN
 class MessageSerializer1 < Panko::Serializer
   attributes :id, :body, :created_at
-  attribute :attachment
+  attributes :attachment
 
   def attachment
     attach = Attachment.attachments_for(object).first
@@ -10,7 +10,7 @@ class MessageSerializer1 < Panko::Serializer
     attach_json = attach.as_json(
       only: [ :id, :attachment_type, :attachable_type, :status ]
     )
-    attach_json[:assoc] = Util::Serializer.polymophic_serializer(attach.assoc)
+    attach_json[:assoc] = Util::Serializer.polymophic_serializer(attach.attachable)
 
     attach_json
   end

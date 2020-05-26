@@ -46,9 +46,8 @@ class Attachment < ApplicationRecord
       FCMService::push_notification_types[:message_attachment_accepted],
       "[#{attachable.name}] has been accepted",
       MessageSerializer1.new(
-        message,
         scope: OpenStruct.new(current_user: sender)
-      ).as_json
+      ).serialize(message).as_json
       # MessageSerializer.new(
       #   message,
       #   scope: OpenStruct.new(current_user: sender)
@@ -72,9 +71,8 @@ class Attachment < ApplicationRecord
       FCMService::push_notification_types[:message_attachment_accepted],
       "[#{attachable.name}] has been accepted for free",
       MessageSerializer1.new(
-        message,
         scope: OpenStruct.new(current_user: sender)
-      ).as_json
+      ).serialize(message).as_json
     )
   end
 
@@ -94,9 +92,8 @@ class Attachment < ApplicationRecord
       FCMService::push_notification_types[:message_attachment_denied],
       "[#{attachable.name}] has been denied",
       MessageSerializer1.new(
-        message,
         scope: OpenStruct.new(current_user: sender)
-      ).as_json
+      ).serialize(message).as_json
     )
   end
 
