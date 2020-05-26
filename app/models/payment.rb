@@ -527,6 +527,35 @@ class Payment < ApplicationRecord
     payment
   end
 
+  # refund on pay_view_stream
+  def self.refund_without_fee(payment: nil, amount: 0, description: '')
+    return 'Invalid amount' unless amount > 0 && amount <= payment.received_amount - payment.refund_amount
+    _payment = 'Failed'
+    sender = payment.sender
+    receiver = payment.receiver
+    ActiveRecord::Base.transaction do
+      _payment = Payment.create!(
+        sender_id: receiver.id,
+        receiver_id: sender.id,
+        payment_type: Payment.payment_types[:refund],
+        description: description,
+        payment_token: nil,
+        sent_amount: amount,
+        received_amount: amount,
+        fee: 0,
+        tax: 0,
+        assoc_type: payment.class.name,
+        assoc_id: payment.id,
+        status: Payment.statuses[:done]
+      )
+      payment.update_attributes!(refund_amount: payment.refund_amount + amount)
+      receiver.update_attributes!(balance_amount: receiver.balance_amount - amount)
+      sender.update_attributes!(balance_amount: sender.balance_amount + amount)
+    end
+    _payment
+  end
+
+  # refund on purchase an order
   def self.refund(payment: nil, amount: 0, description: '')
     return 'Invalid amount' unless amount > 0 && amount <= payment.sent_amount - payment.refund_amount
     _payment = 'Failed'

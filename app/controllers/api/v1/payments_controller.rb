@@ -92,16 +92,26 @@ module Api::V1
     end
     def refund
       @payment = Payment.includes(:sender, :receiver).find(params[:id])
-      render_error("Can't refund", :unprocessable_entity) and return unless @payment.receiver_id == current_user.id && @payment.buy?
+      render_error("Can't refund", :unprocessable_entity) and return if @payment.receiver_id != current_user.id || !(@payment.buy? || @payment.pay_view_stream?)
 
       amount = params[:amount].to_i rescue 0
       description = params[:description] || ''
 
-      _payment = Payment.refund(
-        payment: @payment,
-        amount: amount,
-        description: description
-      )
+      _payment = 'Failed'
+      case @payment.payment_type
+        when 'pay_view_stream'
+          _payment = Payment.refund_without_fee(
+            payment: @payment,
+            amount: amount,
+            description: description
+          )
+        else
+          _payment = Payment.refund(
+            payment: @payment,
+            amount: amount,
+            description: description
+          )
+      end
       render_error(_payment, :unprocessable_entity) and return unless _payment.instance_of? Payment
 
       current_user.reload

@@ -162,6 +162,18 @@ class Stream < ApplicationRecord
       message: 'Allowed'
     } if current_user.id == @stream.user_id
 
+    # allow the user who paid with in a day
+    Payment.where(
+      sender_id: current_user.id,
+      receiver_id: self.user_id,
+      payment_type: Payment.payment_types[:pay_view_stream],
+      refund_amount: 0,
+    ).where('created_at > ?', 1.day.ago).first
+    return {
+      code: true,
+      message: 'Allowed'
+    } unless payment_type.blank?
+
     page_track = "#{@stream.class.name}: #{@stream.id}"
     activity = Activity.where(
       sender_id: current_user.id,
