@@ -45,14 +45,39 @@ class Attachment < ApplicationRecord
       receiver.devices.where(enabled: true).pluck(:token),
       FCMService::push_notification_types[:message_attachment_accepted],
       "[#{attachable.name}] has been accepted",
-      MessageSerializer.new(
+      MessageSerializer1.new(
+        message,
+        scope: OpenStruct.new(current_user: sender)
+      ).as_json
+      # MessageSerializer.new(
+      #   message,
+      #   scope: OpenStruct.new(current_user: sender)
+      # ).as_json
+    )
+  end
+
+  def accept_on_free(sender: nil, receiver: nil)
+    Payment.accept_repost_request_on_free(
+      sender: sender,
+      receiver: receiver,
+      assoc_type: self.attachable_type,
+      assoc_id: self.attachable_id,
+      attachment_id: self.id
+    )
+
+    self.update_attributes(status: Attachment.statuses[:accepted])
+
+    PushNotificationWorker.perform_async(
+      receiver.devices.where(enabled: true).pluck(:token),
+      FCMService::push_notification_types[:message_attachment_accepted],
+      "[#{attachable.name}] has been accepted for free",
+      MessageSerializer1.new(
         message,
         scope: OpenStruct.new(current_user: sender)
       ).as_json
     )
   end
 
-  # def repost_deny
   def deny(sender: nil, receiver: nil)
     Payment.deny_repost_request(
       # sender: sender,
@@ -68,7 +93,7 @@ class Attachment < ApplicationRecord
       receiver.devices.where(enabled: true).pluck(:token),
       FCMService::push_notification_types[:message_attachment_denied],
       "[#{attachable.name}] has been denied",
-      MessageSerializer.new(
+      MessageSerializer1.new(
         message,
         scope: OpenStruct.new(current_user: sender)
       ).as_json
@@ -95,26 +120,14 @@ class Attachment < ApplicationRecord
     # end
   end
 
-  def accept_on_free(sender: nil, receiver: nil)
-    Payment.accept_repost_request_on_free(
-      sender: sender,
-      receiver: receiver,
+  def remove
+    Payment.deny_repost_request(
       assoc_type: self.attachable_type,
       assoc_id: self.attachable_id,
       attachment_id: self.id
     )
 
-    self.update_attributes(status: Attachment.statuses[:accepted])
-
-    PushNotificationWorker.perform_async(
-      receiver.devices.where(enabled: true).pluck(:token),
-      FCMService::push_notification_types[:message_attachment_accepted],
-      "[#{attachable.name}] has been accepted for free",
-      MessageSerializer.new(
-        message,
-        scope: OpenStruct.new(current_user: sender)
-      ).as_json
-    )
+    self.destroy
   end
 
   def self.find_pending(sender: nil, receiver: nil, attachment_type: '', attachable: nil)

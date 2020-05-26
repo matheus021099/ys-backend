@@ -139,6 +139,27 @@ module Api::V1
     end
 
 
+    setup_authorization_header(:remove_request_repost)
+    swagger_api :remove_request_repost do |api|
+      summary 'remove a pending repost'
+      param :path, :id, :string, :required
+    end
+    def remove_request_repost
+      message = Mailboxer::Notification.find_by_id(params[:id]) rescue nil
+      render_error 'Invalid message id', :unprocessable_entity and return if message.blank?
+
+      attachments = Attachment.attachments_for(message)
+      render_error 'Message has not any attachment', :unprocessable_entity and return if attachments.blank? || attachments.length == 0
+
+      attachment = attachments.first
+      render_error 'Action has already been taken', :unprocessable_entity and return unless attachment.repost? && attachment.pending?
+
+      attachment.remove
+
+      render_success true
+    end
+
+
     setup_authorization_header(:accept_repost)
     swagger_api :accept_repost do |api|
       summary 'accept a repost'
@@ -261,7 +282,7 @@ module Api::V1
       message = Mailboxer::Notification.find_by_id(params[:message_id])
       attachments = Attachment.attachments_for(message)
       render_error 'Message has not any attachment', :unprocessable_entity and return if attachments.blank? || attachments.length == 0
-      
+
       attachment = attachments.first
       attachable = attachment.attachable
 
