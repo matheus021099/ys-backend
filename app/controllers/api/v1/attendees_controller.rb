@@ -13,7 +13,7 @@ module Api::V1
       summary 'get attendees'
     end
     def index
-      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin?
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
       attendees = Attendee.includes(:user).all
       result = ActiveModel::Serializer::CollectionSerializer.new(
         attendees,
@@ -109,7 +109,7 @@ module Api::V1
       param :path, :id, :string, :required, 'attendee id'
     end
     def invite
-      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin?
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
 
       now = Time.now
       invitation_token = SecureRandom.urlsafe_base64(16)
