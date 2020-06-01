@@ -556,28 +556,34 @@ class Payment < ApplicationRecord
   end
 
   # refund on purchase an order
-  def self.refund(payment: nil, amount: 0, description: '')
+  def self.refund_order(payment: nil, amount: 0, description: '', items)
     return 'Invalid amount' unless amount > 0 && amount <= payment.sent_amount - payment.refund_amount
     _payment = 'Failed'
     sender = payment.sender
     receiver = payment.receiver
+
     ActiveRecord::Base.transaction do
-      _payment = Payment.create!(
-        sender_id: receiver.id,
-        receiver_id: sender.id,
-        payment_type: Payment.payment_types[:refund],
-        description: description,
-        payment_token: nil,
-        sent_amount: amount,
-        received_amount: amount,
-        fee: 0,
-        tax: 0,
-        order_id: payment.order_id,
-        assoc_type: payment.class.name,
-        assoc_id: payment.id,
-        status: Payment.statuses[:done]
-      )
-      payment.update_attributes!(refund_amount: payment.refund_amount + amount)
+      items.each do |it|
+        Rails.logger.info(it)
+        item = ShopItem.find(it['id'])
+        _payment = Payment.create!(
+          sender_id: receiver.id,
+          receiver_id: sender.id,
+          payment_type: Payment.payment_types[:refund],
+          description: description,
+          payment_token: nil,
+          sent_amount: it['refund_amount'],
+          received_amount: it['refund_amount'],
+          fee: 0,
+          tax: 0,
+          order_id: payment.order_id,
+          assoc_type: item.class.name,
+          assoc_id: item.id,
+          status: Payment.statuses[:done]
+        )
+        item.update_attributes!(refund_amount: it['refund_amount'], status: ShopItem.statuses[:item_refunded])
+      end
+      payment.update_attributes!(refund_amount: payment.refund_amount + amount, description: description)
       receiver.update_attributes!(balance_amount: receiver.balance_amount - amount)
       sender.update_attributes!(balance_amount: sender.balance_amount + amount)
     end

@@ -14,7 +14,7 @@ class Util::Number
 
     def decode(str)
       str.gsub!(/[0189]/, '')
-      BaseX::RFC4648Base32.string_to_integer(str)
+      BaseX::RFC4648Base32.string_to_integer(str) rescue 0
     end
   end
 end

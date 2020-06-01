@@ -146,6 +146,7 @@ Rails.application.routes.draw do
 
         member do
           post :refund
+          post :refund_order
         end
       end
 
