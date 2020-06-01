@@ -92,12 +92,11 @@ module Api::V1
     end
     def refund
       @payment = Payment.includes(:sender, :receiver).find(params[:id])
-      render_error("Can't refund", :unprocessable_entity) and return if @payment.receiver_id != current_user.id || !@payment.pay_view_stream?
+      render_error("Cannot refund", :unprocessable_entity) and return if @payment.receiver_id != current_user.id || !@payment.pay_view_stream?
 
       amount = params[:amount].to_i rescue 0
       description = params[:description] || ''
 
-      _payment = 'Failed'
       _payment = Payment.refund_without_fee(
         payment: @payment,
         amount: amount,
@@ -133,18 +132,17 @@ module Api::V1
       param :path, :id, :string, :required
       param :form, :amount, :integer, :required
       param :form, :description, :string, :optional
-      param :form, :items, :string
+      param :form, :items, :string, :optional
     end
     def refund_order
       @payment = Payment.includes(:sender, :receiver).find(params[:id])
-      render_error("Cannot refund an order", :unprocessable_entity) and return unless @payment.receiver_id == current_user.id || @payment.buy?
-      items = JSON.parse(params[:shop_product][:variants]) rescue nil
+      render_error("Cannot refund an order", :unprocessable_entity) and return unless @payment.receiver_id == current_user.id && @payment.buy?
+      items = JSON.parse(params[:items]) rescue nil
       render_error("Cannot parse the items", :unprocessable_entity) and return if items.blank? || items.size == 0
 
       amount = params[:amount].to_i rescue 0
       description = params[:description] || ''
 
-      _payment = 'Failed'
       _payment = Payment.refund_order(
         payment: @payment,
         amount: amount,

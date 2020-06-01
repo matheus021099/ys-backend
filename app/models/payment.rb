@@ -556,7 +556,7 @@ class Payment < ApplicationRecord
   end
 
   # refund on purchase an order
-  def self.refund_order(payment: nil, amount: 0, description: '', items)
+  def self.refund_order(payment: nil, amount: 0, description: '', items: nil)
     return 'Invalid amount' unless amount > 0 && amount <= payment.sent_amount - payment.refund_amount
     _payment = 'Failed'
     sender = payment.sender
