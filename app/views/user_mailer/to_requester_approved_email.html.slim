@@ -3,7 +3,9 @@ p
   strong = @requester.display_name
 
 p
-  | Your account has been verified.
+  | your account was reviewed by&nbsp;
+  strong = @verifier.display_name
+  | , and your account has been verified.
 
 p
   | You can login now and start uploading content.

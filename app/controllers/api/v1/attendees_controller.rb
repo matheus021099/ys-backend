@@ -116,6 +116,7 @@ module Api::V1
 
       @attendee.update_attributes(
         invitation_token: invitation_token,
+        inviter_id: current_user.id,
         invited_at: now,
         status: Attendee.statuses[:invited]
       )
