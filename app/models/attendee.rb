@@ -12,4 +12,5 @@ class Attendee < ApplicationRecord
   validates :account_type, presence: :true
 
   belongs_to :user
+  belongs_to :inviter, foreign_key: 'inviter_id', class_name: 'User'
 end

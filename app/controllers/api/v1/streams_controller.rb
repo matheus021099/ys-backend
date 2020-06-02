@@ -31,6 +31,9 @@ module Api::V1
         )
         .where("streams.status = ?", Stream.statuses[:running])
       streams = streams.where("follows.follower_id = ?", current_user.id) if only_follows
+
+      genres = Genre.where(id: streams.pluck(:genre_id)).pluck(:name)
+
       streams = streams.where("streams.genre_id = ?", genre_id) if genre_id > 0
       streams = streams.order('follows.created_at ASC').page(page).per(per_page)
 
@@ -39,7 +42,8 @@ module Api::V1
           streams,
           scope: OpenStruct.new(current_user: current_user)
         ),
-        pagination: pagination(streams)
+        pagination: pagination(streams),
+        genres: genres
       )
     end
 
