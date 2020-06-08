@@ -112,7 +112,7 @@ module Api::V1
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
 
       user = User.find_by(email: @attendee.email)
-      render_error 'Email already exists', :unprocessable_entity and return if user.present?
+      render_error 'Email has already been taken', :unprocessable_entity and return if user.present?
 
       now = Time.now
       invitation_token = SecureRandom.urlsafe_base64(16)
