@@ -98,7 +98,11 @@ body
               td
                 label= item.product.name
                 span $#{'%.2f' % (item.price / 100.0)}
-              td= item.quantity
+              td
+                - if item.quantity == 0
+                  = link_to 'Download', item.product.digital_content_url
+                - else
+                  = item.quantity
               td $#{'%.2f' % (item.subtotal_cost / 100.0)}
 
         .divider

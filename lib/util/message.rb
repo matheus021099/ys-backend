@@ -41,10 +41,13 @@ class Util::Message
         receiver.devices.where(enabled: true).pluck(:token),
         notification_type,
         message_body,
-        MessageSerializer.new(
-          receipt.message,
+        MessageSerializer1.new(
           scope: OpenStruct.new(current_user: sender)
-        ).as_json
+        ).serialize(receipt.message).as_json
+        # MessageSerializer.new(
+        #   receipt.message,
+        #   scope: OpenStruct.new(current_user: sender)
+        # ).as_json
       )
 
       self.broadcast(receipt.message)
