@@ -581,7 +581,7 @@ class Payment < ApplicationRecord
           assoc_id: item.id,
           status: Payment.statuses[:done]
         )
-        item.update_attributes!(refund_amount: it['refund_amount'], status: ShopItem.statuses[:item_refunded])
+        item.mark_as_refunded(refund_amount: it['refund_amount'])
       end
       payment.update_attributes!(refund_amount: payment.refund_amount + amount, description: description)
       receiver.update_attributes!(balance_amount: receiver.balance_amount - amount)

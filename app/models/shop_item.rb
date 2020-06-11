@@ -36,4 +36,11 @@ class ShopItem < ApplicationRecord
     end
     ActionCable.server.broadcast("notification_#{self.merchant_id}", {sell: -1})
   end
+
+  def mark_as_refunded(refund_amount: 0)
+    self.update_attributes(refund_amount: refund_amount, status: ShopItem.statuses[:item_refunded])
+    if self.order.items.where.not(status: ShopItem.statuses[:item_refunded]).size == 0
+      self.order.update_attributes(status: ShopOrder.statuses[:order_refunded])
+    end
+  end
 end

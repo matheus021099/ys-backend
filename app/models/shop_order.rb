@@ -2,7 +2,8 @@ class ShopOrder < ApplicationRecord
   # enum status: [:order_pending, :order_shipped]
   enum status: {
     order_pending: 'order_pending',
-    order_shipped: 'order_shipped'
+    order_shipped: 'order_shipped',
+    order_refunded: 'order_refunded'
   }
 
   after_create :do_after_create

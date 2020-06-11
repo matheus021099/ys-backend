@@ -149,9 +149,10 @@ class ShopCart < ApplicationRecord
             is_vat: item.product_variant.product.is_vat,
             status: ShopItem.statuses[:item_ordered]
           }
-          order.items << item
 
-          unless item.product_variant.product.category.is_digital
+          if item.product_variant.product.category.is_digital
+            item.status = ShopItem.statuses[:item_shipped]
+          else
             item.product_variant.quantity -= item.quantity
             item.product_variant.save!
 
@@ -160,6 +161,8 @@ class ShopCart < ApplicationRecord
               item.product.save!
             end
           end
+
+          order.items << item
         end
 
         app_fee = Payment.calculate_fee(subtotal, 'shopping')
@@ -177,6 +180,9 @@ class ShopCart < ApplicationRecord
           payment_token: stripe_charge_id,
           status: ShopOrder.statuses[:order_pending]
         }
+        if order.items.select{ |item| item.status != 'item_shipped' }.blank?
+          order.status = ShopOrder.statuses[:order_shipped]
+        end
         # order.merchant = merchant
         order.save!
 
@@ -281,7 +287,7 @@ class ShopCart < ApplicationRecord
       end
     end
     total_cost = subtotal_cost + shipping_cost + tax_cost
-    
+
     return {
       total_cost: total_cost,
       subtotal_cost: subtotal_cost,
