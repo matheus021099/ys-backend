@@ -64,6 +64,7 @@ module Api::V1
     end
 
 
+    #TODO - execute the queries on database not with elastic search
     setup_authorization_header(:search_discover)
     swagger_api :search_discover do |api|
       summary 'search discover'
@@ -80,10 +81,12 @@ module Api::V1
       filter = params[:filter] || 'merch'
       genre = params[:genre] || 'any'
       category = params[:category] || 'any'
-      page = params[:page] || 1
-      per_page = params[:per_page] || 24
+      page = params[:page].to_i rescue 1
+      per_page = params[:per_page].to_i rescue 24
       # seed = params[:seed] || DateTime.now.to_i
       seed = params[:seed].to_f rescue rand()
+
+      render_error 'No index more than 10,000', :unprocessable_entity and return if page * per_page >= 10_000
 
       case filter
         when 'any'
