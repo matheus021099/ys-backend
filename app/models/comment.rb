@@ -32,7 +32,6 @@ class Comment < ApplicationRecord
 
     if self.commentable.user_id != self.user_id
       self.user.add_role :writer, self
-
       Activity.create(
         sender_id: self.user_id,
         receiver_id: self.commentable.user_id,
@@ -41,7 +40,7 @@ class Comment < ApplicationRecord
         action_type: Activity.action_types[:comment],
         alert_type: Activity.alert_types[:both],
         status: Activity.statuses[:unread],
-        assoc_type: 'Comment',
+        assoc_type: self.class.name,
         assoc_id: self.id
       )
 
@@ -55,26 +54,36 @@ class Comment < ApplicationRecord
           scope: OpenStruct.new(current_user: self.user),
         ).as_json
       )
-    end
 
-    self.body.gsub /@(\w+)/ do |username|
-      username = username.gsub('@', '').downcase
-      user = User.find_by_username(username)
-      if user.present?
-        user.add_role :reader, self
-        Activity.create(
-          sender_id: self.user_id,
-          receiver_id: user.id,
-          message: "commented on #{commentable_type}",
-          module_type: Activity.module_types[:activity],
-          action_type: Activity.action_types[:comment],
-          alert_type: Activity.alert_types[:both],
-          status: Activity.statuses[:unread],
-          assoc_type: 'Comment',
-          assoc_id: self.id
-        )
-      end
-    end.html_safe
+      self.body.gsub /@(\w+)/ do |username|
+        username = username.gsub('@', '').downcase
+        user = User.includes(:devices).find_by_username(username)
+        if user.present?
+          user.add_role :reader, self
+          Activity.create(
+            sender_id: self.user_id,
+            receiver_id: user.id,
+            message: "commented on #{commentable_type}",
+            module_type: Activity.module_types[:activity],
+            action_type: Activity.action_types[:comment],
+            alert_type: Activity.alert_types[:both],
+            status: Activity.statuses[:unread],
+            assoc_type: self.class.name,
+            assoc_id: self.id
+          )
+
+          PushNotificationWorker.perform_async(
+            user.devices.where(enabled: true).pluck(:token),
+            FCMService::push_notification_types[:commented],
+            message_body,
+            CommentSerializer.new(
+              self,
+              scope: OpenStruct.new(current_user: user),
+            ).as_json
+          )
+        end
+      end.html_safe
+    end
   end
 
   def readable_user_ids
@@ -108,7 +117,7 @@ class Comment < ApplicationRecord
 
     # #TODO - could raise an issue, coz activity refer comment in assoc
     # Activity.remove(self.class.to_s.underscore, self.id)
-    Activity.remove('Comment', self.id)
+    Activity.remove(self.class.name, self.id)
     # self.destroy
   end
 end

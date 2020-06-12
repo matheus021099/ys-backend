@@ -2,11 +2,15 @@ class CommentSerializer < ActiveModel::Serializer
   attributes :id, :body, :status, :created_at, :commentable_type
   attribute :commentable, if: :include_commentable?
   attribute :readable_user_ids, if: :include_readers?
-
-  belongs_to :user, if: :include_commenter?
+  # belongs_to :user, if: :include_commenter?
+  attribute :user, if: :include_commenter?
 
   def commentable
     Util::Serializer.polymophic_serializer(object.commentable)
+  end
+
+  def user
+    UserSerializer1.new(object.user, scope: scope)
   end
 
   def include_commenter?
