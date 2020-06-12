@@ -15,7 +15,7 @@ class ActivitySerializer < ActiveModel::Serializer
   end
 
   def sender
-    UserSerializer.new(object.sender, scope: scope, include_recent: true, recent_count: 3)
+    UserSerializer1.new(object.sender, scope: scope, include_recent: true, recent_count: 3)
   end
 
   def assoc

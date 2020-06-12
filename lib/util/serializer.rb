@@ -21,6 +21,10 @@ class Util::Serializer
           assoc.as_json(
             only: [ :id, :slug, :display_name, :avatar, :user_type ]
           )
+        when 'Post'
+          assoc.as_json(
+            only: [ :id, :cover, :media_name ]
+          )
       end
     end
   end

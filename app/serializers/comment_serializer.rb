@@ -6,26 +6,7 @@ class CommentSerializer < ActiveModel::Serializer
   belongs_to :user, if: :include_commenter?
 
   def commentable
-    case object.commentable_type
-      when 'Album'
-        object.commentable.as_json(
-          only: [ :id, :slug, :name, :cover, :album_type ]
-        )
-      when 'ShopProduct'
-        object.commentable.as_json(
-          only: [ :id, :name ],
-          # methods: :covers,
-          include: {
-            covers: {
-              only: [ :id, :cover, :position ]
-            }
-          }
-        )
-      when 'Post'
-        object.commentable.as_json(
-          only: [ :id, :cover, :media_name ]
-        )
-    end
+    Util::Serializer.polymophic_serializer(object.commentable)
   end
 
   def include_commenter?
