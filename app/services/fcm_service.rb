@@ -16,6 +16,7 @@ class FCMService
       album_reposted: 'ALBUM_REPOSTED',
       product_purchased: 'PRODUCT_PURCHASED',
       product_reposted: 'PRODUCT_REPOSTED',
+      post_created: 'POST_CREATED',
       commented: 'COMMENTED'
     }
   end

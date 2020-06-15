@@ -11,7 +11,9 @@ class PostSerializer < ActiveModel::Serializer
   end
 
   def user
-    object.user.as_json(only: [ :id, :slug, :username, :display_name, :user_type, :avatar, :status ])
+    object.user.as_json(
+      only: [ :id, :slug, :username, :display_name, :user_type, :avatar, :status ]
+    )
   end
 
   def assoc

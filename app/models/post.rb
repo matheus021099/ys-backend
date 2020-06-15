@@ -20,6 +20,24 @@ class Post < ApplicationRecord
   mount_uploader :media, FileUploader
   mount_uploader :cover, CoverUploader
 
+  after_create :do_after_create
+
+  def do_after_create
+    message_body = "#{self.user.display_name} uploaded a post"
+    self.description.gsub /@(\w+)/ do |username|
+      username = username.gsub('@', '').downcase
+      user = User.includes(:devices).find_by_username(username)
+      if user.present?
+        PushNotificationWorker.perform_async(
+          user.devices.where(enabled: true).pluck(:token),
+          FCMService::push_notification_types[:post_created],
+          message_body,
+          PostSerializer.new(self).as_json
+        )
+      end
+    end.html_safe
+  end
+
   def media_url
     if media_name.blank?
       self.media.url
