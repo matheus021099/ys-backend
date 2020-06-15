@@ -786,12 +786,21 @@ module Api::V1
 
       user_ids = current_user.followers.pluck(:id)
       message_body = "#{current_user.display_name} broadcast a live stream"
+      data = @stream.as_json(
+        only: [ :id, :user_id, :name, :cover ],
+        include: {
+          user: {
+            only: [ :id, :slug, :name, :username, :avatar ]
+          }
+        }
+      )
+      data[:assoc] = Util::Serializer.polymophic_serializer(@stream.assoc)
 
       PushNotificationWorker.perform_async(
         Device.where(user_id: user_ids, enabled: true).pluck(:token),
         FCMService::push_notification_types[:video_started],
         message_body,
-        StreamSerializer.new(@stream, scope: OpenStruct.new(current_user: current_user)).as_json
+        data
       )
 
       render_success true

@@ -46,7 +46,14 @@ class Stream < ApplicationRecord
     )
 
     message_body = "#{self.user.display_name} broadcast a live stream"
-    data = self.as_json(only: [ :id, :user_id, :name, :cover ])
+    data = self.as_json(
+      only: [ :id, :user_id, :name, :cover ],
+      include: {
+        user: {
+          only: [ :id, :slug, :name, :username, :avatar ]
+        }
+      }
+    )
     data[:assoc] = Util::Serializer.polymophic_serializer(self.assoc)
 
     self.user.followers.each do |follower|
