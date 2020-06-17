@@ -52,6 +52,7 @@ class Comment < ApplicationRecord
         CommentSerializer.new(
           self,
           scope: OpenStruct.new(current_user: self.user),
+          include_commenter: true,
         ).as_json
       )
 
@@ -79,6 +80,7 @@ class Comment < ApplicationRecord
             CommentSerializer.new(
               self,
               scope: OpenStruct.new(current_user: user),
+              include_commenter: true,
             ).as_json
           )
         end

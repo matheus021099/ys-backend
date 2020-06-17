@@ -1,7 +1,7 @@
 class StreamSerializer < ActiveModel::Serializer
   attributes :id, :name, :description, :cover, :started_at, :stopped_at, :status, :mp_channel_1_ep_1_url,
     :valid_period, :remaining_seconds, :assoc_type,
-    :view_price, :viewers_limit
+    :view_price, :viewers_limit, :notified
   attribute :assoc
   attribute :guests
   attribute :ml_input_dest_1_url, if: :is_current_user?

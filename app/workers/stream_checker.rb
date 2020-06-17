@@ -1,7 +1,7 @@
 class StreamChecker
   include Sidekiq::Worker
 
-  sidekiq_options queue: 'high', unique: :until_and_while_executing
+  sidekiq_options queue: :high, unique: :until_and_while_executing
 
   def perform
     remaining_time

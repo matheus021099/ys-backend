@@ -45,6 +45,14 @@ class Stream < ApplicationRecord
       status: Activity.statuses[:read]
     )
 
+    true
+  end
+
+  def notify
+    self.update_columns(notified: true)
+
+    ActionCable.server.broadcast("stream_#{@stream.id}", { notified: true })
+
     message_body = "#{self.user.display_name} broadcast a live stream"
     data = self.as_json(
       only: [ :id, :user_id, :name, :cover ],

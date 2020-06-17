@@ -1,7 +1,7 @@
 class PostChecker
   include Sidekiq::Worker
 
-  sidekiq_options queue: 'high', unique: :until_and_while_executing
+  sidekiq_options queue: :default, unique: :until_and_while_executing
 
   def perform
     remove_over_24_hrs
