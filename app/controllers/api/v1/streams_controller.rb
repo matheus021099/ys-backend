@@ -29,7 +29,12 @@ module Api::V1
         .joins("LEFT JOIN follows "\
           "ON streams.user_id = follows.followable_id AND follows.blocked = false AND follows.follower_id = #{current_user.id}"
         )
-        .where("streams.status = ?", Stream.statuses[:running])
+        .where(
+          streams: {
+            status: Stream.statuses[:running],
+            notified: true
+          }
+        )
       streams = streams.where("follows.follower_id = ?", current_user.id) if only_follows
 
       genres = Genre.where(id: streams.pluck(:genre_id)).pluck(:name)
