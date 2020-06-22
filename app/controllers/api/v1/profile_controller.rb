@@ -160,16 +160,25 @@ module Api::V1
       page = params[:page] || 1
       per_page = params[:per_page] || 24
 
-      albums = @user.download_query(filter, genre).page(page).per(per_page)
+      feeds = @user.download_query(filter, genre).page(page).per(per_page)
+      # render_success Panko::Response.new(
+      #   feeds: Panko::ArraySerializer.new(
+      #     feeds, {
+      #       each_serializer: AlbumSerializer1,
+      #       scope: OpenStruct.new(current_user: current_user)
+      #     }
+      #   ),
+      #   pagination: pagination(feeds)
+      # )
 
       render_success Panko::Response.new(
-        albums: Panko::ArraySerializer.new(
-          albums, {
-            each_serializer: AlbumSerializer1,
+        feeds: Panko::ArraySerializer.new(
+          feeds, {
+            each_serializer: FeedSerializer1,
             scope: OpenStruct.new(current_user: current_user)
           }
         ),
-        pagination: pagination(albums)
+        pagination: pagination(feeds)
       )
     end
 

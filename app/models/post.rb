@@ -23,7 +23,7 @@ class Post < ApplicationRecord
   after_create :do_after_create
 
   def do_after_create
-    message_body = "#{self.user.display_name} uploaded a post"
+    message_body = "You were mentioned in a story"
     self.description.gsub /@(\w+)/ do |username|
       username = username.gsub('@', '').downcase
       user = User.includes(:devices).find_by_username(username)

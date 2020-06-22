@@ -645,8 +645,9 @@ class User < ApplicationRecord
       .select('t1.*')
       .from('feeds t1')
       .joins("RIGHT JOIN (SELECT MAX(id) AS id, assoc_id, assoc_type FROM feeds WHERE publisher_id = '#{self.id}' AND feed_type = '#{Feed.feed_types[:download]}' GROUP BY assoc_id, assoc_type) t2 ON t1.id = t2.id")
-    album_ids = items.map{ |item| item.assoc_id }
-    query = Album.where(id: album_ids)
+      .order('updated_at desc')
+    # album_ids = items.map{ |item| item.assoc_id }
+    # query = Album.where(id: album_ids)
   end
 
   def repost_query(filter, genre)
