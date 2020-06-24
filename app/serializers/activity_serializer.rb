@@ -27,6 +27,8 @@ class ActivitySerializer < ActiveModel::Serializer
         ShopProductSerializer.new(object.assoc, scope: scope)
       when 'Comment'
         CommentSerializer.new(object.assoc, scope: scope, include_commentable: true)
+      when 'Post'
+        PostSerializer.new(object.assoc, scope: scope)
     end
   end
 end
