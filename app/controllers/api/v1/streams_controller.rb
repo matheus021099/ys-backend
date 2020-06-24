@@ -716,7 +716,7 @@ module Api::V1
       @stream.attributes = permitted_attributes(@stream)
       @stream.save!
 
-      Rails.logger.info("\n\n\n streams/:id/update: #{params[:stream][:assoc_type].present?}, #{params[:stream][:assoc_id].present?}\n\n\n")
+      # Rails.logger.info("\n\n\n streams/:id/update: #{params[:stream][:assoc_type].present?}, #{params[:stream][:assoc_id].present?}\n\n\n")
       if params[:stream][:assoc_id].present?
         assoc = @stream.assoc
 
@@ -743,6 +743,9 @@ module Api::V1
           action_type: Activity.action_types[:view_stream],
           page_track: "#{@stream.class.name}: #{@stream.id}"
         ).group(:sender_id).pluck(:sender_id)
+
+        user_ids << @stream.user_id
+        user_ids.uniq!
 
         PushNotificationWorker.perform_async(
           Device.where(user_id: user_ids, enabled: true).pluck(:token),

@@ -45,6 +45,9 @@ module Api::V1
       param :form, 'comment[status]', :string, :optional, 'privated, published, default is privated'
     end
     def create
+      commentable = params[:comment][:commentable_type].constantize.find(params[:comment][:commentable_id]) rescue nil
+      render_error 'Not found commentable', :unprocessable_entity and return unless commentable.present?
+
       @comment = Comment.new(user: current_user)
       authorize @comment
       @comment.attributes = permitted_attributes(@comment)

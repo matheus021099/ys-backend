@@ -30,11 +30,27 @@ class Comment < ApplicationRecord
 
     self.commentable.user.add_role :writer, self
 
+    users = []
     if self.commentable.user_id != self.user_id
       self.user.add_role :writer, self
+      users << self.commentable.user
+
+      self.body.gsub /@(\w+)/ do |username|
+        username = username.gsub('@', '').downcase
+        user = User.includes(:devices).find_by_username(username)
+        if user.present?
+          user.add_role :reader, self
+          users << user
+        end
+      end.html_safe
+    end
+    users.uniq! { |u| u.id }
+
+    message_body = "commented on #{commentable_type}"
+    users.each do |user|
       Activity.create(
         sender_id: self.user_id,
-        receiver_id: self.commentable.user_id,
+        receiver_id: user.id,
         message: "commented on #{commentable_type}",
         module_type: Activity.module_types[:activity],
         action_type: Activity.action_types[:comment],
@@ -44,9 +60,9 @@ class Comment < ApplicationRecord
         assoc_id: self.id
       )
 
-      message_body = "#{self.user.display_name} commented on #{commentable_type}"
       PushNotificationWorker.perform_async(
-        self.commentable.user.devices.where(enabled: true).pluck(:token),
+        # user.devices.where(enabled: true).pluck(:token),
+        user.devices.pluck(:token),
         FCMService::push_notification_types[:commented],
         message_body,
         CommentSerializer.new(
@@ -55,37 +71,9 @@ class Comment < ApplicationRecord
           include_commenter: true,
         ).as_json
       )
-
-      self.body.gsub /@(\w+)/ do |username|
-        username = username.gsub('@', '').downcase
-        user = User.includes(:devices).find_by_username(username)
-        if user.present?
-          user.add_role :reader, self
-          Activity.create(
-            sender_id: self.user_id,
-            receiver_id: user.id,
-            message: "commented on #{commentable_type}",
-            module_type: Activity.module_types[:activity],
-            action_type: Activity.action_types[:comment],
-            alert_type: Activity.alert_types[:both],
-            status: Activity.statuses[:unread],
-            assoc_type: self.class.name,
-            assoc_id: self.id
-          )
-
-          PushNotificationWorker.perform_async(
-            user.devices.where(enabled: true).pluck(:token),
-            FCMService::push_notification_types[:commented],
-            message_body,
-            CommentSerializer.new(
-              self,
-              scope: OpenStruct.new(current_user: user),
-              include_commenter: true,
-            ).as_json
-          )
-        end
-      end.html_safe
     end
+
+    true
   end
 
   def readable_user_ids

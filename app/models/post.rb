@@ -24,10 +24,23 @@ class Post < ApplicationRecord
 
   def do_after_create
     message_body = "You were mentioned in a story"
+
     self.description.gsub /@(\w+)/ do |username|
       username = username.gsub('@', '').downcase
       user = User.includes(:devices).find_by_username(username)
       if user.present?
+        Activity.create(
+          sender_id: self.user_id,
+          receiver_id: user.id,
+          message: message_body,
+          module_type: Activity.module_types[:activity],
+          action_type: Activity.action_types[:comment],
+          alert_type: Activity.alert_types[:both],
+          status: Activity.statuses[:unread],
+          assoc_type: self.class.name,
+          assoc_id: self.id
+        )
+
         PushNotificationWorker.perform_async(
           user.devices.where(enabled: true).pluck(:token),
           FCMService::push_notification_types[:post_created],
