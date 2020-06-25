@@ -25,8 +25,10 @@ class MessageSerializer1 < Panko::Serializer
   end
 
   def receiver
+    # receiver = object.recipients.select{ |u| u.id != object.sender_id }.first
+    return nil unless context&.receiver
     UserSerializer1.new(
-      object.receiver,
+      context.receiver,
       scope: scope
     )
   end
