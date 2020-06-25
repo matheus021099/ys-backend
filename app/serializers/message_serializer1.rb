@@ -3,6 +3,7 @@ class MessageSerializer1 < Panko::Serializer
   attributes :id, :body, :created_at
   attributes :attachment
   attributes :sender
+  attributes :receiver
 
   def attachment
     attach = Attachment.attachments_for(object).first
@@ -19,6 +20,13 @@ class MessageSerializer1 < Panko::Serializer
   def sender
     UserSerializer1.new(
       object.sender,
+      scope: scope
+    )
+  end
+
+  def receiver
+    UserSerializer1.new(
+      object.receiver,
       scope: scope
     )
   end

@@ -42,7 +42,7 @@ class Attachment < ApplicationRecord
     self.update_attributes(status: Attachment.statuses[:accepted])
 
     PushNotificationWorker.perform_async(
-      receiver.devices.where(enabled: true).pluck(:token),
+      sender.devices.pluck(:token),
       FCMService::push_notification_types[:message_attachment_accepted],
       "[#{attachable.name}] has been accepted",
       MessageSerializer1.new(
@@ -67,7 +67,7 @@ class Attachment < ApplicationRecord
     self.update_attributes(status: Attachment.statuses[:accepted])
 
     PushNotificationWorker.perform_async(
-      receiver.devices.where(enabled: true).pluck(:token),
+      sender.devices.pluck(:token),
       FCMService::push_notification_types[:message_attachment_accepted],
       "[#{attachable.name}] has been accepted for free",
       MessageSerializer1.new(
@@ -88,7 +88,7 @@ class Attachment < ApplicationRecord
     self.update_attributes(status: Attachment.statuses[:denied])
 
     PushNotificationWorker.perform_async(
-      receiver.devices.where(enabled: true).pluck(:token),
+      sender.devices.pluck(:token),
       FCMService::push_notification_types[:message_attachment_denied],
       "[#{attachable.name}] has been denied",
       MessageSerializer1.new(
