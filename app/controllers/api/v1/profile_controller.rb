@@ -125,9 +125,15 @@ module Api::V1
       # products = @user.products.page(page).per(per_page)
       products = ShopProduct.joins(:user_products)
         .where(
-          users_products: { user_id: @user.id },
+          users_products: {
+            user_id: @user.id,
+            status: UserProduct.statuses[:accepted]
+          },
           stock_status: ShopProduct.stock_statuses[:active],
-          status: [ShopProduct.statuses[:published], ShopProduct.statuses[:collaborated]]
+          status: [
+            ShopProduct.statuses[:published],
+            ShopProduct.statuses[:collaborated]
+          ]
         )
         .where.not(
           show_status: ShopProduct.show_statuses[:show_only_stream]

@@ -592,7 +592,8 @@ class User < ApplicationRecord
             UserAlbum.user_types[:creator],
             UserAlbum.user_types[:collaborator],
             UserAlbum.user_types[:label]
-          ]
+          ],
+          status: UserAlbum.statuses[:accepted],
         },
         album_type: Album.album_types[:album],
       )
