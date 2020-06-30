@@ -30,9 +30,16 @@ module Api::V1::Shopping
       products = products.where(stock_status: stock_statuses) unless stock_statuses.include?('any')
       products = products.where(status: statuses) unless statuses.include?('any')
 
-      render json: ActiveModelSerializers::SerializableResource.new(
+      # render_success ActiveModelSerializers::SerializableResource.new(
+      #   products,
+      #   each_serializer: ShopProductSerializer,
+      #   scope: OpenStruct.new(current_user: current_user),
+      #   include_collaborators: true,
+      #   include_collaborators_user: true,
+      # )
+      render_success ActiveModel::Serializer::CollectionSerializer.new(
         products,
-        each_serializer: ShopProductSerializer,
+        serializer: ShopProductSerializer,
         scope: OpenStruct.new(current_user: current_user),
         include_collaborators: true,
         include_collaborators_user: true,
