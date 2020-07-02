@@ -72,7 +72,7 @@ body
           = '%.2f' % (@order.items.sum{ |item| item.subtotal_cost + item.quantity * item.shipping_cost } / 100.0)
       p
         span= @order.customer.display_name
-        | &nbsp;sent a payment at YouSound Store.
+        | &nbsp;purchased these items.
 
       .order
         .order__header
