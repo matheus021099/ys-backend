@@ -197,7 +197,7 @@ module Api::V1
       limit = 20
       users = User.search(
         q.presence || '*',
-        fields: [:email, :username, :display_name],
+        fields: [:username, :display_name],
         match: :word_start,
         where: {status: 'active', user_type: {not: ['admin', 'superadmin']}},
         limit: limit

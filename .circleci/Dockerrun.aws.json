@@ -139,6 +139,10 @@
           "value": "<AWS_SES_VIOLATION_EMAIL>"
         },
         {
+          "name": "AWS_SES_NOREPLY_EMAIL",
+          "value": "<AWS_SES_NOREPLY_EMAIL>"
+        },
+        {
           "name": "AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID",
           "value": "<AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID>"
         },

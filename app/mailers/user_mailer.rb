@@ -1,6 +1,6 @@
-class UserMailer < Devise::Mailer   
+class UserMailer < Devise::Mailer
   helper MailerHelper
-  
-  default from: ENV['AWS_SES_SUPPORT_EMAIL']
+
+  default from: ENV['AWS_SES_NOREPLY_EMAIL']
   layout 'mailer'
 end

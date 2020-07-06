@@ -103,6 +103,7 @@ jobs:
             sed -i "s/<AWS_SES_SMTP_AUTH>/$AWS_SES_SMTP_AUTH/g" Dockerrun.aws.json
             sed -i "s/<AWS_SES_SUPPORT_EMAIL>/$AWS_SES_SUPPORT_EMAIL/g" Dockerrun.aws.json
             sed -i "s/<AWS_SES_VIOLATION_EMAIL>/$AWS_SES_VIOLATION_EMAIL/g" Dockerrun.aws.json
+            sed -i "s/<AWS_SES_NOREPLY_EMAIL>/$AWS_SES_NOREPLY_EMAIL/g" Dockerrun.aws.json
             sed -i "s/<AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID>/$AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID/g" Dockerrun.aws.json
             sed -i "s/<STRIPE_PUBLISHABLE_KEY>/$STRIPE_PUBLISHABLE_KEY/g" Dockerrun.aws.json
             sed -i "s/<STRIPE_SECRET_KEY>/$STRIPE_SECRET_KEY/g" Dockerrun.aws.json
