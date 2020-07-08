@@ -121,8 +121,11 @@ module Api::V1::Shopping
       message_body = "#{@item.merchant.username} just shipped [#{@item.product.name}]"
       data = @item.as_json(
         only: [ :id, :merchant_id, :tracking_number, :tracking_site, :tracking_url ],
-        methods: :external_id,
         include: {
+          order: {
+            only: [],
+            methods: :external_id
+          },
           product: {
             only: [ :id, :name ],
             include: {

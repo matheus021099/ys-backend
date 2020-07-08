@@ -90,7 +90,7 @@ body
               img src= @item.product.covers[0].cover.thumb.url
             td
               label= @item.product.name
-              span $#{'%.2f' % (item.price / 100.0)}
+              span $#{'%.2f' % (@item.price / 100.0)}
             td
               - if @item.quantity > 0
                 = @item.quantity
