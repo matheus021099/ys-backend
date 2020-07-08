@@ -20,9 +20,7 @@ class ShopItem < ApplicationRecord
 
   def subtotal_cost
     # to calculate the cost of digital product
-    q = quantity
-    q = 1 if q < 1
-    price * q
+    quantity > 0 ? price * quantity : price
   end
 
   def total_cost
@@ -34,7 +32,10 @@ class ShopItem < ApplicationRecord
     if self.order.items.where(status: ShopItem.statuses[:item_ordered]).size == 0
       self.order.update_attributes(status: ShopOrder.statuses[:order_shipped])
     end
+
     ActionCable.server.broadcast("notification_#{self.merchant_id}", {sell: -1})
+
+    true
   end
 
   def mark_as_refunded(refund_amount: 0)

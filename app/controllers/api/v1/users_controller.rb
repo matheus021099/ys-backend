@@ -972,27 +972,8 @@ module Api::V1
         status: Activity.statuses[:read]
       )
 
-      data = {}
       # data = AlbumSerializer1.new(scope: OpenStruct.new(current_user: current_user)).serialize(assoc).as_json if assoc.Album
-      data = case assoc.class.name
-        when 'Album'
-          assoc.as_json(
-            only: [ :id, :slug, :name, :cover, :album_type ]
-          )
-        when 'ShopProduct'
-          assoc.as_json(
-            only: [ :id, :name ],
-            include: {
-              covers: {
-                only: [ :id, :cover, :position ]
-              }
-            }
-          )
-        when 'Post'
-          assoc.as_json(
-            only: [ :id, :cover, :media_name ]
-          )
-      end
+      data = Util::Serializer.polymophic_serializer(assoc)
       PushNotificationWorker.perform_async(
         @user.devices.where(enabled: true).pluck(:token),
         FCMService::push_notification_types[:user_shared],

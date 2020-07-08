@@ -111,12 +111,37 @@ module Api::V1::Shopping
       render_error 'tracking_number is blank', :unprocessable_entity and return if params[:tracking_number].blank?
 
       authorize @item
-      @item.update_attributes(
+      @item.assign_attributes(
         tracking_site: params[:tracking_site],
         tracking_url: params[:tracking_url],
         tracking_number: params[:tracking_number]
       )
       @item.mark_as_shipped
+
+      message_body = "#{@item.merchant.username} just shipped [#{@item.product.name}]"
+      data = @item.as_json(
+        only: [ :id, :merchant_id, :tracking_number, :tracking_site, :tracking_url ],
+        methods: :external_id,
+        include: {
+          product: {
+            only: [ :id, :name ],
+            include: {
+              covers: {
+                only: [ :id , :cover, :position ]
+              }
+            }
+          }
+        }
+      )
+      PushNotificationWorker.perform_async(
+        @item.customer.devices.pluck(:token),
+        FCMService::push_notification_types[:product_shipped],
+        message_body,
+        data
+      )
+
+      ApplicationMailer.item_shipped_to_buyer(@item).deliver
+
       render_success true
     end
 

@@ -22,6 +22,15 @@ class ApplicationMailer < ActionMailer::Base
     )
   end
 
+  def item_shipped_to_buyer(item)
+    @item = item
+    mail(
+      template_path: 'shopping_mailer',
+      to: @item.customer.email,
+      subject: 'item(s) have shipped'
+    )
+  end
+
   def to_requester_approved_email(verifier, requester)
     @verifier = verifier
     @requester = requester

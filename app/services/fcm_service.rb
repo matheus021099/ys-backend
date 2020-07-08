@@ -14,8 +14,9 @@ class FCMService
       message_attachment_accepted: 'MESSAGE_ATTACHMENT_ACCEPTED',
       message_attachment_canceled: 'MESSAGE_ATTACHMENT_CANCELED',
       album_reposted: 'ALBUM_REPOSTED',
-      product_purchased: 'PRODUCT_PURCHASED',
       product_reposted: 'PRODUCT_REPOSTED',
+      product_purchased: 'PRODUCT_PURCHASED',
+      product_shipped: 'PRODUCT_SHIPPED',
       post_created: 'POST_CREATED',
       commented: 'COMMENTED'
     }
