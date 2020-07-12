@@ -215,7 +215,7 @@ module Api::V1
         q.presence || '*',
         fields: [:name, :description, :owner_username, :owner_display_name],
         match: :word_start,
-        where: {album_type: 'album', status: ['published', 'collaborated'], slug: {not: nil}},
+        where: {album_type: 'album', status: ['published', 'collaborated'], is_only_for_live_stream: false, slug: {not: nil}},
         limit: limit
       )
       # playlists = Album.search(
