@@ -150,19 +150,19 @@ class Stream < ApplicationRecord
         feed_type: Feed.feed_types[:repost]
       )
 
-      if feed && follower.enable_alert?
-        Activity.insert(
-          sender_id: reposter.id,
-          receiver_id: follower.id,
-          message: 'updated your stream',
-          assoc_type: self.class.name,
-          assoc_id: self.id,
-          module_type: Activity.module_types[:stream],
-          action_type: Activity.action_types[:repost],
-          alert_type: Activity.alert_types[:both],
-          status: Activity.statuses[:unread]
-        )
-      end
+      # if feed && follower.enable_alert?
+      #   Activity.insert(
+      #     sender_id: reposter.id,
+      #     receiver_id: follower.id,
+      #     message: 'updated your stream',
+      #     assoc_type: self.class.name,
+      #     assoc_id: self.id,
+      #     module_type: Activity.module_types[:stream],
+      #     action_type: Activity.action_types[:repost],
+      #     alert_type: Activity.alert_types[:both],
+      #     status: Activity.statuses[:unread]
+      #   )
+      # end
     end
 
     true

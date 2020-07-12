@@ -575,7 +575,7 @@ module Api::V1
       page_track = params[:page_track] || ''
 
       # @user.albums.published.each do |album|
-      album = @user.albums.published.last
+      album = @user.albums.published.where(is_is_only_for_live_stream: false).last
       Feed.insert(
         consumer_id: current_user.id,
         publisher_id: @user.id,
@@ -606,16 +606,16 @@ module Api::V1
       )
 
       #TODO - alert if following user (@user) has published albums
-      Activity.create(
-        sender_id: current_user.id,
-        receiver_id: current_user.id,
-        message: 'updated your stream',
-        module_type: Activity.module_types[:stream],
-        action_type: Activity.action_types[:follow],
-        alert_type: Activity.alert_types[:both],
-        page_track: page_track,
-        status: Activity.statuses[:read],
-      )
+      # Activity.create(
+      #   sender_id: current_user.id,
+      #   receiver_id: current_user.id,
+      #   message: 'updated your stream',
+      #   module_type: Activity.module_types[:stream],
+      #   action_type: Activity.action_types[:follow],
+      #   alert_type: Activity.alert_types[:both],
+      #   page_track: page_track,
+      #   status: Activity.statuses[:read],
+      # )
 
       ### for now, page_track is available for stream
       if page_track.present?
@@ -669,15 +669,15 @@ module Api::V1
       )
 
       #TODO - alert if following user (@user) has published albums
-      Activity.create(
-        sender_id: current_user.id,
-        receiver_id: current_user.id,
-        message: 'updated your stream',
-        module_type: Activity.module_types[:stream],
-        action_type: Activity.action_types[:unfollow],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:unread],
-      )
+      # Activity.create(
+      #   sender_id: current_user.id,
+      #   receiver_id: current_user.id,
+      #   message: 'updated your stream',
+      #   module_type: Activity.module_types[:stream],
+      #   action_type: Activity.action_types[:unfollow],
+      #   alert_type: Activity.alert_types[:both],
+      #   status: Activity.statuses[:unread],
+      # )
 
       render_success(true)
     end

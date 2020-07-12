@@ -70,10 +70,15 @@ body
       .order
         .order__header
           label
+            | Tracking:&nbsp;
+            = link_to @item.tracking_site, @item.tracking_site
+            | &nbsp;&nbsp;
+            = @item.tracking_number
+          label
             | Order #:&nbsp;
             = @item.order.id
           span
-            | Order Date: &nbsp;
+            | Order Date:&nbsp;
             = @item.order.created_at.to_s
 
         .divider

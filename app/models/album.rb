@@ -267,17 +267,17 @@ class Album < ApplicationRecord
         feed_type: Feed.feed_types[:release]
       )
 
-      if feed && follower.enable_alert
-        Activity.create(
-          sender_id: self.user_id,
-          receiver_id: follower.id,
-          message: 'updated your stream',
-          module_type: Activity.module_types[:stream],
-          action_type: Activity.action_types[:release],
-          alert_type: Activity.alert_types[:both],
-          status: Activity.statuses[:unread]
-        )
-      end
+      # if feed && follower.enable_alert
+      #   Activity.create(
+      #     sender_id: self.user_id,
+      #     receiver_id: follower.id,
+      #     message: 'updated your stream',
+      #     module_type: Activity.module_types[:stream],
+      #     action_type: Activity.action_types[:release],
+      #     alert_type: Activity.alert_types[:both],
+      #     status: Activity.statuses[:unread]
+      #   )
+      # end
     end
   end
 
@@ -504,7 +504,6 @@ class Album < ApplicationRecord
     Activity.create(
       sender_id: downloader.id,
       receiver_id: downloader.id,
-      # message: 'updated your stream',
       message: 'downloaded an album',
       assoc_type: self.class.name,
       assoc_id: self.id,
@@ -550,7 +549,6 @@ class Album < ApplicationRecord
           Activity.create(
             sender_id: downloader.id,
             receiver_id: follower.id,
-            # message: 'updated your stream',
             message: 'downloaded an album',
             assoc_type: self.class.name,
             assoc_id: self.id,
@@ -623,41 +621,32 @@ class Album < ApplicationRecord
       alert_type: Activity.alert_types[:both],
       status: Activity.statuses[:read]
     )
-=begin
-    if feed
-      self.played += 1
-      self.save
 
-      player.followers.each do |follower|
-        next if follower.blank?
-
-        # album should not appear in possessor's stream page
-        next if follower.id == self.user_id
-
-        feed = Feed.insert(
-          consumer_id: follower.id,
-          publisher_id: player.id,
-          assoc_type: self.class.name,
-          assoc_id: self.id,
-          feed_type: Feed.feed_types[:play]
-        )
-
-        if feed && follower.enable_alert?
-          Activity.create(
-            sender_id: player.id,
-            receiver_id: follower.id,
-            message: 'updated your stream',
-            assoc_type: self.class.name,
-            assoc_id: self.id,
-            module_type: Activity.module_types[:stream],
-            action_type: Activity.action_types[:play],
-            alert_type: Activity.alert_types[:both],
-            status: Activity.statuses[:unread]
-          )
-        end
-      end
-    end
-=end
+    # player.followers.each do |follower|
+    #   next if follower.blank?
+    #   # album should not appear in possessor's stream page
+    #   next if follower.id == self.user_id
+    #   feed = Feed.insert(
+    #     consumer_id: follower.id,
+    #     publisher_id: player.id,
+    #     assoc_type: self.class.name,
+    #     assoc_id: self.id,
+    #     feed_type: Feed.feed_types[:play]
+    #   )
+    #   if feed && follower.enable_alert?
+    #     Activity.create(
+    #       sender_id: player.id,
+    #       receiver_id: follower.id,
+    #       message: 'updated your stream',
+    #       assoc_type: self.class.name,
+    #       assoc_id: self.id,
+    #       module_type: Activity.module_types[:stream],
+    #       action_type: Activity.action_types[:play],
+    #       alert_type: Activity.alert_types[:both],
+    #       status: Activity.statuses[:unread]
+    #     )
+    #   end
+    # end if feed
   end
 
   def zip_download_url

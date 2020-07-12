@@ -252,22 +252,57 @@ class User < ApplicationRecord
   end
 
   def remove
-    # Activity.create(
-    #   sender_id: self.id,
-    #   receiver_id: self.id,
-    #   message: 'close account',
-    #   module_type: Activity.module_types[:activity],
-    #   action_type: Activity.action_types[:close],
-    #   alert_type: Activity.alert_types[:both],
-    #   status: Activity.statuses[:read]
+    # self.update_attributes(
+    #   confirmed_at: nil,
+    #   confirmation_sent_at: nil,
+    #   status: User.statuses[:deleted]
     # )
 
-    # user.apply_role(:listener)
-    self.update_attributes(
-      confirmed_at: nil,
-      confirmation_sent_at: nil,
-      status: User.statuses[:deleted]
-    )
+    user_id = self.id
+
+    return 'stream is running' if Stream.where(id: user_id).where.not(status: Stream.statuses[:deleted]).size > 0
+
+    ActiveRecord::Base.transaction do
+      track_ids = Track.where(user_id: user_id).pluck(:id)
+      album_ids = Album.where(user_id: user_id).pluck(:id)
+      product_ids = ShopProduct.where(merchant_id: user_id).pluck(:id)
+      order_ids = ShopOrder.where("customer_id = ? OR merchant_id = ?", user_id, user_id)
+
+      conversation_ids = Mailboxer::Notification.joins(:receipts).where(mailboxer_receipts: {receiver_id: u.id}).pluck(:conversation_id).uniq
+      notification_ids = Mailboxer::Notification.where(conversation_id: conversation_ids).pluck(:id)
+      Mailboxer::Conversation.where(id: conversation_ids).destroy_all
+      Attachment.where(mailboxer_notification_id: notification_ids)
+
+      Activity.where(sender_id: user_id).destroy_all
+      Activity.where(receiver_id: user_id).destroy_all
+
+      Album.where(id: album_ids).destroy_all
+      UserAlbum.where(user_id: user_id).destroy_all
+      Track.where(user_id: user_id).destroy_all
+      AlbumTrack.where(track_id: track_ids).destroy_all
+      Sampling.where("sampling_user_id = ? OR sample_user_id = ?", user_id, user_id).destroy_all
+
+      ShopProduct.where(id: product_ids).destroy_all
+      UserProduct.where(user_id: user_id).destroy_all
+      ShopAddress.where(customer_id: user_id).destroy_all
+      ShopItem.where("customer_id = ? OR merchant_id = ?", user_id, user_id).destroy_all
+      ShopCart.where(customer_id: user_id).destroy_all
+      ShopOrder.where(id: order_ids).destroy_all
+      Payment.where(order_id: order_ids).destroy_all
+
+      Attendee.where("user_id = ? OR referrer_id = ?", user_id, user_id).destroy_all
+      Comment.where(user_id: user_id).destroy_all
+      Device.where(user_id: user_id).destroy_all
+      Feed.where("(assoc_type = 'Album' AND assoc_id IN (?)) OR (assoc_type = 'ShopProduct' AND assoc_id IN (?))", album_ids, product_ids)
+      Post.where(user_id: user_id).destroy_all
+      Preset.where(user_id: user_id).destroy_all
+      Stream.where(user_id: user_id).destroy_all
+      Ticket.where(product_id: product_ids).destroy_all
+    end
+
+    self.destroy
+
+    return true
   end
 
   # some fields for mailboxer

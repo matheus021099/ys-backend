@@ -234,19 +234,19 @@ class ShopProduct < ApplicationRecord
         feed_type: Feed.feed_types[:release]
       )
 
-      if feed && follower.enable_alert?
-        Activity.create(
-          sender_id: current_user.id,
-          receiver_id: follower.id,
-          message: 'updated your stream',
-          assoc_type: 'ShopProduct',
-          assoc_id: self.id,
-          module_type: Activity.module_types[:stream],
-          action_type: Activity.action_types[:release],
-          alert_type: Activity.alert_types[:both],
-          status: Activity.statuses[:unread]
-        )
-      end
+      # if feed && follower.enable_alert?
+      #   Activity.create(
+      #     sender_id: current_user.id,
+      #     receiver_id: follower.id,
+      #     message: 'updated your stream',
+      #     assoc_type: 'ShopProduct',
+      #     assoc_id: self.id,
+      #     module_type: Activity.module_types[:stream],
+      #     action_type: Activity.action_types[:release],
+      #     alert_type: Activity.alert_types[:both],
+      #     status: Activity.statuses[:unread]
+      #   )
+      # end
     end
   end
 

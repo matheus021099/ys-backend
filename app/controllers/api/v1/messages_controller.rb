@@ -402,18 +402,6 @@ module Api::V1
     end
     def delete_conversation
       @conversation = Mailboxer::Conversation.find(params[:conversation_id])
-      # receipts = Mailboxer::Receipt.conversation(@conversation).where('((receiver_id=? and mailbox_type=?) or (sender_id=? and mailbox_type=?))', current_user.id, 'inbox', current_user.id, 'sentbox') # find all receipts for specific conversation, if user received message it'll be in his/her inbox and he/she will be receiver, if user sent message it'll be in his/her sentbox and he/she will be sender.
-      # receipts.destroy_all # delete all messages (conversation maybe more than one message)
-      # if @conversation.participants.count == 0 # if all participants deleted this conversation
-      #   message_ids = @conversation.messages.pluck(:id)
-      #   @conversation.messages.destroy_all     # destroy all conversation's messages
-      #   @conversation.destroy                  # destroy the conversation
-      #   # puts "\n\n"
-      #   # p message_ids
-      #   # puts "\n\n\n"
-      #   # Attachment.where(mailboxer_notification_id: message_ids).destroy_all
-      # end
-
       @conversation.mark_as_deleted current_user
       render_success(true)
     end

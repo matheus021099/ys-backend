@@ -30,4 +30,11 @@ module MailerHelper
       "#{app_path}/register/attendee/#{token}"
     end
   end
+
+  def smart_add_url_protocol(url)
+    unless url[/\Ahttps:\/\//] || url[/\Ahttp:\/\//]
+      url = "https://#{url}"
+    end
+    url
+  end
 end
