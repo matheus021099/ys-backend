@@ -268,10 +268,23 @@ class User < ApplicationRecord
       product_ids = ShopProduct.where(merchant_id: user_id).pluck(:id)
       order_ids = ShopOrder.where("customer_id = ? OR merchant_id = ?", user_id, user_id)
 
-      conversation_ids = Mailboxer::Notification.joins(:receipts).where(mailboxer_receipts: {receiver_id: u.id}).pluck(:conversation_id).uniq
+      conversation_ids = Mailboxer::Notification.joins(:receipts).where(mailboxer_receipts: {receiver_id: user_id}).pluck(:conversation_id).uniq
       notification_ids = Mailboxer::Notification.where(conversation_id: conversation_ids).pluck(:id)
+      attachment_ids = Attachment.where(mailboxer_notification_id: notification_ids).pluck(:id)
+
+      # cancel pending request_repost
+      Payment.includes(:sender, :receiver).where(attachment_id: attachment_ids, status: Payment.statuses[:pending]).each do |payment|
+        sender = payment.sender
+        receiver = payment.receiver
+        receiver.update_columns(balance_amount: receiver.balance_amount - payment.received_amount)
+        sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
+        payment.delete
+      end
+      Payment.where(order_id: order_ids).destroy_all
+      Payment.where("sender_id = ? OR receiver_id = ?", user_id, user_id).destroy_all
+
       Mailboxer::Conversation.where(id: conversation_ids).destroy_all
-      Attachment.where(mailboxer_notification_id: notification_ids)
+      Attachment.where(id: attachment_ids).destroy_all
 
       Activity.where(sender_id: user_id).destroy_all
       Activity.where(receiver_id: user_id).destroy_all
@@ -288,7 +301,6 @@ class User < ApplicationRecord
       ShopItem.where("customer_id = ? OR merchant_id = ?", user_id, user_id).destroy_all
       ShopCart.where(customer_id: user_id).destroy_all
       ShopOrder.where(id: order_ids).destroy_all
-      Payment.where(order_id: order_ids).destroy_all
 
       Attendee.where("user_id = ? OR referrer_id = ?", user_id, user_id).destroy_all
       Comment.where(user_id: user_id).destroy_all
@@ -298,6 +310,13 @@ class User < ApplicationRecord
       Preset.where(user_id: user_id).destroy_all
       Stream.where(user_id: user_id).destroy_all
       Ticket.where(product_id: product_ids).destroy_all
+    end
+
+    # move remaining amount to superadmin
+    self.reload
+    if self.balance_amount > 0
+      superadmin = User.superadmin
+      superadmin.update_columns(balance_amount: superadmin.balance_amount + self.balance_amount)
     end
 
     self.destroy

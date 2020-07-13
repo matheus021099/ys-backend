@@ -51,8 +51,8 @@ class Payment < ApplicationRecord
     return 'Not passed sender' unless sender.present?
     return 'Not passed receiver' unless receiver.present?
 
-    sender.update_attributes(balance_amount: sender.balance_amount - sent_amount)
-    receiver.update_attributes(balance_amount: receiver.balance_amount + received_amount)
+    sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
+    receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
 
     payment = Payment.create(
       sender_id: sender.id,
@@ -68,7 +68,7 @@ class Payment < ApplicationRecord
     )
 
     if fee > 0
-      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee)
+      superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
 
       Payment.create!(
         sender_id: sender.id,
@@ -93,8 +93,8 @@ class Payment < ApplicationRecord
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
 
-    sender.update_attributes(balance_amount: sender.balance_amount - sent_amount)
-    superadmin.update_attributes(balance_amount: superadmin.balance_amount + sent_amount)
+    sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
+    superadmin.update_columns(balance_amount: superadmin.balance_amount + sent_amount)
     payment = Payment.create!(
       sender_id: sender.id,
       receiver_id: superadmin.id,
@@ -121,7 +121,7 @@ class Payment < ApplicationRecord
     fee = Payment.calculate_fee(sent_amount, 'repost')
     received_amount = sent_amount - fee
 
-    sender.update_attributes(balance_amount: sender.balance_amount - sent_amount)
+    sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
 
     payment = Payment.create(
       sender_id: sender.id,
@@ -137,7 +137,7 @@ class Payment < ApplicationRecord
       attachment_id: attachment_id,
       status: Payment.statuses[:pending]
     )
-    receiver.update_attributes(balance_amount: receiver.balance_amount + received_amount)
+    receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
 
     if fee > 0
       Payment.create!(
@@ -154,7 +154,7 @@ class Payment < ApplicationRecord
         attachment_id: attachment_id,
         status: Payment.statuses[:pending]
       )
-      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee)
+      superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
     end
 
     payment
@@ -184,7 +184,7 @@ class Payment < ApplicationRecord
       #   when Payment.payment_types[:fee]
       #     superadmin.update_attributes(balance_amount: superadmin.balance_amount + payment.received_amount)
       # end
-      payment.update_attributes(status: Payment.statuses[:done])
+      payment.update_columns(status: Payment.statuses[:done])
     end
 
     true
@@ -216,8 +216,8 @@ class Payment < ApplicationRecord
       #     superadmin.update_attributes(balance_amount: superadmin.balance_amount - payment.received_amount)
       #     sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
       # end
-      receiver.update_attributes(balance_amount: receiver.balance_amount - payment.received_amount)
-      sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
+      receiver.update_columns(balance_amount: receiver.balance_amount - payment.received_amount)
+      sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
       payment.delete
     end
 
@@ -244,15 +244,15 @@ class Payment < ApplicationRecord
     payments.each do |payment|
       case payment.payment_type
         when Payment.payment_types[:repost]
-          receiver.update_attributes(balance_amount: receiver.balance_amount - payment.received_amount)
-          sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
+          receiver.update_columns(balance_amount: receiver.balance_amount - payment.received_amount)
+          sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
         when Payment.payment_types[:fee]
-          superadmin.update_attributes(balance_amount: superadmin.balance_amount - payment.received_amount)
-          sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
+          superadmin.update_columns(balance_amount: superadmin.balance_amount - payment.received_amount)
+          sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
       end
       payment.delete
     end
-    # sender.update_attributes(balance_amount: sender.balance_amount + total_paid_amount)
+    # sender.update_columns(balance_amount: sender.balance_amount + total_paid_amount)
 
     true
   end
@@ -355,12 +355,12 @@ class Payment < ApplicationRecord
               assoc_id: product.id,
               status: Payment.statuses[:done]
             )
-            user_product.user.update_attributes(balance_amount: user_product.user.balance_amount + collaborator_amount)
+            user_product.user.update_columns(balance_amount: user_product.user.balance_amount + collaborator_amount)
           end
         end
       end
 
-      sender.update_attributes(balance_amount: sender.balance_amount - total_collaborators_amount) if total_collaborators_amount > 0
+      sender.update_columns(balance_amount: sender.balance_amount - total_collaborators_amount) if total_collaborators_amount > 0
       Payment.create!(
         sender_id: sender.id,
         receiver_id: sender.id,
@@ -389,8 +389,8 @@ class Payment < ApplicationRecord
     payment = 'Failed'
     ActiveRecord::Base.transaction do
 
-      sender.update_attributes(balance_amount: sender.balance_amount - sent_amount)
-      receiver.update_attributes(balance_amount: receiver.balance_amount + received_amount)
+      sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
+      receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
       payment = Payment.create!(
         sender_id: sender.id,
         receiver_id: receiver.id,
@@ -404,7 +404,7 @@ class Payment < ApplicationRecord
         status: Payment.statuses[:done]
       )
 
-      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee + shipping_cost) if fee + shipping_cost > 0
+      superadmin.update_columns(balance_amount: superadmin.balance_amount + fee + shipping_cost) if fee + shipping_cost > 0
       Payment.create!(
         sender_id: sender.id,
         receiver_id: superadmin.id,
@@ -470,12 +470,12 @@ class Payment < ApplicationRecord
         tax: 0,
         status: Payment.statuses[:done]
       )
-      user.update_attributes!(
+      user.update_columns!(
         balance_amount: user.balance_amount - amount,
         stream_rolled_time: stream.valid_period - played_time,
         stream_rolled_cost: (STREAM_HOURLY_PRICE * stream.valid_period / 3600).to_i - amount
       )
-      superadmin.update_attributes!(balance_amount: superadmin.balance_amount + amount)
+      superadmin.update_columns!(balance_amount: superadmin.balance_amount + amount)
     end
   end
 
@@ -492,8 +492,8 @@ class Payment < ApplicationRecord
 
     payment = 'Failed'
     ActiveRecord::Base.transaction do
-      sender.update_attributes(balance_amount: sender.balance_amount - sent_amount)
-      receiver.update_attributes(balance_amount: receiver.balance_amount + received_amount)
+      sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
+      receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
       payment = Payment.create!(
         sender_id: sender.id,
         receiver_id: receiver.id,
@@ -508,7 +508,7 @@ class Payment < ApplicationRecord
         status: Payment.statuses[:done]
       )
 
-      superadmin.update_attributes(balance_amount: superadmin.balance_amount + fee)
+      superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
       Payment.create!(
         sender_id: sender.id,
         receiver_id: superadmin.id,
@@ -548,9 +548,9 @@ class Payment < ApplicationRecord
         assoc_id: payment.id,
         status: Payment.statuses[:done]
       )
-      payment.update_attributes!(refund_amount: payment.refund_amount + amount)
-      receiver.update_attributes!(balance_amount: receiver.balance_amount - amount)
-      sender.update_attributes!(balance_amount: sender.balance_amount + amount)
+      payment.update_columns!(refund_amount: payment.refund_amount + amount)
+      receiver.update_columns!(balance_amount: receiver.balance_amount - amount)
+      sender.update_columns!(balance_amount: sender.balance_amount + amount)
     end
     _payment
   end
@@ -583,9 +583,9 @@ class Payment < ApplicationRecord
         )
         item.mark_as_refunded(refund_amount: it['refund_amount'])
       end
-      payment.update_attributes!(refund_amount: payment.refund_amount + amount, description: description)
-      receiver.update_attributes!(balance_amount: receiver.balance_amount - amount)
-      sender.update_attributes!(balance_amount: sender.balance_amount + amount)
+      payment.update_columns!(refund_amount: payment.refund_amount + amount, description: description)
+      receiver.update_columns!(balance_amount: receiver.balance_amount - amount)
+      sender.update_columns!(balance_amount: sender.balance_amount + amount)
     end
 
     _payment
@@ -601,7 +601,7 @@ class Payment < ApplicationRecord
     unless stripe_customer && stripe_customer['id']
       return 'Cannot create a stripe customer'
     else
-      user.update_attributes(payment_account_id: stripe_customer['id'])
+      user.update_columns(payment_account_id: stripe_customer['id'])
     end
 
     stripe_source = stripe_customer.sources.create(source: payment_token)
@@ -631,7 +631,7 @@ class Payment < ApplicationRecord
     )
     return false if stripe_charge['id'].blank?
 
-    user.update_attributes(balance_amount: user.balance_amount + amount)
+    user.update_columns(balance_amount: user.balance_amount + amount)
 
     Payment.create(
       sender_id: user.id,
@@ -671,7 +671,7 @@ class Payment < ApplicationRecord
       return ex.message
     end
 
-    user.update_attributes(balance_amount: user.balance_amount - amount)
+    user.update_columns(balance_amount: user.balance_amount - amount)
 
     payment = Payment.create(
       sender_id: user.id,
