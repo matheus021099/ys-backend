@@ -413,10 +413,11 @@ module Api::V1
     end
     def donate
       authorize @user rescue render_error "You can't donate to yourself", :unprocessable_entity and return
-      # amount = params[:amount] ? params[:amount].to_i : 0
-      amount = params[:amount].to_i || 0
+
+      amount = params[:amount].to_i rescue 0
       description = params[:description] || 'Donation'
       render_error 'Please enter the amount', :unprocessable_entity and return if amount < 100
+
       payment = current_user.donate(
         receiver: @user,
         amount: amount,

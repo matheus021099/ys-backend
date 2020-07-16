@@ -46,13 +46,24 @@ class Payment < ApplicationRecord
 
   # class method
   def self.donate(sender: nil, receiver: nil, description: '', sent_amount: 0, received_amount: 0, fee: 0, payment_token: nil)
-    superadmin = User.superadmin
-    return 'Not found superadmin' unless superadmin.present?
-    return 'Not passed sender' unless sender.present?
-    return 'Not passed receiver' unless receiver.present?
+    precheck = Payment.precheck(sender, [receiver], payment_token)
+    return precheck unless precheck === true
 
-    sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
-    receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
+    stripe_fee = Payment.stripe_fee(amount)
+    stripe_charge = Stripe::Charge.create({
+      amount: sent_amount + stripe_fee,
+      currency: 'usd',
+      source: payment_token,
+      metadata: {
+        payment_type: Payment.payment_types[:donate],
+        user_id: user.id,
+        amount: sent_amount
+      },
+      transfer_data: {
+        destination: receiver.payment_account_id
+      }
+    })
+    return 'Stripe operation failed' if stripe_charge['id'].blank?
 
     payment = Payment.create(
       sender_id: sender.id,
@@ -62,33 +73,17 @@ class Payment < ApplicationRecord
       payment_token: payment_token,
       sent_amount: sent_amount,
       received_amount: received_amount,
-      fee: 0,
+      fee: fee,
       tax: 0,
       status: Payment.statuses[:done]
     )
-
-    if fee > 0
-      superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
-
-      Payment.create!(
-        sender_id: sender.id,
-        receiver_id: superadmin.id,
-        payment_type: Payment.payment_types[:fee],
-        description: description,
-        payment_token: payment_token,
-        sent_amount: 0,
-        received_amount: fee,
-        fee: 0,
-        tax: 0,
-        status: Payment.statuses[:done]
-      )
-    end
 
     return payment
   end
 
   # class method
   def self.set_repost_price(sender: nil, description: '', sent_amount: 0, payment_token: nil)
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
@@ -112,7 +107,7 @@ class Payment < ApplicationRecord
   end
 
   def self.send_repost_request(sender: nil, receiver: nil, sent_amount: 0, payment_token: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
-
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
@@ -161,6 +156,7 @@ class Payment < ApplicationRecord
   end
 
   def self.accept_repost_request(sender: nil, receiver: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
@@ -191,6 +187,7 @@ class Payment < ApplicationRecord
   end
 
   def self.deny_repost_request(assoc_type: nil, assoc_id: nil, attachment_id: nil)
+    return false
     # superadmin = User.superadmin
     # return 'Not found superadmin' unless superadmin.present?
     # return 'Not passed sender' unless sender.present?
@@ -225,6 +222,7 @@ class Payment < ApplicationRecord
   end
 
   def self.accept_repost_request_on_free(sender: nil, receiver: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
@@ -259,6 +257,7 @@ class Payment < ApplicationRecord
 
   # assoc: ShopProduct
   def self.collaborate(sender: nil, order: nil, item: nil, payment_token: nil)
+    return false
     product = item.product
     total_cost = item.price * item.quantity - item.fee
     total_collaborators_amount = 0
@@ -380,6 +379,7 @@ class Payment < ApplicationRecord
   end
 
   def self.buy(sender: nil, receiver: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, order: nil)
+    return false
     # sent_amount = received_amount + fee + shipping_cost
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
@@ -445,6 +445,7 @@ class Payment < ApplicationRecord
   end
 
   def self.stream(stream: nil)
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
 
@@ -480,6 +481,7 @@ class Payment < ApplicationRecord
   end
 
   def self.pay_view_stream(sender: nil, stream: nil, payment_token: nil)
+    return false
     superadmin = User.superadmin
     return 'Not found superadmin' unless superadmin.present?
     return 'Not passed sender' unless sender.present?
@@ -529,6 +531,7 @@ class Payment < ApplicationRecord
 
   # refund on pay_view_stream
   def self.refund_without_fee(payment: nil, amount: 0, description: '')
+    return false
     return 'Invalid amount' unless amount > 0 && amount <= payment.received_amount - payment.refund_amount
     _payment = 'Failed'
     sender = payment.sender
@@ -557,6 +560,7 @@ class Payment < ApplicationRecord
 
   # refund on purchase an order
   def self.refund_order(payment: nil, amount: 0, description: '', items: nil)
+    return false
     return 'Invalid amount' unless amount > 0 && amount <= payment.sent_amount - payment.refund_amount
     _payment = 'Failed'
     sender = payment.sender
@@ -593,30 +597,8 @@ class Payment < ApplicationRecord
 
   # def self.deposit(user: nil, payment_token: nil, amount: 0, fee: 0, assoc_id: nil, assoc_type: nil)
   def self.deposit(user: nil, payment_token: nil, amount: 0, assoc_id: nil, assoc_type: nil)
+    return false
     return 'Not passed user' unless user.present?
-=begin
-    # payment_account_id was used for stripe_connect_id, but customer_id for now
-    stripe_customer = Stripe::Customer.retrieve(user.payment_account_id) unless user.payment_account_id.blank?
-    stripe_customer = Stripe::Customer.create(email: self.email) unless stripe_customer && stripe_customer['id']
-    unless stripe_customer && stripe_customer['id']
-      return 'Cannot create a stripe customer'
-    else
-      user.update_columns(payment_account_id: stripe_customer['id'])
-    end
-
-    stripe_source = stripe_customer.sources.create(source: payment_token)
-    return 'Cannot create a stripe source with payment token' unless stripe_source['id'].blank?
-
-    stripe_customer.default_source = stripe_source['id']
-    stripe_customer.save
-    stripe_charge = Stripe::Charge.create(
-      amount: amount,
-      currency: 'usd',
-      customer: stripe_customer['id']
-      # source: payment_token
-    )
-    return 'Stripe charge has been failed' if stripe_charge['id'].blank?
-=end
 
     fee = Payment.stripe_fee(amount)
     stripe_charge = Stripe::Charge.create(
@@ -648,6 +630,7 @@ class Payment < ApplicationRecord
   end
 
   def self.withdraw(user_id: nil, amount: 0)
+    return false
     user = User.find_by(id: user_id)
     return 'Not found a user' unless user.present?
     return 'Not connect to stripe yet' unless user.stripe_connected?
@@ -740,5 +723,18 @@ class Payment < ApplicationRecord
     puts "\n\n\n"
 
     fee
+  end
+
+  ### check user is valid and connected to stripe
+  def self.precheck(sender, receivers, payment_token)
+    return 'Payment token not specified' if payment_token.blank?
+    return 'Sender not found' if sender.blank?
+
+    receivers.each do |user|
+      return "Receiver not found" if user.blank?
+      return "Receiver not connected to stripe" unless user.stripe_connected?
+    end
+
+    return true
   end
 end

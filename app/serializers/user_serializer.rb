@@ -10,7 +10,7 @@ class UserSerializer < ActiveModel::Serializer
   attribute :enabled_live_video_free, if: :include_social_info?
   attribute :balance_amount, if: :is_current_user?
   attribute :available_amount, if: :is_current_user?
-  attribute :is_stripe_connected, if: :is_current_user?
+  attribute :stripe_connected
   attribute :sign_in_count, if: :is_current_user?
   attribute :stream_rolled_time, if: :is_current_user?
   attribute :stream_rolled_cost, if: :is_current_user?
@@ -101,7 +101,7 @@ class UserSerializer < ActiveModel::Serializer
     scope && scope.current_user == object
   end
 
-  def is_stripe_connected
+  def stripe_connected
     object.stripe_connected?
   end
 

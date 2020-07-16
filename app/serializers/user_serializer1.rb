@@ -1,7 +1,12 @@
 class UserSerializer1 < ActiveModel::Serializer
   attributes :id, :slug, :username, :display_name, :user_type, :avatar
+  attribute :stripe_connected
   attribute :is_following, if: :include_is_following?
   attribute :recent_items, if: :include_recent?
+
+  def stripe_connected
+    object.stripe_connected?
+  end
 
   def is_following
     if scope && scope.current_user
