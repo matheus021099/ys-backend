@@ -179,80 +179,6 @@ module Api::V1
       render_success true
     end
 
-=begin
-    setup_authorization_header(:repost_price_proration)
-    swagger_api :repost_price_proration do |api|
-      summary 'calculate repost price proration'
-      param :path, :id, :string, :required, 'user id or slug'
-    end
-    def repost_price_proration
-      authorize @user
-
-      now = Time.zone.now
-      if @user.repost_price == 100 || @user.repost_price_end_at.nil? || @user.repost_price_end_at <= now
-        result = {
-          spent_amount: @user.repost_price,
-          remaining_amount: 0
-        }
-        render_success result
-        return
-      end
-
-      started_at = @user.repost_price_end_at.ago(1.year)
-      spent_amount = (@user.repost_price * (now - started_at) / (@user.repost_price_end_at - started_at)).to_i
-      result = {
-        spent_amount: spent_amount,
-        remaining_amount: @user.repost_price - spent_amount
-      }
-      render_success result
-    end
-
-
-    setup_authorization_header(:set_repost_price)
-    swagger_api :set_repost_price do |api|
-      summary 'set repost price'
-      param :path, :id, :string, :required, 'user id or slug'
-      param :form, :repost_price, :integer, :required
-      param :form, :payment_amount, :integer, :required
-      param :form, :payment_token, :string, :optional
-    end
-    def set_repost_price
-      authorize @user
-      render_error 'Not passed repost price', :unprocessable_entity and return unless params[:repost_price].present?
-      payment_token = params[:payment_token] || nil
-      payment_amount = params[:payment_amount].to_i rescue 0
-      repost_price = params[:repost_price].to_i
-
-      unless @user.repost_price == repost_price
-        if repost_price == 100
-          @user.repost_price = repost_price
-          @user.repost_price_end_at = nil
-        else
-          if payment_amount > 0
-            unless payment_token.blank?
-              stripe_charge_id = Payment.deposit(user: @user, payment_token: payment_token, amount: payment_amount)
-              render_error 'Failed in stripe charge', :unprocessable_entity and return if stripe_charge_id === false
-            else
-              stripe_charge_id = nil
-              render_error 'Not enough balance', :unprocessable_entity and return if @user.balance_amount < payment_amount
-            end
-            Payment.set_repost_price(sender: @user, sent_amount: payment_amount, payment_token: stripe_charge_id)
-          end
-
-          @user.repost_price = repost_price
-          @user.repost_price_end_at = DateTime.now.beginning_of_day.in(1.year)
-        end
-
-        @user.save
-      end
-
-      render json: @user,
-        serializer: UserSerializer,
-        scope: OpenStruct.new(current_user: current_user),
-        include_all: true,
-        include_social_info: @user.id == current_user.id
-    end
-=end
 
     setup_authorization_header(:repost_price_proration)
     swagger_api :repost_price_proration do |api|
@@ -295,7 +221,7 @@ module Api::V1
           stripe_charge_id = nil
           render_error 'Not enough balance', :unprocessable_entity and return if @user.balance_amount < payment_amount
         end
-        Payment.set_repost_price(sender: @user, sent_amount: payment_amount, payment_token: stripe_charge_id)
+        Payment.upgrade_repost_price(sender: @user, sent_amount: payment_amount, payment_token: stripe_charge_id)
 
         @user.repost_price = repost_price
         @user.max_repost_price = proration[:max_repost_price]
@@ -418,8 +344,11 @@ module Api::V1
       description = params[:description] || 'Donation'
       render_error 'Please enter the amount', :unprocessable_entity and return if amount < 100
 
+      sender = current_user
+      receiver = @user
       payment = current_user.donate(
-        receiver: @user,
+        sender: sender,
+        receiver: receiver,
         amount: amount,
         payment_token: params[:payment_token],
         description: description
@@ -427,8 +356,6 @@ module Api::V1
       render_error payment, :unprocessable_entity and return unless payment.kind_of? Payment
       # render json: payment, serializer: PaymentSerializer, scope: OpenStruct.new(current_user: current_user)
 
-      sender = current_user
-      receiver = @user
       message_body = "I just sent you #{number_to_currency(amount / 100.0)} for #{description}"
       Util::Message.send(sender, receiver, message_body, nil, nil, FCMService::push_notification_types[:user_donated])
 
