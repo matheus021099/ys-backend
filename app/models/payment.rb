@@ -46,7 +46,7 @@ class Payment < ApplicationRecord
 
   class << self
     def donate(sender: nil, receiver: nil, description: '', sent_amount: 0, received_amount: 0, fee: 0, payment_token: nil)
-      precheck = Payment.precheck(sender, [receiver], payment_token)
+      precheck = Payment.precheck([sender], [receiver], payment_token)
       return precheck unless precheck === true
 
       stripe_fee = Payment.stripe_fee(sent_amount)
@@ -56,7 +56,7 @@ class Payment < ApplicationRecord
         source: payment_token,
         metadata: {
           payment_type: Payment.payment_types[:donate],
-          user_id: user.id,
+          sender: sender.username,
           amount: sent_amount
         },
         transfer_data: {
@@ -65,24 +65,23 @@ class Payment < ApplicationRecord
       })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
-      payment = Payment.create(
+      Payment.create(
         sender_id: sender.id,
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:donate],
         description: description,
-        payment_token: payment_token,
+        payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
         fee: fee,
         tax: 0,
         status: Payment.statuses[:done]
       )
-      return payment
     end
 
     def upgrade_repost_price(sender: nil, description: '', sent_amount: 0, payment_token: nil)
       receiver = User.public_relations_user
-      precheck = Payment.precheck(sender, [], payment_token)
+      precheck = Payment.precheck([sender, receiver], [], payment_token)
       return precheck unless precheck === true
 
       stripe_fee = Payment.stripe_fee(sent_amount)
@@ -92,173 +91,108 @@ class Payment < ApplicationRecord
         source: payment_token,
         metadata: {
           payment_type: Payment.payment_types[:repost_price_upgrade_cost],
+          sender: sender.username,
           amount: sent_amount
         }
       })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
-      payment = Payment.create!(
+      Payment.create!(
         sender_id: sender.id,
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:repost_price_upgrade_cost],
         description: description,
-        payment_token: payment_token,
+        payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: sent_amount,
         fee: 0,
         tax: 0,
         status: Payment.statuses[:done]
       )
-      return payment
     end
 
-    def send_repost_request(sender: nil, receiver: nil, sent_amount: 0, payment_token: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
-      return false
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      return 'Not passed sender' unless sender.present?
-      return 'Not passed receiver' unless receiver.present?
+    def send_repost_request(sender: nil, receiver: nil, attachment: nil, sent_amount: 0, payment_token: nil)
+      precheck = Payment.precheck([sender, attachment], [], payment_token)
+      return precheck unless precheck === true
 
       fee = Payment.calculate_fee(sent_amount, 'repost')
       received_amount = sent_amount - fee
 
-      sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Charge.create({
+        amount: sent_amount + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        metadata: {
+          payment_type: Payment.payment_types[:repost],
+          sender: sender.username,
+          receiver: receiver.username,
+          amount: sent_amount,
+          attachment: attachment.id,
+          attachable_type: attachment.attachable_type,
+          attachable_id: attachment.attachable_id,
+          attachable_name: attachment.attachable.name
+        }
+      })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
 
-      payment = Payment.create(
+      Payment.create(
         sender_id: sender.id,
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:repost],
-        payment_token: payment_token,
+        payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
-        fee: 0,
+        fee: fee,
         tax: 0,
-        assoc_type: assoc_type,
-        assoc_id: assoc_id,
-        attachment_id: attachment_id,
+        assoc_type: attachment.attachable_type,
+        assoc_id: attachment.attachable_id,
+        attachment_id: attachment.id,
         status: Payment.statuses[:pending]
       )
-      receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
-
-      if fee > 0
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: superadmin.id,
-          payment_type: Payment.payment_types[:fee],
-          payment_token: payment_token,
-          sent_amount: 0,
-          received_amount: fee,
-          fee: 0,
-          tax: 0,
-          assoc_type: assoc_type,
-          assoc_id: assoc_id,
-          attachment_id: attachment_id,
-          status: Payment.statuses[:pending]
-        )
-        superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
-      end
-
-      payment
     end
 
-    def accept_repost_request(sender: nil, receiver: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
-      return false
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      return 'Not passed sender' unless sender.present?
-      return 'Not passed receiver' unless receiver.present?
+    def accept_repost_request(sender: nil, receiver: nil, attachment: nil)
+      payment = Payment.find_by(attachment_id: attachment.id) rescue nil
+      return 'Pending payment not found' unless payment.present?
 
-      payments = Payment.where(
-        sender_id: sender.id,
-        assoc_type: assoc_type,
-        assoc_id: assoc_id,
-        attachment_id: attachment_id,
-        status: Payment.statuses[:pending]
+      precheck = Payment.precheck([sender, attachment], [receiver], payment.payment_token)
+      return precheck if precheck === false
+
+      stripe_transfer = Stripe::Transfer.create(
+        amount: payment.received_amount,
+        currency: 'usd',
+        destination: receiver.payment_account_id,
+        metadata: {
+          payment_type: Payment.payment_types[:repost],
+          amount: payment.sent_amount,
+          sender: sender.username,
+          receiver: receiver.username
+        }
       )
-      return 'Not found pending payments' unless payments.size > 0
+      return 'Stripe transfer has been failed' if stripe_transfer['id'].blank?
 
-      payments.each do |payment|
-        # receiver = payment.receiver
-        # receiver.update_attributes(balance_amount: receiver.balance_amount + payment.received_amount)
-        # case payment.payment_type
-        #   when Payment.payment_types[:repost]
-        #     receiver.update_attributes(balance_amount: receiver.balance_amount + payment.received_amount)
-        #   when Payment.payment_types[:fee]
-        #     superadmin.update_attributes(balance_amount: superadmin.balance_amount + payment.received_amount)
-        # end
-        payment.update_columns(status: Payment.statuses[:done])
-      end
+      payment.update_attributes(
+        payment_token: stripe_transfer['id'],
+        status: Payment.statuses[:done]
+      )
+    end
 
+    def deny_repost_request(attachment: nil)
+      payment = Payment.find_by(attachment_id: attachment.id) rescue nil
+      return 'Pending payment not found' unless payment.present?
+
+      stripe_refund = Stripe::Refund.create({
+        charge: payment.payment_token,
+      })
+      return 'Stripe refund has been failed' if stripe_refund['id'].blank?
+
+      payment.destroy
       true
     end
 
-    def deny_repost_request(assoc_type: nil, assoc_id: nil, attachment_id: nil)
-      return false
-      # superadmin = User.superadmin
-      # return 'Not found superadmin' unless superadmin.present?
-      # return 'Not passed sender' unless sender.present?
-      # return 'Not passed receiver' unless receiver.present?
-
-      payments = Payment.includes(:sender, :receiver).where(
-        assoc_type: assoc_type,
-        assoc_id: assoc_id,
-        attachment_id: attachment_id,
-        payment_type: [ Payment.payment_types[:repost], Payment.payment_types[:fee] ],
-        status: Payment.statuses[:pending]
-      )
-      return 'Not found pending payments' unless payments.size > 0
-
-      payments.each do |payment|
-        sender = payment.sender
-        receiver = payment.receiver
-        # case payment.payment_type
-        #   when Payment.payment_types[:repost]
-        #     receiver.update_attributes(balance_amount: receiver.balance_amount - payment.received_amount)
-        #     sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
-        #   when Payment.payment_types[:fee]
-        #     superadmin.update_attributes(balance_amount: superadmin.balance_amount - payment.received_amount)
-        #     sender.update_attributes(balance_amount: sender.balance_amount + payment.received_amount)
-        # end
-        receiver.update_columns(balance_amount: receiver.balance_amount - payment.received_amount)
-        sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
-        payment.delete
-      end
-
-      true
-    end
-
-    def accept_repost_request_on_free(sender: nil, receiver: nil, assoc_type: nil, assoc_id: nil, attachment_id: nil)
-      return false
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      return 'Not passed sender' unless sender.present?
-      return 'Not passed receiver' unless receiver.present?
-
-      payments = Payment.where(
-        sender_id: sender.id,
-        assoc_type: assoc_type,
-        assoc_id: assoc_id,
-        attachment_id: attachment_id,
-        status: Payment.statuses[:pending]
-      )
-      return 'Not found pending payments' unless payments.size > 0
-
-      ### check sender.balance_amount get updated whenever whenver calling update_attributes
-      # total_paid_amount = 0
-      payments.each do |payment|
-        case payment.payment_type
-          when Payment.payment_types[:repost]
-            receiver.update_columns(balance_amount: receiver.balance_amount - payment.received_amount)
-            sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
-          when Payment.payment_types[:fee]
-            superadmin.update_columns(balance_amount: superadmin.balance_amount - payment.received_amount)
-            sender.update_columns(balance_amount: sender.balance_amount + payment.received_amount)
-        end
-        payment.delete
-      end
-      # sender.update_columns(balance_amount: sender.balance_amount + total_paid_amount)
-
-      true
+    def accept_repost_request_on_free(attachment: nil)
+      Payment.deny_repost_request(attachment)
     end
 
     def collaborate(sender: nil, order: nil, item: nil, payment_token: nil)
@@ -726,11 +660,14 @@ class Payment < ApplicationRecord
       fee
     end
 
-    def precheck(sender, receivers, payment_token)
+    def precheck(entities, stripe_connected_users, payment_token)
       return 'Payment token not specified' if payment_token.blank?
-      return 'Sender not found' if sender.blank?
 
-      receivers.each do |user|
+      entities.each do |entity|
+        return 'Sender not found' if entity.blank?
+      end
+
+      stripe_connected_users.each do |user|
         return "Receiver not found" if user.blank?
         return "Receiver not connected to stripe" unless user.stripe_connected?
       end

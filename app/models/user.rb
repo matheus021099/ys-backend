@@ -336,7 +336,6 @@ class User < ApplicationRecord
   # send love donation
   def donate(receiver: nil, amount: 0, payment_token: nil, description: '')
     # return 'Not found receiver' unless receiver.present?
-    # sender = self
     # stripe_charge_id = nil
     # unless payment_token.blank?
     #   stripe_charge_id = Payment.deposit(user: sender, payment_token: payment_token, amount: amount)
@@ -345,21 +344,18 @@ class User < ApplicationRecord
     #   stripe_charge_id = nil
     #   return 'Not enough balance' if sender.balance_amount < amount
     # end
+    sender = self
     fee = Payment.calculate_fee(amount, 'donation', description.downcase)
     received_amount = amount - fee
-    payment = nil
-    ActiveRecord::Base.transaction do
-      payment = Payment.donate(
-        sender: sender,
-        receiver: receiver,
-        description: description,
-        sent_amount: amount,
-        received_amount: received_amount,
-        fee: fee,
-        payment_token: payment_token
-      )
-    end
-    payment
+    Payment.donate(
+      sender: sender,
+      receiver: receiver,
+      description: description,
+      sent_amount: amount,
+      received_amount: received_amount,
+      fee: fee,
+      payment_token: payment_token
+    )
   end
 
   # user is current_user

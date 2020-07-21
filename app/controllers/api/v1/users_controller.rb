@@ -347,7 +347,6 @@ module Api::V1
       sender = current_user
       receiver = @user
       payment = current_user.donate(
-        sender: sender,
         receiver: receiver,
         amount: amount,
         payment_token: params[:payment_token],

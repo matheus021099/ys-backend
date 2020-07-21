@@ -80,47 +80,40 @@ module Api::V1
       receiver = User.find(params[:receiver_id])
       message_body = params[:body]
       attachment = nil
-      is_balance_available = true
+      # is_balance_available = true
       amount = receiver.repost_price
       stripe_charge_id = nil
 
-      if params[:attachable_id].present?
+      attachable = params[:attachable_type].constantize.find(params[:attachment_id]) rescue nil
+      if attachable.present?
         payment_token = params[:payment_token]
+        # unless payment_token.blank?
+        #   stripe_charge_id = Payment.deposit(user: sender, payment_token: payment_token, amount: amount)
+        #   is_balance_available = 'Failed in stripe charge' if stripe_charge_id.blank?
+        # else
+        #   is_balance_available = 'Not enough balance' if sender.balance_amount < amount
+        # end
 
-        unless payment_token.blank?
-          stripe_charge_id = Payment.deposit(user: sender, payment_token: payment_token, amount: amount)
-          is_balance_available = 'Failed in stripe charge' if stripe_charge_id.blank?
-        else
-          is_balance_available = 'Not enough balance' if sender.balance_amount < amount
-        end
-
-        if is_balance_available === true
-          attachment = Attachment.new(
-            attachment_type: Attachment.attachment_types[:repost],
-            attachable_type: params[:attachable_type],
-            attachable_id: params[:attachable_id],
-            repost_price: amount,
-            payment_customer_id: nil,
-            payment_token: stripe_charge_id
-          )
-        end
+        attachment = Attachment.new(
+          attachment_type: Attachment.attachment_types[:repost],
+          repost_price: amount,
+          payment_customer_id: nil,
+          payment_token: stripe_charge_id
+        )
+        attachment.attachable = attachable
+        attachment.save
       end
 
       receipt = Util::Message.send(sender, receiver, message_body, nil, attachment)
-      conversation = receipt.conversation
-
-      if params[:attachable_id].present? && is_balance_available === true
-        attachment = Attachment.attachments_for(receipt.message).first
-        payment = Payment.send_repost_request(
-          sender: sender,
-          receiver: receiver,
-          sent_amount: amount,
-          payment_token: stripe_charge_id,
-          assoc_type: params[:attachable_type],
-          assoc_id: params[:attachable_id],
-          attachment_id: attachment.id
-        ) if attachment.present?
-      end
+      # conversation = receipt.conversation
+      # attachment = Attachment.attachments_for(receipt.message).first
+      payment = Payment.send_repost_request(
+        sender: sender,
+        receiver: receiver,
+        attachment: attachment,
+        sent_amount: amount,
+        payment_token: payment_token
+      ) if attachment.present?
 
       # authorize receipt.message
       # raise Pundit::NotAuthorizedError unless Mailboxer::MessagePolicy.new(current_user, receipt.message).create?
@@ -168,7 +161,7 @@ module Api::V1
     def accept_repost
       render_error 'Invalid message id', :unprocessable_entity and return unless params[:id].to_i > 0
       message = Mailboxer::Notification.find_by_id(params[:id])
-      attachments = Attachment.attachments_for(message)
+      attachments = Attachment.includes(:attachable).attachments_for(message)
       render_error 'message has not an attachment', :unprocessable_entity and return if attachments.blank? || attachments.length == 0
 
       attachment = attachments.first
@@ -179,11 +172,14 @@ module Api::V1
         render_error 'attachable not found', :unprocessable_entity and return
       end
 
-      attachment.accept(sender: message.sender, receiver: current_user)
-      # attachable.delay.repost(current_user)
-      attachable.repost(current_user)
+      result = attachment.accept(sender: message.sender, receiver: current_user)
 
-      render_success true
+      if result === true
+        # attachable.delay.repost(current_user)
+        attachable.repost(current_user)
+      end
+
+      render_success result
     end
 
 
@@ -195,13 +191,13 @@ module Api::V1
     def deny_repost
       render_error 'Invalid message id', :unprocessable_entity and return unless params[:id].to_i > 0
       message = Mailboxer::Notification.find_by_id(params[:id])
-      attachments = Attachment.attachments_for(message)
+      attachments = Attachment.includes(:attachable).attachments_for(message)
       render_error 'Message has not any attachment', :unprocessable_entity and return if attachments.blank? || attachments.length == 0
 
       attachment = attachments.first
-      attachment.deny(sender: message.sender, receiver: current_user)
+      result = attachment.deny(sender: message.sender, receiver: current_user)
 
-      render_success true
+      render_success result
     end
 
 
@@ -224,10 +220,10 @@ module Api::V1
         render_error 'attachable not found', :unprocessable_entity and return
       end
 
-      attachment.accept_on_free(sender: message.sender, receiver: current_user)
-      attachable.repost(current_user)
+      result = attachment.accept_on_free(sender: message.sender, receiver: current_user)
+      attachable.repost(current_user) if result
 
-      render_success true
+      render_success result
     end
 
 

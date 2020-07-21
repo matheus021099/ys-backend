@@ -31,83 +31,83 @@ class Attachment < ApplicationRecord
   end
 
   def accept(sender: nil, receiver: nil)
-    Payment.accept_repost_request(
+    result = Payment.accept_repost_request(
       sender: sender,
       receiver: receiver,
-      assoc_type: self.attachable_type,
-      assoc_id: self.attachable_id,
-      attachment_id: self.id
+      attachment: self
     )
 
-    self.update_attributes(status: Attachment.statuses[:accepted])
+    if result === true
+      self.update_attributes(status: Attachment.statuses[:accepted])
 
-    PushNotificationWorker.perform_async(
-      sender.devices.pluck(:token),
-      FCMService::push_notification_types[:message_attachment_accepted],
-      "[#{attachable.name}] has been accepted",
-      MessageSerializer1.new(
-        scope: OpenStruct.new(current_user: sender),
-        context: OpenStruct.new(receiver: receiver)
-      ).serialize(message).as_json
-      # MessageSerializer.new(
-      #   message,
-      #   scope: OpenStruct.new(current_user: sender)
-      # ).as_json
-    )
+      PushNotificationWorker.perform_async(
+        sender.devices.pluck(:token),
+        FCMService::push_notification_types[:message_attachment_accepted],
+        "[#{attachable.name}] has been accepted",
+        MessageSerializer1.new(
+          scope: OpenStruct.new(current_user: sender),
+          context: OpenStruct.new(receiver: receiver)
+        ).serialize(message).as_json
+        # MessageSerializer.new(
+        #   message,
+        #   scope: OpenStruct.new(current_user: sender)
+        # ).as_json
+      )
+    end
+
+    result
   end
 
   def accept_on_free(sender: nil, receiver: nil)
-    Payment.accept_repost_request_on_free(
+    result = Payment.accept_repost_request_on_free(
       sender: sender,
       receiver: receiver,
-      assoc_type: self.attachable_type,
-      assoc_id: self.attachable_id,
-      attachment_id: self.id
+      attachment: self
     )
 
-    self.update_attributes(status: Attachment.statuses[:accepted])
+    if result === true
+      self.update_attributes(status: Attachment.statuses[:accepted])
 
-    PushNotificationWorker.perform_async(
-      sender.devices.pluck(:token),
-      FCMService::push_notification_types[:message_attachment_accepted],
-      "[#{attachable.name}] has been accepted for free",
-      MessageSerializer1.new(
-        scope: OpenStruct.new(current_user: sender),
-        context: OpenStruct.new(receiver: receiver)
-      ).serialize(message).as_json
-    )
+      PushNotificationWorker.perform_async(
+        sender.devices.pluck(:token),
+        FCMService::push_notification_types[:message_attachment_accepted],
+        "[#{attachable.name}] has been accepted for free",
+        MessageSerializer1.new(
+          scope: OpenStruct.new(current_user: sender),
+          context: OpenStruct.new(receiver: receiver)
+        ).serialize(message).as_json
+      )
+    end
+
+    result
   end
 
   def deny(sender: nil, receiver: nil)
-    Payment.deny_repost_request(
-      # sender: sender,
-      # receiver: receiver,
-      assoc_type: self.attachable_type,
-      assoc_id: self.attachable_id,
-      attachment_id: self.id
-    )
+    result = Payment.deny_repost_request(attachment: self)
 
-    self.update_attributes(status: Attachment.statuses[:denied])
+    if result === true
+      self.update_attributes(status: Attachment.statuses[:denied])
 
-    PushNotificationWorker.perform_async(
-      sender.devices.pluck(:token),
-      FCMService::push_notification_types[:message_attachment_denied],
-      "[#{attachable.name}] has been denied",
-      MessageSerializer1.new(
-        scope: OpenStruct.new(current_user: sender),
-        context: OpenStruct.new(receiver: receiver)
-      ).serialize(message).as_json
-    )
+      PushNotificationWorker.perform_async(
+        sender.devices.pluck(:token),
+        FCMService::push_notification_types[:message_attachment_denied],
+        "[#{attachable.name}] has been denied",
+        MessageSerializer1.new(
+          scope: OpenStruct.new(current_user: sender),
+          context: OpenStruct.new(receiver: receiver)
+        ).serialize(message).as_json
+      )
+    end
+
+    result
   end
 
   def auto_cancel(sender: nil, receiver: nil)
-    Payment.deny_repost_request(
-      assoc_type: self.attachable_type,
-      assoc_id: self.attachable_id,
-      attachment_id: self.id
-    )
+    result = Payment.deny_repost_request(attachment: self)
 
-    self.update_attributes(status: Attachment.statuses[:canceled])
+    if result === true
+      self.update_attributes(status: Attachment.statuses[:canceled])
+    end
 
     # message.recipients.each do |user|
     #   PushNotificationWorker.perform_async(
@@ -118,16 +118,18 @@ class Attachment < ApplicationRecord
     #       message
     #     ).as_json
     # end
+
+    result
   end
 
   def remove
-    Payment.deny_repost_request(
-      assoc_type: self.attachable_type,
-      assoc_id: self.attachable_id,
-      attachment_id: self.id
-    )
+    result = Payment.deny_repost_request(attachment: self)
 
-    self.destroy
+    if result
+      self.destroy
+    end
+
+    result
   end
 
   def self.find_pending(sender: nil, receiver: nil, attachment_type: '', attachable: nil)
