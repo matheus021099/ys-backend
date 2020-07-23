@@ -64,7 +64,7 @@ class Payment < ApplicationRecord
           destination: receiver.payment_account_id,
           amount: received_amount,
         }
-      }) rescue {}
+      })# rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create(
@@ -96,7 +96,7 @@ class Payment < ApplicationRecord
           sender: sender.username,
           amount: sent_amount
         }
-      }) rescue {}
+      })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create!(
@@ -134,8 +134,9 @@ class Payment < ApplicationRecord
           attachable_type: attachment.attachable_type,
           attachable_id: attachment.attachable_id,
           attachable_name: attachment.attachable.name
-        }
-      }) rescue {}
+        },
+        capture: false
+      })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create(
@@ -161,21 +162,30 @@ class Payment < ApplicationRecord
       precheck = Payment.precheck([sender, attachment], [receiver], payment.payment_token)
       return precheck if precheck === false
 
-      stripe_transfer = Stripe::Transfer.create(
-        amount: payment.received_amount,
-        currency: 'usd',
-        destination: receiver.payment_account_id,
-        metadata: {
-          payment_type: Payment.payment_types[:repost],
-          amount: payment.sent_amount,
-          sender: sender.username,
-          receiver: receiver.username
+      # stripe_transfer = Stripe::Transfer.create(
+      #   amount: payment.received_amount,
+      #   currency: 'usd',
+      #   destination: receiver.payment_account_id,
+      #   metadata: {
+      #     payment_type: Payment.payment_types[:repost],
+      #     amount: payment.sent_amount,
+      #     sender: sender.username,
+      #     receiver: receiver.username
+      #   }
+      # )
+      # return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+      stripe_charge = Stripe::Charge.capture(
+        payment.payment_token,
+        transfer_data: {
+          destination: receiver.payment_account_id,
+          amount: received_amount,
         }
-      ) rescue {}
-      return 'Stripe transfer has been failed' if stripe_transfer['id'].blank?
+      )
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       payment.update_attributes(
-        payment_token: stripe_transfer['id'],
+        payment_token: stripe_charge['id'],
         status: Payment.statuses[:done]
       )
     end
@@ -186,8 +196,8 @@ class Payment < ApplicationRecord
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
-      }) rescue {}
-      return 'Stripe refund has been failed' if stripe_refund['id'].blank?
+      })
+      return 'Stripe operation failed' if stripe_refund['id'].blank?
 
       payment.destroy
       true
