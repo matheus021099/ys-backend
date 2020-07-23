@@ -84,7 +84,7 @@ module Api::V1
       amount = receiver.repost_price
       stripe_charge_id = nil
 
-      attachable = params[:attachable_type].constantize.find(params[:attachment_id]) rescue nil
+      attachable = params[:attachable_type].constantize.find(params[:attachable_id]) rescue nil
       if attachable.present?
         payment_token = params[:payment_token]
         # unless payment_token.blank?
@@ -98,7 +98,7 @@ module Api::V1
           attachment_type: Attachment.attachment_types[:repost],
           repost_price: amount,
           payment_customer_id: nil,
-          payment_token: stripe_charge_id
+          payment_token: payment_token
         )
         attachment.attachable = attachable
         attachment.save

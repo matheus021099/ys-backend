@@ -54,15 +54,17 @@ class Payment < ApplicationRecord
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
+        description: description,
         metadata: {
           payment_type: Payment.payment_types[:donate],
           sender: sender.username,
           amount: sent_amount
         },
         transfer_data: {
-          destination: receiver.payment_account_id
+          destination: receiver.payment_account_id,
+          amount: received_amount,
         }
-      })
+      }) rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create(
@@ -94,7 +96,7 @@ class Payment < ApplicationRecord
           sender: sender.username,
           amount: sent_amount
         }
-      })
+      }) rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create!(
@@ -133,7 +135,7 @@ class Payment < ApplicationRecord
           attachable_id: attachment.attachable_id,
           attachable_name: attachment.attachable.name
         }
-      })
+      }) rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create(
@@ -169,7 +171,7 @@ class Payment < ApplicationRecord
           sender: sender.username,
           receiver: receiver.username
         }
-      )
+      ) rescue {}
       return 'Stripe transfer has been failed' if stripe_transfer['id'].blank?
 
       payment.update_attributes(
@@ -184,7 +186,7 @@ class Payment < ApplicationRecord
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
-      })
+      }) rescue {}
       return 'Stripe refund has been failed' if stripe_refund['id'].blank?
 
       payment.destroy
