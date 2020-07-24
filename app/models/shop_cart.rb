@@ -100,16 +100,14 @@ class ShopCart < ApplicationRecord
 
     total_cost = calculate_cost(shipping_address.country, shipping_address.state)[:total_cost]
     stripe_charge_id = nil
-    unless payment_token.blank?
-      # fee = Payment.stripe_fee(total_cost)
-      stripe_charge_id = Payment.deposit(user: customer, payment_token: payment_token, amount: total_cost)
-      return 'Failed in stripe charge' if stripe_charge_id === false
-    else
-      stripe_charge_id = nil
-      return 'Not enough balance' if customer.balance_amount < total_cost
-    end
+    # unless payment_token.blank?
+    #   stripe_charge_id = Payment.deposit(user: customer, payment_token: payment_token, amount: total_cost)
+    #   return 'Failed in stripe charge' if stripe_charge_id === false
+    # else
+    #   stripe_charge_id = nil
+    #   return 'Not enough balance' if customer.balance_amount < total_cost
+    # end
 
-    # self.shipping_address_id = self.shipping_address.id
     orders = []
     items_count = items.size
     ActiveRecord::Base.transaction do
@@ -177,7 +175,7 @@ class ShopCart < ApplicationRecord
           # tax_cost: tax_cost
           shipping_cost: shipping,
           provider: nil,
-          payment_token: stripe_charge_id,
+          payment_token: payment_token,
           status: ShopOrder.statuses[:order_pending]
         }
         if order.items.select{ |item| item.status != 'item_shipped' }.blank?
@@ -186,11 +184,12 @@ class ShopCart < ApplicationRecord
         # order.merchant = merchant
         order.save!
 
+        ### total_cost == subtotal + shipping + tax_cost
         payment = Payment.buy(
           sender: customer,
           receiver: merchant,
-          sent_amount: subtotal + shipping + tax_cost,
-          received_amount: subtotal + tax_cost - app_fee,
+          sent_amount: total_cost,
+          received_amount: total_cost - app_fee,
           fee: app_fee,
           shipping_cost: shipping,
           payment_token: stripe_charge_id,

@@ -11,6 +11,7 @@ class Payment < ApplicationRecord
     buy: 'buy',
     repost: 'repost',
     refund: 'refund',
+    recoup: 'recoup',
     collaborate: 'collaborate',
     stream: 'stream',
     pay_view_stream: 'pay_view_stream'
@@ -179,7 +180,7 @@ class Payment < ApplicationRecord
         payment.payment_token,
         transfer_data: {
           destination: receiver.payment_account_id,
-          amount: received_amount,
+          amount: payment.received_amount,
         }
       )
       return 'Stripe operation failed' if stripe_charge['id'].blank?
@@ -207,29 +208,74 @@ class Payment < ApplicationRecord
       Payment.deny_repost_request(attachment)
     end
 
-    def collaborate(sender: nil, order: nil, item: nil, payment_token: nil)
-      return false
+    def buy(sender: nil, receiver: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, order: nil)
+      precheck = Payment.precheck([sender], [receiver], payment_token)
+      return precheck unless precheck === true
+
+      transfer_group = "order_#{order.external_id}"
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Charge.create({
+        amount: sent_amount + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        transfer_group: transfer_group,
+        metadata: {
+          payment_type: Payment.payment_types[:buy],
+          sender: sender.username,
+          amount: sent_amount,
+          order: order.external_id
+        },
+      })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
+
+      shared_amount = 0
+      order.items.each do |item|
+        shared_amount += Payment.collaborate(
+          sender: sender,
+          receiver: receiver,
+          order: order,
+          item: item,
+          transfer_group: transfer_group,
+        )
+      end
+
+      # Create a Transfer to a connected account (later):
+      stripe_transfer = Stripe::Transfer.create({
+        amount: received_amount - shared_amount,
+        currency: 'usd',
+        destination: receiver.payment_account_id,
+        transfer_group: transfer_group,
+        metadata: {
+          payment_type: Payment.payment_types[:buy],
+          sender: sender.username,
+          amount: sent_amount,
+          order: order.external_id
+        },
+      })
+      return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        payment_type: Payment.payment_types[:buy],
+        payment_token: stripe_transfer['id'],
+        sent_amount: sent_amount,
+        received_amount: received_amount,
+        # received_amount: received_amount - shared_amount,
+        fee: fee,
+        tax: 0,
+        order_id: order.id,
+        status: Payment.statuses[:done]
+      )
+    end
+
+    def collaborate(sender: nil, receiver: nil, order: nil, item: nil, transfer_group: nil)
       product = item.product
-      total_cost = item.price * item.quantity - item.fee
-      total_collaborators_amount = 0
-      ActiveRecord::Base.transaction do
+      item_total_cost = item.price * item.quantity# - item.fee
+      item_shared_amount = 0
 
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: sender.id,
-          payment_type: Payment.payment_types[:collaborate],
-          payment_token: payment_token,
-          sent_amount: total_cost,
-          received_amount: total_cost,
-          fee: 0,
-          tax: 0,
-          order_id: order.id,
-          user_share: 100,
-          assoc_type: product.class.name,
-          assoc_id: product.id,
-          status: Payment.statuses[:done]
-        ) and return if product.collaborators_count == 0
-
+      if product.collaborators_count > 0
+        #TODO add recoup_paid column to UserProduct
         ### product has collaborators
         user_product = UserProduct.where(
           product_id: product.id,
@@ -241,13 +287,14 @@ class Payment < ApplicationRecord
         recoup_paid = true
         recoup_paid_amount = 0
         recoup_remain_amount = 0
-        if creator_recoup_cost > 0
+        ### user_product.user is receiver, product merchant, but make sure he connect to stripe
+        if user_product.user.stripe_connected? && creator_recoup_cost > 0
           ### user_share: 100 means paid for recoup_cost
           recoup_paid_amount = Payment.where(
+            payment_type: Payment.payment_types[:recoup],
             receiver_id: user_product.user_id,
             assoc_type: product.class.name,
             assoc_id: product.id,
-            user_share: 100,
             status: Payment.statuses[:done]
           ).sum(:received_amount)
 
@@ -255,46 +302,79 @@ class Payment < ApplicationRecord
             recoup_paid = false
             recoup_remain_amount = creator_recoup_cost - recoup_paid_amount
           end
+
+          ### item_total_cost diminished
+          if !recoup_paid
+            recoup_current_amount = item_total_cost > recoup_remain_amount ? recoup_remain_amount : item_total_cost
+            recoup_remain_amount -= recoup_current_amount
+            item_total_cost -= recoup_current_amount
+            item_shared_amount += recoup_current_amount
+
+            if recoup_current_amount > 0
+              stripe_transfer = Stripe::Transfer.create({
+                amount: recoup_current_amount,
+                currency: 'usd',
+                destination: user_product.user.payment_account_id,
+                transfer_group: transfer_group,
+                metadata: {
+                  payment_type: Payment.payment_types[:recoup],
+                  product: product.name,
+                  recoup_remain_amount: recoup_remain_amount,
+                  order: order.external_id,
+                }
+              })
+              return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+              Payment.create(
+                sender_id: sender.id,
+                receiver_id: user_product.user.id,
+                payment_type: Payment.payment_types[:recoup],
+                payment_token: stripe_transfer['id'],
+                sent_amount: recoup_current_amount,
+                received_amount: recoup_current_amount,
+                fee: 0,
+                tax: 0,
+                order_id: order.id,
+                assoc_type: product.class.name,
+                assoc_id: product.id,
+                status: Payment.statuses[:done]
+              )
+            end
+          end
         end
 
-        ### total_cost diminished
-        if !recoup_paid
-          recoup_current_amount = total_cost > recoup_remain_amount ? recoup_remain_amount : total_cost
-          total_cost = total_cost > recoup_remain_amount ? total_cost - recoup_remain_amount : 0
-          Payment.create!(
-            sender_id: sender.id,
-            receiver_id: sender.id,
-            payment_type: Payment.payment_types[:collaborate],
-            payment_token: payment_token,
-            sent_amount: recoup_current_amount,
-            received_amount: recoup_current_amount,
-            fee: 0,
-            tax: 0,
-            order_id: order.id,
-            user_share: 100,
-            assoc_type: product.class.name,
-            assoc_id: product.id,
-            status: Payment.statuses[:done]
-          ) if recoup_current_amount > 0
-        end
-
-        if recoup_paid || total_cost > 0
+        if item_total_cost > 0
           user_products = UserProduct.where(
             product_id: product.id,
             user_type: UserProduct.user_types[:collaborator],
             status: UserProduct.statuses[:accepted]
           )
           user_products.each do |user_product|
-            # collaborator_amount = (total_cost * user_product.user_share / 100).round
-            collaborator_amount = (total_cost * user_product.user_share / 100).floor
-            total_collaborators_amount += collaborator_amount
+            ### cannot share the amount because collaborate did not connect to stripe
+            next unless user_product.user.stripe_connected?
+
+            collaborator_amount = (item_total_cost * user_product.user_share / 100).floor
 
             if collaborator_amount > 0
-              Payment.create!(
+              stripe_transfer = Stripe::Transfer.create({
+                amount: recoup_current_amount,
+                currency: 'usd',
+                destination: user_product.user.payment_account_id,
+                transfer_group: transfer_group,
+                metadata: {
+                  payment_type: Payment.payment_types[:recoup],
+                  product: product.name,
+                  recoup_remain_amount: recoup_remain_amount,
+                  order: order.external_id,
+                }
+              })
+              next if stripe_transfer['id'].blank?
+
+              Payment.create(
                 sender_id: sender.id,
                 receiver_id: user_product.user_id,
                 payment_type: Payment.payment_types[:collaborate],
-                payment_token: payment_token,
+                payment_token: stripe_transfer['id'],
                 sent_amount: collaborator_amount,
                 received_amount: collaborator_amount,
                 fee: 0,
@@ -305,94 +385,14 @@ class Payment < ApplicationRecord
                 assoc_id: product.id,
                 status: Payment.statuses[:done]
               )
-              user_product.user.update_columns(balance_amount: user_product.user.balance_amount + collaborator_amount)
+
+              item_shared_amount += collaborator_amount
             end
           end
         end
-
-        sender.update_columns(balance_amount: sender.balance_amount - total_collaborators_amount) if total_collaborators_amount > 0
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: sender.id,
-          payment_type: Payment.payment_types[:collaborate],
-          payment_token: payment_token,
-          sent_amount: total_cost - total_collaborators_amount,
-          received_amount: total_cost - total_collaborators_amount,
-          fee: 0,
-          tax: 0,
-          order_id: order.id,
-          user_share: creator_share,
-          assoc_type: product.class.name,
-          assoc_id: product.id,
-          status: Payment.statuses[:done]
-        ) if total_cost - total_collaborators_amount > 0
-      end
-    end
-
-    def buy(sender: nil, receiver: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, order: nil)
-      return false
-      # sent_amount = received_amount + fee + shipping_cost
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      return 'Not passed sender' unless sender.present?
-      return 'Not passed receiver' unless receiver.present?
-
-      payment = 'Failed'
-      ActiveRecord::Base.transaction do
-
-        sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
-        receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
-        payment = Payment.create!(
-          sender_id: sender.id,
-          receiver_id: receiver.id,
-          payment_type: Payment.payment_types[:buy],
-          payment_token: payment_token,
-          sent_amount: sent_amount,
-          received_amount: received_amount,
-          fee: 0,
-          tax: 0,
-          order_id: order.id,
-          status: Payment.statuses[:done]
-        )
-
-        superadmin.update_columns(balance_amount: superadmin.balance_amount + fee + shipping_cost) if fee + shipping_cost > 0
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: superadmin.id,
-          payment_type: Payment.payment_types[:fee],
-          payment_token: payment_token,
-          sent_amount: 0,
-          received_amount: fee,
-          fee: 0,
-          tax: 0,
-          order_id: order.id,
-          status: Payment.statuses[:done]
-        ) if fee > 0
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: superadmin.id,
-          payment_type: Payment.payment_types[:shipment],
-          payment_token: payment_token,
-          sent_amount: 0,
-          received_amount: shipping_cost,
-          fee: 0,
-          tax: 0,
-          order_id: order.id,
-          status: Payment.statuses[:done]
-        ) if shipping_cost > 0
-
-        # payment records on each item
-        order.items.each do |item|
-          Payment.collaborate(
-            sender: receiver,
-            order: order,
-            item: item,
-            payment_token: payment_token
-          )# if item.product.collaborators_count > 0
-        end
       end
 
-      payment
+      item_shared_amount
     end
 
     def stream(stream: nil)
