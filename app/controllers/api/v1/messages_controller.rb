@@ -86,14 +86,7 @@ module Api::V1
 
       attachable = params[:attachable_type].constantize.find(params[:attachable_id]) rescue nil
       if attachable.present?
-        payment_token = params[:payment_token]
-        # unless payment_token.blank?
-        #   stripe_charge_id = Payment.deposit(user: sender, payment_token: payment_token, amount: amount)
-        #   is_balance_available = 'Failed in stripe charge' if stripe_charge_id.blank?
-        # else
-        #   is_balance_available = 'Not enough balance' if sender.balance_amount < amount
-        # end
-
+        payment_token = params[:payment_token] || nil
         attachment = Attachment.new(
           attachment_type: Attachment.attachment_types[:repost],
           repost_price: amount,

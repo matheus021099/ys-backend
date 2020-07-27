@@ -99,14 +99,22 @@ class ShopCart < ApplicationRecord
     end
 
     total_cost = calculate_cost(shipping_address.country, shipping_address.state)[:total_cost]
-    stripe_charge_id = nil
-    # unless payment_token.blank?
-    #   stripe_charge_id = Payment.deposit(user: customer, payment_token: payment_token, amount: total_cost)
-    #   return 'Failed in stripe charge' if stripe_charge_id === false
-    # else
-    #   stripe_charge_id = nil
-    #   return 'Not enough balance' if customer.balance_amount < total_cost
-    # end
+    time = Time.now.utc
+    transfer_group = "orders_at_#{time.to_i}"
+    stripe_fee = Payment.stripe_fee(total_cost)
+    stripe_charge = Stripe::Charge.create({
+      amount: total_cost + stripe_fee,
+      currency: 'usd',
+      source: payment_token,
+      transfer_group: transfer_group,
+      metadata: {
+        payment_type: Payment.payment_types[:buy],
+        sender: customer.username,
+        amount: total_cost,
+        orders_at: time
+      },
+    })
+    return 'Stripe operation failed' if stripe_charge['id'].blank?
 
     orders = []
     items_count = items.size
@@ -192,7 +200,8 @@ class ShopCart < ApplicationRecord
           received_amount: total_cost - app_fee,
           fee: app_fee,
           shipping_cost: shipping,
-          payment_token: stripe_charge_id,
+          payment_token: stripe_charge['id'],
+          transfer_group: transfer_group,
           order: order
         )
 

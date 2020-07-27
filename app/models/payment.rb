@@ -208,25 +208,25 @@ class Payment < ApplicationRecord
       Payment.deny_repost_request(attachment)
     end
 
-    def buy(sender: nil, receiver: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, order: nil)
+    def buy(sender: nil, receiver: nil, order: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, transfer_group: nil)
       precheck = Payment.precheck([sender], [receiver], payment_token)
       return precheck unless precheck === true
 
-      transfer_group = "order_#{order.external_id}"
-      stripe_fee = Payment.stripe_fee(sent_amount)
-      stripe_charge = Stripe::Charge.create({
-        amount: sent_amount + stripe_fee,
-        currency: 'usd',
-        source: payment_token,
-        transfer_group: transfer_group,
-        metadata: {
-          payment_type: Payment.payment_types[:buy],
-          sender: sender.username,
-          amount: sent_amount,
-          order: order.external_id
-        },
-      })
-      return 'Stripe operation failed' if stripe_charge['id'].blank?
+      # transfer_group = "order_#{order.external_id}"
+      # stripe_fee = Payment.stripe_fee(sent_amount)
+      # stripe_charge = Stripe::Charge.create({
+      #   amount: sent_amount + stripe_fee,
+      #   currency: 'usd',
+      #   source: payment_token,
+      #   transfer_group: transfer_group,
+      #   metadata: {
+      #     payment_type: Payment.payment_types[:buy],
+      #     sender: sender.username,
+      #     amount: sent_amount,
+      #     order: order.external_id
+      #   },
+      # })
+      # return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       shared_amount = 0
       order.items.each do |item|
@@ -399,6 +399,8 @@ class Payment < ApplicationRecord
       return false
       superadmin = User.superadmin
       return 'Not found superadmin' unless superadmin.present?
+      # precheck = Payment.precheck([sender], [receiver], payment_token)
+      # return precheck unless precheck === true
 
       stopped_at = stream.stopped_at || Time.now
       played_time = (stopped_at - stream.started_at).to_i

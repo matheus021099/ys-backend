@@ -214,14 +214,7 @@ module Api::V1
       if payment_amount == 0
         @user.repost_price = repost_price
       else
-        unless payment_token.blank?
-          stripe_charge_id = Payment.deposit(user: @user, payment_token: payment_token, amount: payment_amount)
-          render_error 'Failed in stripe charge', :unprocessable_entity and return if stripe_charge_id === false
-        else
-          stripe_charge_id = nil
-          render_error 'Not enough balance', :unprocessable_entity and return if @user.balance_amount < payment_amount
-        end
-        Payment.upgrade_repost_price(sender: @user, sent_amount: payment_amount, payment_token: stripe_charge_id)
+        Payment.upgrade_repost_price(sender: @user, sent_amount: payment_amount, payment_token: payment_token)
 
         @user.repost_price = repost_price
         @user.max_repost_price = proration[:max_repost_price]
