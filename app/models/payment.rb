@@ -126,6 +126,10 @@ class Payment < ApplicationRecord
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
+        transfer_data: {
+          destination: receiver.payment_account_id,
+          amount: received_amount,
+        },
         metadata: {
           payment_type: Payment.payment_types[:repost],
           sender: sender.username,
@@ -177,11 +181,7 @@ class Payment < ApplicationRecord
       # return 'Stripe operation failed' if stripe_transfer['id'].blank?
 
       stripe_charge = Stripe::Charge.capture(
-        payment.payment_token,
-        transfer_data: {
-          destination: receiver.payment_account_id,
-          amount: payment.received_amount,
-        }
+        payment.payment_token
       )
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
