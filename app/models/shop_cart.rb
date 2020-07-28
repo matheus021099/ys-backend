@@ -206,9 +206,14 @@ class ShopCart < ApplicationRecord
         )
 
         unless payment.instance_of? Payment
-          raise ActiveRecord::Rollback
           # Rails.logger.info 'raise rollback'
           # puts "\t\traise rollback\t\t"
+          raise ActiveRecord::Rollback
+
+          stripe_refund = Stripe::Refund.create({
+            charge: stripe_charge['id'],
+          })
+          # return 'Stripe operation failed' if stripe_refund['id'].blank?
           return payment
         else
           orders << order

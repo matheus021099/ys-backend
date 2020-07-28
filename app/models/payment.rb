@@ -243,6 +243,7 @@ class Payment < ApplicationRecord
       stripe_transfer = Stripe::Transfer.create({
         amount: received_amount - shared_amount,
         currency: 'usd',
+        source_transaction: payment_token,
         destination: receiver.payment_account_id,
         transfer_group: transfer_group,
         metadata: {

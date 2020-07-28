@@ -80,7 +80,6 @@ module Api::V1
       receiver = User.find(params[:receiver_id])
       message_body = params[:body]
       attachment = nil
-      # is_balance_available = true
       amount = receiver.repost_price
       stripe_charge_id = nil
 
