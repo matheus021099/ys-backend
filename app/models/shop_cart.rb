@@ -98,7 +98,9 @@ class ShopCart < ApplicationRecord
       end
     end
 
-    total_cost = calculate_cost(shipping_address.country, shipping_address.state)[:total_cost]
+    costs = calculate_cost(shipping_address.country, shipping_address.state)
+    total_cost = costs[:total_cost]
+    app_fee = Payment.calculate_fee(costs[:subtotal_cost], 'shopping')
     time = Time.now.utc
     transfer_group = "orders_at_#{time.to_i}"
     stripe_fee = Payment.stripe_fee(total_cost)
@@ -106,6 +108,7 @@ class ShopCart < ApplicationRecord
       amount: total_cost + stripe_fee,
       currency: 'usd',
       source: payment_token,
+      application_fee_amount: app_fee,
       transfer_group: transfer_group,
       metadata: {
         payment_type: Payment.payment_types[:buy],
@@ -199,7 +202,8 @@ class ShopCart < ApplicationRecord
           sent_amount: total_cost,
           received_amount: total_cost - app_fee,
           fee: app_fee,
-          shipping_cost: shipping,
+          # shipping_cost: shipping,
+          shipping_cost: 0,
           payment_token: stripe_charge['id'],
           transfer_group: transfer_group,
           order: order

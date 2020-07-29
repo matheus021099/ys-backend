@@ -46,16 +46,19 @@ class Payment < ApplicationRecord
   }
 
   class << self
-    def donate(sender: nil, receiver: nil, description: '', sent_amount: 0, received_amount: 0, fee: 0, payment_token: nil)
+    def donate(sender: nil, receiver: nil, description: '', sent_amount: 0, payment_token: nil)
       precheck = Payment.precheck([sender], [receiver], payment_token)
       return precheck unless precheck === true
 
+      app_fee = Payment.calculate_fee(sent_amount, 'donation', description.downcase)
+      received_amount = sent_amount - app_fee
       stripe_fee = Payment.stripe_fee(sent_amount)
       stripe_charge = Stripe::Charge.create({
         amount: sent_amount + stripe_fee,
+        application_fee_amount: app_fee,
         currency: 'usd',
         source: payment_token,
-        description: description,
+        description: Payment.payment_types[:donate],
         metadata: {
           payment_type: Payment.payment_types[:donate],
           sender: sender.username,
@@ -63,7 +66,7 @@ class Payment < ApplicationRecord
         },
         transfer_data: {
           destination: receiver.payment_account_id,
-          amount: received_amount,
+          # amount: received_amount
         }
       })# rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
@@ -76,7 +79,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
-        fee: fee,
+        fee: app_fee,
         tax: 0,
         status: Payment.statuses[:done]
       )
@@ -92,10 +95,11 @@ class Payment < ApplicationRecord
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
+        application_fee_amount: sent_amount,
+        description: Payment.payment_types[:repost_price_upgrade_cost],
         metadata: {
           payment_type: Payment.payment_types[:repost_price_upgrade_cost],
-          sender: sender.username,
-          amount: sent_amount
+          sender: sender.username
         }
       })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
@@ -118,17 +122,19 @@ class Payment < ApplicationRecord
       precheck = Payment.precheck([sender, attachment], [], payment_token)
       return precheck unless precheck === true
 
-      fee = Payment.calculate_fee(sent_amount, 'repost')
-      received_amount = sent_amount - fee
+      app_fee = Payment.calculate_fee(sent_amount, 'repost')
+      received_amount = sent_amount - app_fee
 
       stripe_fee = Payment.stripe_fee(sent_amount)
       stripe_charge = Stripe::Charge.create({
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
+        application_fee_amount: app_fee,
+        description: Payment.payment_types[:repost],
         transfer_data: {
           destination: receiver.payment_account_id,
-          amount: received_amount,
+          # amount: received_amount,
         },
         metadata: {
           payment_type: Payment.payment_types[:repost],
@@ -151,7 +157,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
-        fee: fee,
+        fee: app_fee,
         tax: 0,
         assoc_type: attachment.attachable_type,
         assoc_id: attachment.attachable_id,
@@ -245,6 +251,7 @@ class Payment < ApplicationRecord
         currency: 'usd',
         source_transaction: payment_token,
         destination: receiver.payment_account_id,
+        description: Payment.payment_types[:buy],
         transfer_group: transfer_group,
         metadata: {
           payment_type: Payment.payment_types[:buy],
@@ -316,6 +323,7 @@ class Payment < ApplicationRecord
                 amount: recoup_current_amount,
                 currency: 'usd',
                 destination: user_product.user.payment_account_id,
+                description: Payment.payment_types[:recoup],
                 transfer_group: transfer_group,
                 metadata: {
                   payment_type: Payment.payment_types[:recoup],
@@ -396,20 +404,21 @@ class Payment < ApplicationRecord
       item_shared_amount
     end
 
-    def stream_deposit(sender: nil, payment_token: nil, amount: 0, assoc_id: nil, assoc_type: nil)
+    def stream_deposit(sender: nil, payment_token: nil, sent_amount: 0, assoc_id: nil, assoc_type: nil)
       receiver = User.public_relations_user
       precheck = Payment.precheck([receiver], [sender], payment_token)
       return precheck unless precheck === true
 
-      stripe_fee = Payment.stripe_fee(amount)
+      stripe_fee = Payment.stripe_fee(sent_amount)
       stripe_charge = Stripe::Charge.create(
-        amount: amount + stripe_fee,
+        amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
+        application_fee_amount: sent_amount,
+        description: Payment.payment_types[:stream],
         metadata: {
           payment_type: Payment.payment_types[:stream],
           sender: sender.username,
-          amount: amount,
         },
         capture: false
       )
@@ -420,9 +429,9 @@ class Payment < ApplicationRecord
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:stream],
         payment_token: stripe_charge['id'],
-        sent_amount: amount,
+        sent_amount: sent_amount,
         received_amount: 0,
-        fee: 0,
+        fee: sent_amount,
         tax: 0,
         status: Payment.statuses[:pending]
       )
@@ -496,7 +505,8 @@ class Payment < ApplicationRecord
           Stripe::Charge.capture(
             payment.payment_token,
             {
-              amount: payment.sent_amount + stripe_fee
+              amount: payment.sent_amount + stripe_fee,
+              application_fee_amount: payment.sent_amount,
             }
           )
         end

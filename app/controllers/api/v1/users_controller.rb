@@ -339,21 +339,21 @@ module Api::V1
 
       sender = current_user
       receiver = @user
-      payment = current_user.donate(
+      payment = Payment.donate(
+        sender: sender,
         receiver: receiver,
-        amount: amount,
-        payment_token: params[:payment_token],
-        description: description
+        description: description,
+        sent_amount: amount,
+        payment_token: params[:payment_token]
       )
       render_error payment, :unprocessable_entity and return unless payment.kind_of? Payment
-      # render json: payment, serializer: PaymentSerializer, scope: OpenStruct.new(current_user: current_user)
 
       message_body = "I just sent you #{number_to_currency(amount / 100.0)} for #{description}"
       Util::Message.send(sender, receiver, message_body, nil, nil, FCMService::push_notification_types[:user_donated])
 
       Activity.create(
-        sender_id: current_user.id,
-        receiver_id: @user.id,
+        sender_id: sender.id,
+        receiver_id: receiver.id,
         message: "#{current_user.display_name} sent you #{number_to_currency(amount / 100.0)} for #{description}",
         assoc_type: payment.class.name,
         assoc_id: payment.id,
@@ -363,9 +363,9 @@ module Api::V1
         status: Activity.statuses[:unread]
       )
       Activity.create(
-        sender_id: current_user.id,
-        receiver_id: current_user.id,
-        message: "sent #{@user.display_name} #{number_to_currency(amount / 100.0)} for #{description}",
+        sender_id: sender.id,
+        receiver_id: sender.id,
+        message: "sent #{receiver.display_name} #{number_to_currency(amount / 100.0)} for #{description}",
         assoc_type: payment.class.name,
         assoc_id: payment.id,
         module_type: Activity.module_types[:activity],
@@ -374,11 +374,17 @@ module Api::V1
         status: Activity.statuses[:read]
       )
 
-      render json: current_user,
-        serializer: UserSerializer,
-        scope: OpenStruct.new(current_user: current_user),
-        include_all: true,
-        include_social_info: false
+      # render json: payment,
+      #   serializer: PaymentSerializer,
+      #   scope: OpenStruct.new(current_user: current_user)
+
+      # render json: current_user,
+      #   serializer: UserSerializer,
+      #   scope: OpenStruct.new(current_user: current_user),
+      #   include_all: true,
+      #   include_social_info: false
+
+      render_success true
     end
 
 

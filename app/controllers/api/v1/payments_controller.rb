@@ -169,7 +169,7 @@ module Api::V1
       _payment = Payment.stream_deposit(
         sender: current_user,
         payment_token: params[:payment_token],
-        amount: params[:amount].to_i
+        sent_amount: params[:amount].to_i
       )
       render_error _payment, :unprocessable_entity and return unless _payment.instance_of? Payment
       # render json: current_user,
