@@ -467,7 +467,7 @@ class Payment < ApplicationRecord
           end
         end
 
-        sender.update_columns!(
+        sender.update_columns(
           stream_rolled_time: stream.valid_period - played_time,
           stream_rolled_cost: (STREAM_HOURLY_PRICE * stream.valid_period / 3600).to_i - amount
         )
@@ -479,14 +479,15 @@ class Payment < ApplicationRecord
             charge: payment.payment_token
           })
         else
-          Stripe::Charge.modify(
+          Stripe::Charge.update(
             payment.payment_token,
             metadata: {
               payment_type: Payment.payment_types[:stream],
               sender: sender.username,
               stream: stream.name,
+              stream_id: stream.id,
               played_time: played_time,
-              amount: payment.amount,
+              amount: amount,
             },
           )
 

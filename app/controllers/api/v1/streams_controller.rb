@@ -765,7 +765,6 @@ module Api::V1
     swagger_api :destroy do |api|
       summary 'destroy a stream'
       param :path, :id, :string, :required, 'stream id'
-
     end
     def destroy
       authorize @stream
