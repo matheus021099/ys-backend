@@ -166,18 +166,17 @@ module Api::V1
       param :form, :amount, :integer, :required
     end
     def deposit
-      stripe_charge_id = Payment.deposit(
-        user: current_user,
+      _payment = Payment.stream_deposit(
+        sender: current_user,
         payment_token: params[:payment_token],
         amount: params[:amount].to_i
       )
-      render_error('Failed in deposit', :unprocessable_entity) and return if stripe_charge_id === false
-
-      current_user.reload
-      render json: current_user,
-        serializer: UserSerializer,
-        scope: OpenStruct.new(current_user: current_user),
-        include_all: true
+      render_error _payment, :unprocessable_entity and return unless _payment.instance_of? Payment
+      # render json: current_user,
+      #   serializer: UserSerializer,
+      #   scope: OpenStruct.new(current_user: current_user),
+      #   include_all: true
+      render_success true
     end
 
 

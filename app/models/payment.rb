@@ -396,42 +396,110 @@ class Payment < ApplicationRecord
       item_shared_amount
     end
 
-    def stream(stream: nil)
-      return false
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      # precheck = Payment.precheck([sender], [receiver], payment_token)
-      # return precheck unless precheck === true
+    def stream_deposit(sender: nil, payment_token: nil, amount: 0, assoc_id: nil, assoc_type: nil)
+      receiver = User.public_relations_user
+      precheck = Payment.precheck([receiver], [sender], payment_token)
+      return precheck unless precheck === true
 
+      stripe_fee = Payment.stripe_fee(amount)
+      stripe_charge = Stripe::Charge.create(
+        amount: amount + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        metadata: {
+          payment_type: Payment.payment_types[:stream],
+          sender: sender.username,
+          amount: amount,
+        },
+        capture: false
+      )
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
+
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        payment_type: Payment.payment_types[:stream],
+        payment_token: stripe_charge['id'],
+        sent_amount: amount,
+        received_amount: 0,
+        fee: 0,
+        tax: 0,
+        status: Payment.statuses[:pending]
+      )
+    end
+
+    def stream(stream: nil)
+      precheck = Payment.precheck([stream], [stream.user], true)
+      return precheck unless precheck === true
+
+      sender = stream.user
       stopped_at = stream.stopped_at || Time.now
       played_time = (stopped_at - stream.started_at).to_i
       played_time = stream.valid_period if played_time > stream.valid_period
       description = "#{Util::Time.humanize(played_time)} from #{stream.started_at.strftime("%H:%M:%S %b %d, %Y")}"
-
       amount = (STREAM_HOURLY_PRICE * played_time / 3600).to_i
-      return 'Not enough period' unless amount > 0
+      paying_amount = amount
 
-      user = stream.user
+      payments = Payment.where(
+        payment_type: Payment.payment_types[:stream],
+        status: Payment.statuses[:pending]
+      ).order(created_at: :asc)
+
       ActiveRecord::Base.transaction do
-        payment = Payment.create!(
-          sender_id: user.id,
-          receiver_id: superadmin.id,
-          payment_type: Payment.payment_types[:stream],
-          description: description,
-          payment_token: nil,
-          sent_amount: amount,
-          received_amount: amount,
-          fee: 0,
-          tax: 0,
-          status: Payment.statuses[:done]
-        )
-        user.update_columns!(
-          balance_amount: user.balance_amount - amount,
+        payments.each do |payment|
+          if paying_amount > payment.sent_amount
+            payment.update_attributes!(
+              assoc_type: stream.class.name,
+              assoc_type: stream.id,
+              status: Payment.statuses[:done]
+            )
+            paying_amount -= payment.sent_amount
+          elsif paying_amount > 0
+            payment.update_attributes!(
+              sent_amount: paying_amount,
+              assoc_type: stream.class.name,
+              assoc_type: stream.id,
+              status: Payment.statuses[:done]
+            )
+            paying_amount = 0
+          else
+            payment.destroy
+          end
+        end
+
+        sender.update_columns!(
           stream_rolled_time: stream.valid_period - played_time,
           stream_rolled_cost: (STREAM_HOURLY_PRICE * stream.valid_period / 3600).to_i - amount
         )
-        superadmin.update_columns!(balance_amount: superadmin.balance_amount + amount)
       end
+
+      payments.each do |payment|
+        if payment.destroyed?
+          Stripe::Refund.create({
+            charge: payment.payment_token
+          })
+        else
+          Stripe::Charge.modify(
+            payment.payment_token,
+            metadata: {
+              payment_type: Payment.payment_types[:stream],
+              sender: sender.username,
+              stream: stream.name,
+              played_time: played_time,
+              amount: payment.amount,
+            },
+          )
+
+          Stripe::Charge.capture(
+            payment.payment_token,
+            {
+              amount: payment.sent_amount
+            }
+          )
+        end
+      end
+
+      true
     end
 
     def pay_view_stream(sender: nil, stream: nil, payment_token: nil)
@@ -545,39 +613,6 @@ class Payment < ApplicationRecord
       end
 
       _payment
-    end
-
-    def deposit(user: nil, payment_token: nil, amount: 0, assoc_id: nil, assoc_type: nil)
-      return false
-      return 'Not passed user' unless user.present?
-
-      fee = Payment.stripe_fee(amount)
-      stripe_charge = Stripe::Charge.create(
-        amount: amount + fee,
-        currency: 'usd',
-        source: payment_token,
-        metadata: {
-          user_id: user.id,
-          assoc_type: assoc_type,
-          assoc_id: assoc_id
-        }
-      )
-      return false if stripe_charge['id'].blank?
-
-      user.update_columns(balance_amount: user.balance_amount + amount)
-
-      Payment.create(
-        sender_id: user.id,
-        receiver_id: user.id,
-        payment_type: Payment.payment_types[:deposit],
-        payment_token: stripe_charge['id'],
-        sent_amount: 0,
-        received_amount: amount,
-        fee: fee,
-        tax: 0,
-        status: Payment.statuses[:done]
-      )
-      return stripe_charge['id']
     end
 
     def withdraw(user_id: nil, amount: 0)
