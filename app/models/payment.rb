@@ -441,6 +441,7 @@ class Payment < ApplicationRecord
       paying_amount = amount
 
       payments = Payment.where(
+        sender_id: sender.id,
         payment_type: Payment.payment_types[:stream],
         status: Payment.statuses[:pending]
       ).order(created_at: :asc)
@@ -491,10 +492,11 @@ class Payment < ApplicationRecord
             },
           )
 
+          stripe_fee = Payment.stripe_fee(payment_sent_amount)
           Stripe::Charge.capture(
             payment.payment_token,
             {
-              amount: payment.sent_amount
+              amount: payment.sent_amount + stripe_fee
             }
           )
         end
@@ -504,52 +506,46 @@ class Payment < ApplicationRecord
     end
 
     def pay_view_stream(sender: nil, stream: nil, payment_token: nil)
-      return false
-      superadmin = User.superadmin
-      return 'Not found superadmin' unless superadmin.present?
-      return 'Not passed sender' unless sender.present?
-      return 'Not passed stream' unless stream.present?
-      return 'Free stream' unless stream.view_price > 0
+      precheck = Payment.precheck([sender, stream], [stream.user], payment_token)
+      return 'Free live video' unless stream.view_price > 0
+
       receiver = stream.user
       sent_amount = stream.view_price
       fee = Payment.calculate_fee(sent_amount, 'pay_view_stream')
       received_amount = sent_amount - fee
 
-      payment = 'Failed'
-      ActiveRecord::Base.transaction do
-        sender.update_columns(balance_amount: sender.balance_amount - sent_amount)
-        receiver.update_columns(balance_amount: receiver.balance_amount + received_amount)
-        payment = Payment.create!(
-          sender_id: sender.id,
-          receiver_id: receiver.id,
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Charge.create({
+        amount: sent_amount + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        metadata: {
           payment_type: Payment.payment_types[:pay_view_stream],
-          payment_token: payment_token,
-          sent_amount: sent_amount,
-          received_amount: received_amount,
-          fee: 0,
-          tax: 0,
-          assoc_type: stream.class.name,
-          assoc_id: stream.id,
-          status: Payment.statuses[:done]
-        )
+          sender: sender.username,
+          stream: stream.name,
+          stream_id: stream.id,
+          amount: sent_amount
+        },
+        transfer_data: {
+          destination: receiver.payment_account_id,
+          amount: received_amount,
+        }
+      })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
 
-        superadmin.update_columns(balance_amount: superadmin.balance_amount + fee)
-        Payment.create!(
-          sender_id: sender.id,
-          receiver_id: superadmin.id,
-          payment_type: Payment.payment_types[:fee],
-          payment_token: payment_token,
-          sent_amount: 0,
-          received_amount: fee,
-          fee: 0,
-          tax: 0,
-          assoc_type: stream.class.name,
-          assoc_id: stream.id,
-          status: Payment.statuses[:done]
-        )
-      end
-
-      payment
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        payment_type: Payment.payment_types[:pay_view_stream],
+        payment_token: stripe_charge['id'],
+        sent_amount: sent_amount,
+        received_amount: received_amount,
+        fee: 0,
+        tax: 0,
+        assoc_type: stream.class.name,
+        assoc_id: stream.id,
+        status: Payment.statuses[:done]
+      )
     end
 
     def refund_without_fee(payment: nil, amount: 0, description: '')

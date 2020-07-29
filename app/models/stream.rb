@@ -241,20 +241,6 @@ class Stream < ApplicationRecord
     }
   end
 
-  def pay_view(viewer: nil, amount: 0, payment_token: nil)
-    sender = viewer
-    stripe_charge_id = nil
-    unless payment_token.blank?
-      stripe_charge_id = Payment.deposit(user: sender, payment_token: payment_token, amount: amount)
-      return 'Failed in stripe charge' if stripe_charge_id === false
-    else
-      stripe_charge_id = nil
-      return 'Not enough balance' if sender.balance_amount < amount
-    end
-
-    Payment.pay_view_stream(sender: sender, stream: self, payment_token: stripe_charge_id)
-  end
-
   def view(viewer)
     ### #TODO call can_view to consider the case when 2 guests are about to view at the same time
     # result = self.can_view

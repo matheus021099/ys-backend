@@ -898,9 +898,9 @@ module Api::V1
     end
     def pay_view
       skip_authorization
-      payment = @stream.pay_view(
-        viewer: current_user,
-        amount: params[:amount].to_i || 0,
+      payment = Payment.pay_view_stream(
+        sender: current_user,
+        stream: @stream,
         payment_token: params[:payment_token]
       )
       render_error payment, :unprocessable_entity and return unless payment.kind_of? Payment
