@@ -492,7 +492,7 @@ class Payment < ApplicationRecord
             },
           )
 
-          stripe_fee = Payment.stripe_fee(payment_sent_amount)
+          stripe_fee = Payment.stripe_fee(payment.sent_amount)
           Stripe::Charge.capture(
             payment.payment_token,
             {
