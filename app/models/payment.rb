@@ -199,7 +199,7 @@ class Payment < ApplicationRecord
 
     def deny_repost_request(attachment: nil)
       payment = Payment.find_by(attachment_id: attachment.id) rescue nil
-      return 'Pending payment not found' unless payment.present?
+      return true unless payment.present?
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
@@ -211,7 +211,7 @@ class Payment < ApplicationRecord
     end
 
     def accept_repost_request_on_free(attachment: nil)
-      Payment.deny_repost_request(attachment)
+      Payment.deny_repost_request(attachment: attachment)
     end
 
     def buy(sender: nil, receiver: nil, order: nil, sent_amount: 0, received_amount: 0, fee: 0, shipping_cost: 0, payment_token: nil, transfer_group: nil)

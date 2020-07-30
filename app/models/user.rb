@@ -333,22 +333,6 @@ class User < ApplicationRecord
     self.email
   end
 
-  # send love donation
-  def donate(receiver: nil, amount: 0, payment_token: nil, description: '')
-    sender = self
-    fee = Payment.calculate_fee(amount, 'donation', description.downcase)
-    received_amount = amount - fee
-    Payment.donate(
-      sender: sender,
-      receiver: receiver,
-      description: description,
-      sent_amount: amount,
-      received_amount: received_amount,
-      fee: fee,
-      payment_token: payment_token
-    )
-  end
-
   # user is current_user
   def recent_items(user, filter = 'any', count = 6)
     case filter

@@ -59,11 +59,7 @@ class Attachment < ApplicationRecord
   end
 
   def accept_on_free(sender: nil, receiver: nil)
-    result = Payment.accept_repost_request_on_free(
-      sender: sender,
-      receiver: receiver,
-      attachment: self
-    )
+    result = Payment.accept_repost_request_on_free(attachment: self)
 
     if result === true
       self.update_attributes(status: Attachment.statuses[:accepted])
