@@ -183,7 +183,9 @@ class Payment < ApplicationRecord
       # return 'Stripe operation failed' if stripe_transfer['id'].blank?
 
       stripe_charge = Stripe::Charge.capture(
-        payment.payment_token
+        payment.payment_token, {
+          stripe_account: receiver.payment_account_id
+        }
       )
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
@@ -199,6 +201,8 @@ class Payment < ApplicationRecord
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
+      }, {
+        stripe_account: receiver.payment_account_id
       })
       return 'Stripe operation failed' if stripe_refund['id'].blank?
 
