@@ -108,7 +108,7 @@ class ShopCart < ApplicationRecord
       amount: total_cost + stripe_fee,
       currency: 'usd',
       source: payment_token,
-      application_fee_amount: app_fee,
+      # application_fee_amount: app_fee,
       transfer_group: transfer_group,
       metadata: {
         payment_type: Payment.payment_types[:buy],

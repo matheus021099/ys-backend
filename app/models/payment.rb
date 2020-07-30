@@ -64,10 +64,8 @@ class Payment < ApplicationRecord
           sender: sender.username,
           amount: sent_amount
         },
-        transfer_data: {
-          destination: receiver.payment_account_id,
-          # amount: received_amount
-        }
+      }, {
+        stripe_account: receiver.payment_account_id
       })# rescue {}
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
@@ -95,7 +93,7 @@ class Payment < ApplicationRecord
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
-        application_fee_amount: sent_amount,
+        # application_fee_amount: sent_amount,
         description: Payment.payment_types[:repost_price_upgrade_cost],
         metadata: {
           payment_type: Payment.payment_types[:repost_price_upgrade_cost],
@@ -132,10 +130,6 @@ class Payment < ApplicationRecord
         source: payment_token,
         application_fee_amount: app_fee,
         description: Payment.payment_types[:repost],
-        transfer_data: {
-          destination: receiver.payment_account_id,
-          # amount: received_amount,
-        },
         metadata: {
           payment_type: Payment.payment_types[:repost],
           sender: sender.username,
@@ -147,6 +141,8 @@ class Payment < ApplicationRecord
           attachable_name: attachment.attachable.name
         },
         capture: false
+      }, {
+        stripe_account: receiver.payment_account_id
       })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
@@ -414,7 +410,7 @@ class Payment < ApplicationRecord
         amount: sent_amount + stripe_fee,
         currency: 'usd',
         source: payment_token,
-        application_fee_amount: sent_amount,
+        # application_fee_amount: sent_amount,
         description: Payment.payment_types[:stream],
         metadata: {
           payment_type: Payment.payment_types[:stream],
@@ -506,7 +502,7 @@ class Payment < ApplicationRecord
             payment.payment_token,
             {
               amount: payment.sent_amount + stripe_fee,
-              application_fee_amount: payment.sent_amount,
+              # application_fee_amount: payment.sent_amount,
             }
           )
         end
@@ -667,7 +663,7 @@ class Payment < ApplicationRecord
           currency: 'usd',
           # method: 'instant'
         }, {
-          :stripe_account => user.payment_account_id
+          stripe_account: user.payment_account_id
         })
       rescue => ex
       end
