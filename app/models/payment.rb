@@ -162,12 +162,14 @@ class Payment < ApplicationRecord
       )
     end
 
-    def accept_repost_request(sender: nil, receiver: nil, attachment: nil)
-      payment = Payment.find_by(attachment_id: attachment.id) rescue nil
+    def accept_repost_request(attachment: nil)
+      payment = Payment.includes(:sender, :receiver).find_by(attachment_id: attachment.id) rescue nil
       return 'Pending payment not found' unless payment.present?
 
+      sender = payment.sender
+      receiver = payment.receiver
       precheck = Payment.precheck([sender, attachment], [receiver], payment.payment_token)
-      return precheck if precheck === false
+      return precheck unless precheck === true
 
       # stripe_transfer = Stripe::Transfer.create(
       #   amount: payment.received_amount,
@@ -183,7 +185,7 @@ class Payment < ApplicationRecord
       # return 'Stripe operation failed' if stripe_transfer['id'].blank?
 
       stripe_charge = Stripe::Charge.capture(
-        payment.payment_token, {
+        payment.payment_token, {}, {
           stripe_account: receiver.payment_account_id
         }
       )
@@ -196,13 +198,13 @@ class Payment < ApplicationRecord
     end
 
     def deny_repost_request(attachment: nil)
-      payment = Payment.find_by(attachment_id: attachment.id) rescue nil
-      return true unless payment.present?
+      payment = Payment.includes(:sender, :receiver).find_by(attachment_id: attachment.id) rescue nil
+      return true unless payment.present? && payment.receiver.stripe_connected?
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
       }, {
-        stripe_account: receiver.payment_account_id
+        stripe_account: payment.receiver.payment_account_id
       })
       return 'Stripe operation failed' if stripe_refund['id'].blank?
 
@@ -219,39 +221,14 @@ class Payment < ApplicationRecord
       return precheck unless precheck === true
 
       # transfer_group = "order_#{order.external_id}"
-      # stripe_fee = Payment.stripe_fee(sent_amount)
-      # stripe_charge = Stripe::Charge.create({
-      #   amount: sent_amount + stripe_fee,
-      #   currency: 'usd',
-      #   source: payment_token,
-      #   transfer_group: transfer_group,
-      #   metadata: {
-      #     payment_type: Payment.payment_types[:buy],
-      #     sender: sender.username,
-      #     amount: sent_amount,
-      #     order: order.external_id
-      #   },
-      # })
-      # return 'Stripe operation failed' if stripe_charge['id'].blank?
-
-      shared_amount = 0
-      order.items.each do |item|
-        shared_amount += Payment.collaborate(
-          sender: sender,
-          receiver: receiver,
-          order: order,
-          item: item,
-          transfer_group: transfer_group,
-        )
-      end
-
-      # Create a Transfer to a connected account (later):
-      stripe_transfer = Stripe::Transfer.create({
-        amount: received_amount - shared_amount,
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Transfer.create({
+        amount: sent_amount,
         currency: 'usd',
-        source_transaction: payment_token,
+        source: payment_token,
         destination: receiver.payment_account_id,
         description: Payment.payment_types[:buy],
+        application_fee_amount: fee + stripe_fee,
         transfer_group: transfer_group,
         metadata: {
           payment_type: Payment.payment_types[:buy],
@@ -260,7 +237,34 @@ class Payment < ApplicationRecord
           order: order.external_id
         },
       })
-      return 'Stripe operation failed' if stripe_transfer['id'].blank?
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
+
+      # shared_amount = 0
+      # order.items.each do |item|
+      #   shared_amount += Payment.collaborate(
+      #     sender: sender,
+      #     receiver: receiver,
+      #     order: order,
+      #     item: item,
+      #     transfer_group: transfer_group,
+      #   )
+      # end
+      # # Create a Transfer to a connected account (later):
+      # stripe_transfer = Stripe::Transfer.create({
+      #   amount: received_amount - shared_amount,
+      #   currency: 'usd',
+      #   source_transaction: payment_token,
+      #   destination: receiver.payment_account_id,
+      #   description: Payment.payment_types[:buy],
+      #   transfer_group: transfer_group,
+      #   metadata: {
+      #     payment_type: Payment.payment_types[:buy],
+      #     sender: sender.username,
+      #     amount: sent_amount,
+      #     order: order.external_id
+      #   },
+      # })
+      # return 'Stripe operation failed' if stripe_transfer['id'].blank?
 
       Payment.create(
         sender_id: sender.id,
@@ -460,7 +464,7 @@ class Payment < ApplicationRecord
           if paying_amount > payment.sent_amount
             payment.update_attributes!(
               assoc_type: stream.class.name,
-              assoc_type: stream.id,
+              assoc_id: stream.id,
               status: Payment.statuses[:done]
             )
             paying_amount -= payment.sent_amount
@@ -468,7 +472,7 @@ class Payment < ApplicationRecord
             payment.update_attributes!(
               sent_amount: paying_amount,
               assoc_type: stream.class.name,
-              assoc_type: stream.id,
+              assoc_id: stream.id,
               status: Payment.statuses[:done]
             )
             paying_amount = 0

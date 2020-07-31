@@ -31,11 +31,7 @@ class Attachment < ApplicationRecord
   end
 
   def accept(sender: nil, receiver: nil)
-    result = Payment.accept_repost_request(
-      sender: sender,
-      receiver: receiver,
-      attachment: self
-    )
+    result = Payment.accept_repost_request(attachment: self)
 
     if result === true
       self.update_attributes(status: Attachment.statuses[:accepted])
