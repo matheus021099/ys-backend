@@ -370,7 +370,7 @@ class Payment < ApplicationRecord
 
             if collaborator_amount > 0
               stripe_transfer = Stripe::Transfer.create({
-                amount: recoup_current_amount,
+                amount: collaborator_amount,
                 currency: 'usd',
                 source_transaction: payment_token,
                 destination: user_product.user.payment_account_id,

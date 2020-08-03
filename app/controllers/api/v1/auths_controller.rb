@@ -171,7 +171,10 @@ module Api::V1
           sender = User.public_relations_user
           receiver = user
           if sender.present?
-            message_body = "Welcome to YouSound!<br><br>Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>Learn more by visiting the <a href='https://support.yousound.com' target='_blank'>Support page</a>"
+            message_body = "Welcome to YouSound!<br><br>" \
+              "Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>" \
+              "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
+              "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
             receipt = Util::Message.send(sender, receiver, message_body)
             conversation = receipt.conversation
 
