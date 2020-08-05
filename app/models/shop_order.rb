@@ -17,8 +17,8 @@ class ShopOrder < ApplicationRecord
   belongs_to :customer, class_name: 'User'
   belongs_to :merchant, class_name: 'User'
   # belongs_to :payment
-  has_many :payments, foreign_key: 'order_id'
-  has_many :items, foreign_key: 'order_id', class_name: 'ShopItem'
+  has_many :payments, foreign_key: 'order_id', dependent: :destroy
+  has_many :items, foreign_key: 'order_id', class_name: 'ShopItem', dependent: :destroy
   accepts_nested_attributes_for :items
 
   default_scope { order(created_at: :desc) }

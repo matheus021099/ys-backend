@@ -13,7 +13,8 @@ class PaymentSerializer < ActiveModel::Serializer
   end
 
   def assoc
-    return nil unless object.assoc
+    assoc = object.assoc rescue nil
+    return nil unless assoc.present?
 
     case object.payment_type
       when 'collaborate'

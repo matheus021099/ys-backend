@@ -305,7 +305,8 @@ class User < ApplicationRecord
       Attendee.where("user_id = ? OR referrer_id = ?", user_id, user_id).destroy_all
       Comment.where(user_id: user_id).destroy_all
       Device.where(user_id: user_id).destroy_all
-      Feed.where("(assoc_type = 'Album' AND assoc_id IN (?)) OR (assoc_type = 'ShopProduct' AND assoc_id IN (?))", album_ids, product_ids)
+      Feed.where("(assoc_type = 'Album' AND assoc_id IN (?)) OR (assoc_type = 'ShopProduct' AND assoc_id IN (?))", album_ids, product_ids).destroy_all
+      # Feed.where("consumer_id = ? OR publisher_id = ?", user_id, user_id).destroy_all
       Post.where(user_id: user_id).destroy_all
       Preset.where(user_id: user_id).destroy_all
       Stream.where(user_id: user_id).destroy_all
