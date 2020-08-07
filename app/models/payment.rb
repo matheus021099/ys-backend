@@ -298,6 +298,7 @@ class Payment < ApplicationRecord
         recoup_paid = true
         recoup_paid_amount = 0
         recoup_remain_amount = 0
+        recoup_current_amount = 0
         ### user_product.user is receiver, product merchant, but make sure he connect to stripe
         if user_product.user.stripe_connected? && creator_recoup_cost > 0
           ### user_share: 100 means paid for recoup_cost
@@ -374,11 +375,11 @@ class Payment < ApplicationRecord
                 currency: 'usd',
                 source_transaction: payment_token,
                 destination: user_product.user.payment_account_id,
+                description: Payment.payment_types[:collaborate],
                 transfer_group: transfer_group,
                 metadata: {
-                  payment_type: Payment.payment_types[:recoup],
+                  payment_type: Payment.payment_types[:collaborate],
                   product: product.name,
-                  recoup_remain_amount: recoup_remain_amount,
                   order: order.external_id,
                 }
               })

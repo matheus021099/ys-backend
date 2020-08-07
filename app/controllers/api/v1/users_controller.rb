@@ -501,7 +501,7 @@ module Api::V1
       page_track = params[:page_track] || ''
 
       # @user.albums.published.each do |album|
-      album = @user.albums.published.where(is_is_only_for_live_stream: false).last
+      album = @user.albums.published.where(is_only_for_live_stream: false).last
       Feed.insert(
         consumer_id: current_user.id,
         publisher_id: @user.id,
