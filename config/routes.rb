@@ -48,6 +48,12 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :me, only: [] do
+        collection do
+          get :stripe_email
+        end
+      end
+
       resources :users, only: [:index, :update, :destroy] do
         member do
           get :repost_price_proration
