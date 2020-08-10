@@ -281,9 +281,6 @@ class Album < ApplicationRecord
     end
   end
 
-  def request_repost
-  end
-
   def repost(reposter, page_track = nil)
     return 'You are trying to repost your album' if reposter.id == self.user_id
 

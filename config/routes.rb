@@ -51,6 +51,7 @@ Rails.application.routes.draw do
       resources :me, only: [] do
         collection do
           get :stripe_email
+          post :mutual_users
         end
       end
 

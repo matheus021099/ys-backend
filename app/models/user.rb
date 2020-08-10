@@ -773,10 +773,31 @@ class User < ApplicationRecord
         User
           .joins("RIGHT JOIN follows ON users.id = follows.followable_id")
           .where(
-            users: {status: User.statuses[:active]},
-            follows: {blocked: false, follower_id: self.id}
+            users: {
+              status: User.statuses[:active]
+            },
+            follows: {
+              blocked: false,
+              follower_id: self.id
+            }
           )
     end
+  end
+
+  def mutual_users(require_stripe_connected)
+    user_id = self.id
+
+    # followers
+    follower_ids = Follow.where("followable_type = 'User' AND followable_type = 'User' AND followable_id = ?", user_id).pluck(:follower_id)
+
+    # followings
+    following_ids = Follow.where("followable_type = 'User' AND followable_type = 'User' AND follower_id = ?", user_id).pluck(:followable_id)
+
+    # mutual users
+    mutual_user_ids = follower_ids & following_ids
+
+    users = User.where(id: mutual_user_ids)
+    users = users.where.not(payment_account_id: nil) if require_stripe_connected
   end
 
   def sample_following_query
