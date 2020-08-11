@@ -48,17 +48,31 @@ class Comment < ApplicationRecord
 
     message_body = "commented on #{commentable_type}"
     users.each do |user|
-      Activity.create(
-        sender_id: self.user_id,
-        receiver_id: user.id,
-        message: "commented on #{commentable_type}",
-        module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:comment],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:unread],
-        assoc_type: self.class.name,
-        assoc_id: self.id
-      )
+      if user.id == self.commentable.user_id
+        Activity.create(
+          sender_id: self.user_id,
+          receiver_id: user.id,
+          message: "commented on your #{commentable_type}",
+          module_type: Activity.module_types[:activity],
+          action_type: Activity.action_types[:comment],
+          alert_type: Activity.alert_types[:both],
+          status: Activity.statuses[:unread],
+          assoc_type: self.commentable_type,
+          assoc_id: self.commentable_id
+        )
+      else
+        Activity.create(
+          sender_id: self.user_id,
+          receiver_id: user.id,
+          message: "mentioned you in #{commentable_type}",
+          module_type: Activity.module_types[:activity],
+          action_type: Activity.action_types[:comment],
+          alert_type: Activity.alert_types[:both],
+          status: Activity.statuses[:unread],
+          assoc_type: self.class.name,
+          assoc_id: self.id
+        )
+      end
 
       PushNotificationWorker.perform_async(
         # user.devices.where(enabled: true).pluck(:token),
