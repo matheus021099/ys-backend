@@ -4,25 +4,23 @@ class ActivitySerializer < ActiveModel::Serializer
 
   attribute :sender
   # belongs_to :sender
-  belongs_to :receiver, if: :include_receiver?
+  # belongs_to :receiver, if: :include_receiver?
 
   #TODO - serialization_scope :view_contex in application_controller
-  def include_receiver?
-    # puts '+++++'
-    # puts scope
-    # puts scope.current_user
-    scope.current_user != object.receiver
-  end
+  # def include_receiver?
+  #   scope&.current_user&.id != object.receiver_id
+  # end
 
   def sender
     UserSerializer1.new(object.sender, scope: scope, include_recent: true, recent_count: 3)
   end
 
   def assoc
-    return nil unless object.assoc
+    return nil if object.assoc.blank?
+
     case object.assoc_type
       when 'Album'
-        AlbumSerializer.new(object.assoc, scope: scope)
+        AlbumSerializer1.new(scope: scope).serialize(object.assoc)
       when 'ShopProduct'
         ShopProductSerializer.new(object.assoc, scope: scope)
       when 'Comment'
