@@ -173,8 +173,17 @@ class User < ApplicationRecord
     exclude_album_ids = [0]
 
     # albums which are type of genres blocked
-    hidden_album_ids = Album.tagged_with(self.genre_list, :on => :genres, :any => true).pluck(:id)
-    exclude_album_ids.concat hidden_album_ids
+    # hidden_album_ids = Album.tagged_with(self.genre_list, :on => :genres, :any => true).pluck(:id)
+    if self.genre_list && self.genre_list.size > 0
+      query = <<-SQL
+        SELECT taggable_id
+        FROM taggings
+        LEFT JOIN tags ON tags.id = taggings.tag_id
+        WHERE taggings.context='genres' AND taggings.taggable_type='Album' AND tags.name IN ('#{self.genre_list.join("','")}')
+      SQL
+      hidden_album_ids = ActiveRecord::Base.connection.execute(query).values.flatten rescue []
+      exclude_album_ids.concat hidden_album_ids
+    end
 
     # albums which are uploaded by users who go under block list
     hidden_album_ids = Album.where(user_id: self.block_list).pluck(:id)
