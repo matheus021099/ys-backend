@@ -4,10 +4,6 @@ class UserSerializer1 < ActiveModel::Serializer
   attribute :is_following, if: :include_is_following?
   attribute :recent_items, if: :include_recent?
 
-  def stripe_connected
-    object.stripe_connected?
-  end
-
   def is_following
     if scope && scope.current_user
       return scope.current_user.following?(object)

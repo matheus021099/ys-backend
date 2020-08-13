@@ -199,7 +199,7 @@ class Payment < ApplicationRecord
 
     def deny_repost_request(attachment: nil)
       payment = Payment.includes(:sender, :receiver).find_by(attachment_id: attachment.id) rescue nil
-      return true unless payment.present? && payment.receiver.stripe_connected?
+      return true unless payment.present? && payment.receiver.stripe_connected
 
       stripe_refund = Stripe::Refund.create({
         charge: payment.payment_token,
@@ -300,7 +300,7 @@ class Payment < ApplicationRecord
         recoup_remain_amount = 0
         recoup_current_amount = 0
         ### user_product.user is receiver, product merchant, but make sure he connect to stripe
-        if user_product.user.stripe_connected? && creator_recoup_cost > 0
+        if user_product.user.stripe_connected && creator_recoup_cost > 0
           ### user_share: 100 means paid for recoup_cost
           recoup_paid_amount = Payment.where(
             payment_type: Payment.payment_types[:recoup],
@@ -365,7 +365,7 @@ class Payment < ApplicationRecord
           )
           user_products.each do |user_product|
             ### cannot share the amount because collaborate did not connect to stripe
-            next unless user_product.user.stripe_connected?
+            next unless user_product.user.stripe_connected
 
             collaborator_amount = (item_total_cost * user_product.user_share / 100).floor
 
@@ -630,7 +630,7 @@ class Payment < ApplicationRecord
       return false
       user = User.find_by(id: user_id)
       return 'Not found a user' unless user.present?
-      return 'Not connect to stripe yet' unless user.stripe_connected?
+      return 'Not connect to stripe yet' unless user.stripe_connected
       return 'Not enough balance' if user.available_amount < amount
 
       stripe_transfer = nil
@@ -730,7 +730,7 @@ class Payment < ApplicationRecord
 
       stripe_connected_users.each do |user|
         return "Receiver not found" if user.blank?
-        return "Receiver not connected to stripe" unless user.stripe_connected?
+        return "Receiver not connected to stripe" unless user.stripe_connected
       end
 
       return true

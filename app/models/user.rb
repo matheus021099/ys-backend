@@ -160,7 +160,7 @@ class User < ApplicationRecord
     3600 * self.balance_amount / Payment::STREAM_HOURLY_PRICE
   end
 
-  def stripe_connected?
+  def stripe_connected
     self.payment_account_id.present?
   end
 

@@ -101,10 +101,6 @@ class UserSerializer < ActiveModel::Serializer
     scope && scope.current_user == object
   end
 
-  def stripe_connected
-    object.stripe_connected?
-  end
-
   def followers
     return object.followers_count
   end
