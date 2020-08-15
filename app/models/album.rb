@@ -123,43 +123,34 @@ class Album < ApplicationRecord
     [ :name ]
   end
 
-  # def remove
-  #   ### will remove paid_repost
-  #   # paid_repost_exists = Attachment.where(
-  #   #   attachable_type: self.class.name,
-  #   #   attachable_id: self.id,
-  #   #   attachment_type: Attachment.attachment_types[:repost]
-  #   # ).size > 0
-  #   # self.update_attributes(status: Album.statuses[:deleted]) and return if paid_repost_exists
-  #   user_albums = self.user_albums.includes(:user).where(users_albums: {
-  #     user_type: UserAlbum.user_types[:collaborator],
-  #     status: UserAlbum.statuses[:accepted]
-  #   })
-  #   message_body = "#{self.user.display_name} has deleted an album <#{self.name}>"
-  #   user_albums.each do |ua|
-  #     collaborator = ua.user
-  #     Util::Message.send(user, collaborator, message_body)
-  #   end
-  #   Attachment.where(
-  #     attachable_type: self.class.name,
-  #     attachable_id: self.id,
-  #   ).each do |attachment|
-  #     attachment.message.destroy
-  #     attachment.delete
-  #   end
-  #   ### user_albums destroyed by has_many dependant option
-  #   # UserAlbum.where(album_id: self.id).delete_all
-  #   ### tracks destroyed by has_many dependant option
-  #   # tracks_count = self.album_tracks.size
-  #   # if tracks_count > 0
-  #   #   if self.album_type == Album.album_types[:album]
-  #   #     self.tracks.destroy_all
-  #   #   else
-  #   #     AlbumTrack.where(album_id: self.id).delete_all
-  #   #   end
-  #   # end
-  #   self.destroy
-  # end
+  def remove
+    album = self
+    ActiveRecord::Base.transaction do
+      album_id = album.id
+      track_ids = Track.where(album_id: album_id).pluck(:id)
+
+      Activity.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
+      Feed.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
+      Comment.where("commentable_type = 'Album' AND commentable_id = ?", album_id).destroy_all
+      Stream.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
+      Post.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
+
+
+      UserAlbum.where(album_id: album_id).destroy_all
+      AlbumTrack.where(track_id: track_ids).destroy_all
+      Track.where(id: track_ids).destroy_all
+      Sampling.where("sampling_album_id = ? OR sample_album_id = ?", album_id, album_id).destroy_all
+
+      attachment_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:id)
+      notification_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:mailboxer_notification_id)
+      Mailboxer::Notification.where(id: notification_ids).destroy_all
+      Attachment.where(id: attachment_ids).destroy_all
+
+      album.destroy
+    end
+
+    true
+  end
 
   def genre_objects
     # Genre.where(name: self.genre_list)
