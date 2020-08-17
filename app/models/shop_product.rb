@@ -146,14 +146,30 @@ class ShopProduct < ApplicationRecord
       assoc_id: self.id
     ).delete_all
 
+    Stream.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
+    Post.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
     user_products = self.user_products.includes(:user).where(users_products: {
       user_type: UserProduct.user_types[:collaborator],
       status: UserProduct.statuses[:accepted]
     })
-    message_body = "#{self.merchant.display_name} has deleted a product <#{self.name}>"
+    message_body = "#{self.merchant.display_name} has deleted a product: <b>#{self.name}</b>"
     user_products.each do |up|
       collaborator = up.user
-      Util::Message.send(merchant, collaborator, message_body)
+      Util::Message.send(self.merchant, collaborator, message_body)
     end
 
     product_in_used = self.items.ordered.size > 0

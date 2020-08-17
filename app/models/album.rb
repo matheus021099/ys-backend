@@ -91,6 +91,27 @@ class Album < ApplicationRecord
       assoc_id: self.id
     ).delete_all
 
+    Comment.where(
+      commentable_type: self.class.name,
+      commentable_id: self.id
+    ).delete_all
+
+    Stream.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
+    Post.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
     # remove samplings
     Sampling.where(
       'sample_album_id = ? OR sampling_album_id = ?',
@@ -109,7 +130,7 @@ class Album < ApplicationRecord
       user_type: UserAlbum.user_types[:collaborator],
       status: UserAlbum.statuses[:accepted]
     })
-    message_body = "#{self.user.display_name} has deleted an album <#{self.name}>"
+    message_body = "#{self.user.display_name} has deleted an album: <b>#{self.name}</b>"
     user_albums.each do |ua|
       collaborator = ua.user
       Util::Message.send(user, collaborator, message_body)
@@ -123,34 +144,37 @@ class Album < ApplicationRecord
     [ :name ]
   end
 
-  def remove
-    album = self
-    ActiveRecord::Base.transaction do
-      album_id = album.id
-      track_ids = Track.where(album_id: album_id).pluck(:id)
-
-      Activity.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
-      Feed.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
-      Comment.where("commentable_type = 'Album' AND commentable_id = ?", album_id).destroy_all
-      Stream.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
-      Post.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
-
-
-      UserAlbum.where(album_id: album_id).destroy_all
-      AlbumTrack.where(track_id: track_ids).destroy_all
-      Track.where(id: track_ids).destroy_all
-      Sampling.where("sampling_album_id = ? OR sample_album_id = ?", album_id, album_id).destroy_all
-
-      attachment_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:id)
-      notification_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:mailboxer_notification_id)
-      Mailboxer::Notification.where(id: notification_ids).destroy_all
-      Attachment.where(id: attachment_ids).destroy_all
-
-      album.destroy
-    end
-
-    true
-  end
+  # def remove
+  #   album = self
+  #   ActiveRecord::Base.transaction do
+  #     user_albums = album.user_albums.includes(:user).where(users_albums: {
+  #       user_type: UserAlbum.user_types[:collaborator],
+  #       status: UserAlbum.statuses[:accepted]
+  #     })
+  #     message_body = "#{album.user.display_name} has deleted an album: <b>#{album.name}</b>"
+  #     user_albums.each do |ua|
+  #       collaborator = ua.user
+  #       Util::Message.send(album.user, collaborator, message_body)
+  #     end
+  #     album_id = album.id
+  #     track_ids = Track.where(album_id: album_id).pluck(:id)
+  #     Activity.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
+  #     Feed.where("assoc_type = 'Album' AND assoc_id = ?", album_id).destroy_all
+  #     Comment.where("commentable_type = 'Album' AND commentable_id = ?", album_id).destroy_all
+  #     Stream.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
+  #     Post.where("assoc_type = 'Album' AND assoc_id = ?", album_id).update_all(assoc_type: nil, assoc_id: nil)
+  #     # UserAlbum.where(album_id: album_id).destroy_all
+  #     AlbumTrack.where(track_id: track_ids).destroy_all
+  #     Track.where(id: track_ids).destroy_all
+  #     Sampling.where("sampling_album_id = ? OR sample_album_id = ?", album_id, album_id).destroy_all
+  #     attachment_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:id)
+  #     notification_ids = Attachment.where("attachable_type = 'Album' AND attachable_id = ?", album_id).pluck(:mailboxer_notification_id)
+  #     Mailboxer::Notification.where(id: notification_ids).destroy_all
+  #     Attachment.where(id: attachment_ids).destroy_all
+  #     album.destroy
+  #   end
+  #   true
+  # end
 
   def genre_objects
     # Genre.where(name: self.genre_list)
@@ -418,7 +442,7 @@ class Album < ApplicationRecord
       recommended: true
     )
 
-    message_body = "YouSound has recommended your album(<b>#{self.name}</b>)"
+    message_body = "YouSound has recommended your album: <b>#{self.name}</b>"
     Util::Message.send(actor, self.user, message_body)
   end
 

@@ -510,7 +510,8 @@ module Api::V1
     end
     def destroy
       authorize @album
-      @album.remove
+      @album.destroy
+      # @album.remove
       render_success(true)
     end
 
