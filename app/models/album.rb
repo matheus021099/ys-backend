@@ -128,7 +128,7 @@ class Album < ApplicationRecord
     # notify collaborators album has been deleted
     user_albums = self.user_albums.includes(:user).where(users_albums: {
       user_type: UserAlbum.user_types[:collaborator],
-      status: UserAlbum.statuses[:accepted]
+      # status: UserAlbum.statuses[:accepted]
     })
     message_body = "#{self.user.display_name} has deleted an album: <b>#{self.name}</b>"
     user_albums.each do |ua|

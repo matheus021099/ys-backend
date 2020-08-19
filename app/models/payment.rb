@@ -546,6 +546,7 @@ class Payment < ApplicationRecord
       }, {
         stripe_account: receiver.payment_account_id
       })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       Payment.create(
         sender_id: sender.id,

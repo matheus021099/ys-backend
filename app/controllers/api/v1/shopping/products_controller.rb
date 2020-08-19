@@ -482,7 +482,7 @@ module Api::V1::Shopping
         attachable: @product
       )
       if attachment.present?
-        message_body = "#{current_user.display_name} accepted this collaboration"
+        message_body = "#{current_user.display_name} accepted this collaboration.<br>Use the web/desktop to release this product."
         attachment.update_attributes(status: Attachment.statuses[:accepted])
         attachment.message.update_attributes(body: message_body)
         attachment.message.mark_as_unread(@product.merchant)

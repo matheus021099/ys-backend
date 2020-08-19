@@ -164,7 +164,7 @@ class ShopProduct < ApplicationRecord
 
     user_products = self.user_products.includes(:user).where(users_products: {
       user_type: UserProduct.user_types[:collaborator],
-      status: UserProduct.statuses[:accepted]
+      # status: UserProduct.statuses[:accepted]
     })
     message_body = "#{self.merchant.display_name} has deleted a product: <b>#{self.name}</b>"
     user_products.each do |up|
