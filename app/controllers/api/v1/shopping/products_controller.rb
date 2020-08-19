@@ -322,7 +322,7 @@ module Api::V1::Shopping
       creator_recoup_cost = (params[:shop_product][:creator_recoup_cost] || 0).to_i
       creator_recoup_cost = 0 if creator_recoup_cost < 0
       render_error 'Total share shoud be less than 100', :unprocessable_entity and return if creator_share <= 0
-      render_error 'Recoup cost should never be more than total cost of items', :unprocessable_entity and return if @product.pending? && creator_recoup_cost > @product.variants.inject(0){|s, v| s += v.price * v.quantity}
+      render_error 'Recoup cost should never be more than total cost of items', :unprocessable_entity and return if @product.pending? && @product.digital_content.blank? && creator_recoup_cost > @product.variants.inject(0){|s, v| s += v.price * (v.quantity || 1) }
       # puts "\n\n"
       # p @product.collaborators_count
       # p total_collaborators_share
