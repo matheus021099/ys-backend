@@ -93,10 +93,17 @@ class Album < ApplicationRecord
     ).delete_all
 
     # remove attachment for messages
-    Attachment.where(
+    attachment_ids = Attachment.where(
       attachable_type: self.class.name,
       attachable_id: self.id,
-    ).delete_all
+    ).pluck(:id)
+
+    Payment.where(attachment_id: attachment_ids).delete_all
+
+    Attachment.where(id: attachment_ids).each do |attachment|
+      attachment.message.destroy
+      attachment.delete
+    end
 
     # notify collaborators album has been deleted
     user_albums = self.user_albums.includes(:user).where(users_albums: {
