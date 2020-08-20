@@ -43,33 +43,6 @@ class Album < ApplicationRecord
   #   errors[:cover] << "should be less than 1MB" if cover.large.size > 1.megabytes
   # end
 
-  belongs_to :user
-  has_many :user_albums, dependent: :destroy
-  # has_many :labels, -> { where user_albums: { user_type: UserAlbum.user_types[:label], status: UserAlbum.statuses[:accepted] } }, through: :user_albums
-  # has_many :collaborators, -> { where user_albums: { user_type: UserAlbum.user_types[:collaborator] } }, through: :user_albums
-  has_many :album_tracks, -> { order(position: :asc) }
-  has_many :tracks, through: :album_tracks, dependent: :destroy#, after_remove: :async_generate_zip, after_add: :async_generate_zip
-  # has_many :album_genres
-  # has_many :genres, through: :album_genres
-  has_many :comments, as: :commentable, dependent: :destroy
-  has_many :activities, as: :assoc, dependent: :destroy
-  has_many :feeds, as: :assoc, dependent: :destroy
-  has_many :samplings, foreign_key: 'sampling_album_id', class_name: 'Sampling'
-
-  accepts_nested_attributes_for :album_tracks#, :album_genres
-
-  acts_as_taggable_on :genres
-  acts_as_taggable_on :products
-
-  scope :most_recent, -> {order('created_at desc')}
-  scope :most_downloaded, -> {order('downloaded desc')}
-  # scope :most_downloaded, -> { order('downloaded').joins("LEFT OUTER JOIN feeds ON feeds.assoc_type='Album' AND album.id = feeds.assoc_id AND feeds.feed_type = 'download'").group('feeds.id') }
-
-  scope :published, -> { where status: Album.statuses[:published] }
-  scope :playlists, -> { where album_type: Album.album_types[:playlist] }
-  scope :not_playlists, -> { where.not album_type: Album.album_types[:playlist] }
-
-
   # default
   after_initialize :set_default_values
   def set_default_values
@@ -143,6 +116,32 @@ class Album < ApplicationRecord
   def slug_candidates
     [ :name ]
   end
+
+  belongs_to :user
+  has_many :user_albums, dependent: :destroy
+  # has_many :labels, -> { where user_albums: { user_type: UserAlbum.user_types[:label], status: UserAlbum.statuses[:accepted] } }, through: :user_albums
+  # has_many :collaborators, -> { where user_albums: { user_type: UserAlbum.user_types[:collaborator] } }, through: :user_albums
+  has_many :album_tracks, -> { order(position: :asc) }
+  has_many :tracks, through: :album_tracks, dependent: :destroy#, after_remove: :async_generate_zip, after_add: :async_generate_zip
+  # has_many :album_genres
+  # has_many :genres, through: :album_genres
+  has_many :comments, as: :commentable, dependent: :destroy
+  has_many :activities, as: :assoc, dependent: :destroy
+  has_many :feeds, as: :assoc, dependent: :destroy
+  has_many :samplings, foreign_key: 'sampling_album_id', class_name: 'Sampling'
+
+  accepts_nested_attributes_for :album_tracks#, :album_genres
+
+  acts_as_taggable_on :genres
+  acts_as_taggable_on :products
+
+  scope :most_recent, -> {order('created_at desc')}
+  scope :most_downloaded, -> {order('downloaded desc')}
+  # scope :most_downloaded, -> { order('downloaded').joins("LEFT OUTER JOIN feeds ON feeds.assoc_type='Album' AND album.id = feeds.assoc_id AND feeds.feed_type = 'download'").group('feeds.id') }
+
+  scope :published, -> { where status: Album.statuses[:published] }
+  scope :playlists, -> { where album_type: Album.album_types[:playlist] }
+  scope :not_playlists, -> { where.not album_type: Album.album_types[:playlist] }
 
   # def remove
   #   album = self

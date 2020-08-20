@@ -195,7 +195,7 @@ class ShopCart < ApplicationRecord
         # order.merchant = merchant
         order.save!
 
-        ### total_cost == subtotal + shipping + tax_cost
+        total_cost = subtotal + shipping + tax_cost
         payment = Payment.buy(
           sender: customer,
           receiver: merchant,

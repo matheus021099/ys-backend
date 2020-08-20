@@ -248,28 +248,30 @@ class Payment < ApplicationRecord
           payment_token: payment_token
         )
       end
-      # Create a Transfer to a connected account (later):
-      stripe_transfer = Stripe::Transfer.create({
-        amount: received_amount - shared_amount,
-        currency: 'usd',
-        source_transaction: payment_token,
-        destination: receiver.payment_account_id,
-        description: Payment.payment_types[:buy],
-        transfer_group: transfer_group,
-        metadata: {
-          payment_type: Payment.payment_types[:buy],
-          sender: sender.username,
-          amount: sent_amount,
-          order: order.external_id
-        },
-      })
-      return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+      if shared_amount < received_amount
+        stripe_transfer = Stripe::Transfer.create({
+          amount: received_amount - shared_amount,
+          currency: 'usd',
+          source_transaction: payment_token,
+          destination: receiver.payment_account_id,
+          description: Payment.payment_types[:buy],
+          transfer_group: transfer_group,
+          metadata: {
+            payment_type: Payment.payment_types[:buy],
+            sender: sender.username,
+            amount: sent_amount,
+            order: order.external_id
+          },
+        })
+        return 'Stripe operation failed' if stripe_transfer['id'].blank?
+      end
 
       Payment.create(
         sender_id: sender.id,
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:buy],
-        payment_token: stripe_transfer['id'],
+        payment_token: payment_token,
         sent_amount: sent_amount,
         received_amount: received_amount,
         # received_amount: received_amount - shared_amount,
