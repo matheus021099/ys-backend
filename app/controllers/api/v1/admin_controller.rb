@@ -178,27 +178,30 @@ module Api::V1
       user.apply_role user.request_role
       user.reload
 
-      message_body = ''
-      case user.request_role
-        when 'brand'
-          message_body = "Welcome to YouSound!<br><br>" \
-            "Brands are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
-            "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
-            "As a Brand you can sell your products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
-            "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
-        when 'label'
-          message_body = "Welcome to YouSound!<br><br>" \
-            "Labels are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
-            "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
-            "As a Label you can request artists and their albums to be apart of your roster, sell products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
-            "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
-        else
-          message_body = "Welcome to YouSound!<br><br>" \
-            "Artists are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
-            "You have the ability to help Artists, Brands, and Labels reach more users. You can also earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
-            "As an artist you can upload albums, sell products, collaborate on albums with other artists, collaborate on products with other artists, brands, and labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
-            "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
-      end
+      message_body = "Hi, #{user.username} your account has been verified.<br><br>" \
+        'To accept payments you must connect to Stripe.com by logging in and visiting Settings > Bank Details on the web/desktop.<br>' \
+        'If you are already logged in, please sign out then login to update your account status.<br><br>' \
+        'Regards, YouSound Team'
+      # case user.request_role
+      #   when 'brand'
+      #     message_body = "Welcome to YouSound!<br><br>" \
+      #       "Brands are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
+      #       "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
+      #       "As a Brand you can sell your products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
+      #       "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
+      #   when 'label'
+      #     message_body = "Welcome to YouSound!<br><br>" \
+      #       "Labels are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
+      #       "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
+      #       "As a Label you can request artists and their albums to be apart of your roster, sell products, collaborate on products with other Artists, Brands, and Labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
+      #       "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
+      #   else
+      #     message_body = "Welcome to YouSound!<br><br>" \
+      #       "Artists are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can repost products, and repost your favorite live video broadcasts.<br><br>" \
+      #       "You have the ability to help Artists, Brands, and Labels reach more users. You can also earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
+      #       "As an artist you can upload albums, sell products, collaborate on albums with other artists, collaborate on products with other artists, brands, and labels, and run live video broadcasts. You can also invite any pending account waiting to be verified and expedite their verification process.<br><br>" \
+      #       "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
+      # end
 
       sender = User.public_relations_user
       receiver = user
