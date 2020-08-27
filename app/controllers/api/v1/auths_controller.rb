@@ -174,7 +174,7 @@ module Api::V1
             message_body = "Welcome to YouSound!<br><br>" \
               "Listeners are valuable members of the YouSound community. All music is free to stream and download, and when you download an album it’s automatically reposted to your followers. You can also repost products, and repost your favorite live video broadcasts.<br><br>" \
               "You can earn revenue by reposting content from Verified Users via Repost Requests.<br><br>" \
-              "To accept payments, connect to Stripe: <a href='https://yousound.com/settings#bank-details'>Settings > Bank Details</a>"
+              "To accept payments you must connect to Stripe.com by logging in and visiting Settings > Bank Details on the web/desktop."
             receipt = Util::Message.send(sender, receiver, message_body)
             conversation = receipt.conversation
 
