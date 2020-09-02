@@ -52,6 +52,8 @@ Rails.application.routes.draw do
         collection do
           get :stripe_email
           post :mutual_users
+          post :connect_stripe
+          get :disconnect_stripe
         end
       end
 
@@ -60,8 +62,6 @@ Rails.application.routes.draw do
           get :repost_price_proration
           post :set_repost_price
           post :change_password
-          post :connect_stripe
-          get :disconnect_stripe
           post :donate
           get :info
           get :invite

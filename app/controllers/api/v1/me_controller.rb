@@ -42,5 +42,65 @@ module Api::V1
         pagination: pagination(users)
       )
     end
+
+
+    setup_authorization_header(:connect_stripe)
+    swagger_api :connect_stripe do |api|
+      summary 'connect stripe'
+      param :form, :code, :string, :required, 'code'
+      # param :form, 'user[payment_provider]', :string, :required
+      # param :form, 'user[payment_account_id]', :string, :required
+      # param :form, 'user[payment_account_type]', :string, :required, 'standalone, etc'
+      # param :form, 'user[payment_publishable_key]', :string, :required
+      # param :form, 'user[payment_access_code]', :string, :required
+    end
+    def connect_stripe
+      uri = URI.parse("https://connect.stripe.com/oauth/token")
+      response = Net::HTTP.post_form(uri, {
+        "client_secret": ENV['STRIPE_SECRET_KEY'],
+        "code": params[:code],
+        "grant_type": "authorization_code"
+      })
+      result = JSON.parse(response.body)
+
+      render_error result['error_description'], :unprocessable_entity and return if result['error'].present?
+
+      current_user.update_attributes(
+        payment_provider: 'stripe',
+        payment_account_id: result['stripe_user_id'],
+        payment_account_type: 'standalone',
+        payment_publishable_key: result['stripe_publishable_key'],
+        payment_access_code: result['access_token']
+      )
+
+      render json: current_user,
+        serializer: UserSerializer,
+        scope: OpenStruct.new(current_user: current_user),
+        include_all: true,
+        include_social_info: false
+    end
+
+
+    setup_authorization_header(:disconnect_stripe)
+    swagger_api :disconnect_stripe do |api|
+      summary 'disconnect stripe'
+    end
+    def disconnect_stripe
+      current_user.update_attributes(
+        payment_provider: nil,
+        payment_account_id: nil,
+        payment_account_type: nil,
+        payment_publishable_key: nil,
+        payment_access_code: nil
+      )
+
+      current_user.products.destroy_all
+
+      render json: current_user,
+        serializer: UserSerializer,
+        scope: OpenStruct.new(current_user: current_user),
+        include_all: true,
+        include_social_info: false
+    end
   end
 end

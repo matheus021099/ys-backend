@@ -245,62 +245,7 @@ module Api::V1
       render_error('Not matched password', :unprocessable_entity) and return unless params[:new_password] === params[:confirmed_password]
 
       @user.update_attributes(password: params[:new_password])
-      render_success(true)
-    end
-
-
-    setup_authorization_header(:connect_stripe)
-    swagger_api :connect_stripe do |api|
-      summary 'connect stripe'
-      param :path, :id, :string, :required, 'user id or slug'
-      param :form, :code, :string, :required, 'code'
-      # param :form, 'user[payment_provider]', :string, :required
-      # param :form, 'user[payment_account_id]', :string, :required
-      # param :form, 'user[payment_account_type]', :string, :required, 'standalone, etc'
-      # param :form, 'user[payment_publishable_key]', :string, :required
-      # param :form, 'user[payment_access_code]', :string, :required
-    end
-    def connect_stripe
-      authorize @user
-
-      uri = URI.parse("https://connect.stripe.com/oauth/token")
-      response = Net::HTTP.post_form(uri, {
-        "client_secret": ENV['STRIPE_SECRET_KEY'],
-        "code": params[:code],
-        "grant_type": "authorization_code"
-      })
-      result = JSON.parse(response.body)
-
-      render_error result['error_description'], :unprocessable_entity and return if result['error'].present?
-
-      @user.update_attributes(
-        payment_provider: 'stripe',
-        payment_account_id: result['stripe_user_id'],
-        payment_account_type: 'standalone',
-        payment_publishable_key: result['stripe_publishable_key'],
-        payment_access_code: result['access_token']
-      )
-
-      # render json: response.body
-      render json: @user, serializer: UserSerializer, scope: OpenStruct.new(current_user: current_user), include_all: true, include_social_info: false
-    end
-
-
-    setup_authorization_header(:disconnect_stripe)
-    swagger_api :disconnect_stripe do |api|
-      summary 'disconnect stripe'
-      param :path, :id, :string, :required, 'user id or slug'
-    end
-    def disconnect_stripe
-      authorize @user
-      @user.update_attributes(
-        payment_provider: nil,
-        payment_account_id: nil,
-        payment_account_type: nil,
-        payment_publishable_key: nil,
-        payment_access_code: nil
-      )
-      render json: @user, serializer: UserSerializer, scope: OpenStruct.new(current_user: current_user), include_all: true, include_social_info: false
+      render_success true
     end
 
 
@@ -566,7 +511,7 @@ module Api::V1
         ).as_json
       )
 
-      render_success(true)
+      render_success true
     end
 
 
@@ -605,7 +550,7 @@ module Api::V1
       #   status: Activity.statuses[:unread],
       # )
 
-      render_success(true)
+      render_success true
     end
 
 
@@ -685,7 +630,7 @@ module Api::V1
         @user.genre_list = Genre.where(id: genre_ids).pluck(:id)
         @user.save
       end
-      render_success(true)
+      render_success true
     end
 
 
@@ -929,7 +874,7 @@ module Api::V1
 
       @user.status = User.statuses[params[:status]]
       @user.save
-      render_success(true)
+      render_success true
     end
 
 

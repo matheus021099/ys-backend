@@ -41,6 +41,62 @@ class ShopProduct < ApplicationRecord
 
   validates :name, presence: true, on: :create
 
+  before_destroy :do_before_destroy
+  def do_before_destroy
+    attachment_ids = Attachment.where(
+      attachable_type: self.class.name,
+      attachable_id: self.id,
+    ).pluck(:id)
+
+    Payment.where(attachment_id: attachment_ids).delete_all
+
+    Attachment.where(id: attachment_ids).each do |attachment|
+      attachment.message.destroy
+      attachment.delete
+    end
+
+    Activity.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).delete_all
+
+    Feed.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).delete_all
+
+    Comment.where(
+      commentable_type: self.class.name,
+      commentable_id: self.id
+    ).delete_all
+
+    Stream.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
+    Post.where(
+      assoc_type: self.class.name,
+      assoc_id: self.id
+    ).update_all(
+      assoc_type: nil,
+      assoc_id: nil
+    )
+
+    user_products = self.user_products.includes(:user).where(users_products: {
+      user_type: UserProduct.user_types[:collaborator],
+      # status: UserProduct.statuses[:accepted]
+    })
+    message_body = "#{self.merchant.display_name} has deleted a product: <b>#{self.name}</b>"
+    user_products.each do |up|
+      collaborator = up.user
+      Util::Message.send(self.merchant, collaborator, message_body)
+    end
+  end
+
   belongs_to :merchant, foreign_key: 'merchant_id', class_name: 'User'
   belongs_to :category, foreign_key: 'category_id', class_name: 'ShopCategory'
   has_many :user_products, foreign_key: 'product_id', dependent: :destroy
@@ -119,74 +175,63 @@ class ShopProduct < ApplicationRecord
     tax
   end
 
-  def remove
-    # paid_repost_exists = Attachment.where(
-    #   attachable_type: 'ShopProduct',
-    #   attachable_id: self.id,
-    #   attachment_type: Attachment.attachment_types[:repost]
-    # ).size > 0
-    # self.update_attributes(status: ShopProduct.statuses[:deleted]) and return if paid_repost_exists
-
-    ActiveRecord::Base.transaction do
-      attachment_ids = Attachment.where(
-        attachable_type: self.class.name,
-        attachable_id: self.id,
-      ).pluck(:id)
-
-      Payment.where(attachment_id: attachment_ids).delete_all
-
-      Attachment.where(id: attachment_ids).each do |attachment|
-        attachment.message.destroy
-        attachment.delete
-      end
-
-      Activity.where(
-        assoc_type: self.class.name,
-        assoc_id: self.id
-      ).delete_all
-
-      Feed.where(
-        assoc_type: self.class.name,
-        assoc_id: self.id
-      ).delete_all
-
-      Comment.where(
-        commentable_type: self.class.name,
-        commentable_id: self.id
-      ).delete_all
-
-      Stream.where(
-        assoc_type: self.class.name,
-        assoc_id: self.id
-      ).update_all(
-        assoc_type: nil,
-        assoc_id: nil
-      )
-
-      Post.where(
-        assoc_type: self.class.name,
-        assoc_id: self.id
-      ).update_all(
-        assoc_type: nil,
-        assoc_id: nil
-      )
-
-      user_products = self.user_products.includes(:user).where(users_products: {
-        user_type: UserProduct.user_types[:collaborator],
-        # status: UserProduct.statuses[:accepted]
-      })
-      message_body = "#{self.merchant.display_name} has deleted a product: <b>#{self.name}</b>"
-      user_products.each do |up|
-        collaborator = up.user
-        Util::Message.send(self.merchant, collaborator, message_body)
-      end
-
-      # product_in_used = self.items.ordered.size > 0
-      # self.update_attributes(status: ShopProduct.statuses[:deleted]) and return if product_in_used
-
-      self.destroy
-    end
-  end
+  # def remove
+  #   # paid_repost_exists = Attachment.where(
+  #   #   attachable_type: 'ShopProduct',
+  #   #   attachable_id: self.id,
+  #   #   attachment_type: Attachment.attachment_types[:repost]
+  #   # ).size > 0
+  #   # self.update_attributes(status: ShopProduct.statuses[:deleted]) and return if paid_repost_exists
+  #   ActiveRecord::Base.transaction do
+  #     attachment_ids = Attachment.where(
+  #       attachable_type: self.class.name,
+  #       attachable_id: self.id,
+  #     ).pluck(:id)
+  #     Payment.where(attachment_id: attachment_ids).delete_all
+  #     Attachment.where(id: attachment_ids).each do |attachment|
+  #       attachment.message.destroy
+  #       attachment.delete
+  #     end
+  #     Activity.where(
+  #       assoc_type: self.class.name,
+  #       assoc_id: self.id
+  #     ).delete_all
+  #     Feed.where(
+  #       assoc_type: self.class.name,
+  #       assoc_id: self.id
+  #     ).delete_all
+  #     Comment.where(
+  #       commentable_type: self.class.name,
+  #       commentable_id: self.id
+  #     ).delete_all
+  #     Stream.where(
+  #       assoc_type: self.class.name,
+  #       assoc_id: self.id
+  #     ).update_all(
+  #       assoc_type: nil,
+  #       assoc_id: nil
+  #     )
+  #     Post.where(
+  #       assoc_type: self.class.name,
+  #       assoc_id: self.id
+  #     ).update_all(
+  #       assoc_type: nil,
+  #       assoc_id: nil
+  #     )
+  #     user_products = self.user_products.includes(:user).where(users_products: {
+  #       user_type: UserProduct.user_types[:collaborator],
+  #       # status: UserProduct.statuses[:accepted]
+  #     })
+  #     message_body = "#{self.merchant.display_name} has deleted a product: <b>#{self.name}</b>"
+  #     user_products.each do |up|
+  #       collaborator = up.user
+  #       Util::Message.send(self.merchant, collaborator, message_body)
+  #     end
+  #     # product_in_used = self.items.ordered.size > 0
+  #     # self.update_attributes(status: ShopProduct.statuses[:deleted]) and return if product_in_used
+  #     self.destroy
+  #   end
+  # end
 
   def has_pending_collaborators?
     UserProduct.where(

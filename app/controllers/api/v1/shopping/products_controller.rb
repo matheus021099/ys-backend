@@ -405,8 +405,8 @@ module Api::V1::Shopping
     end
     def destroy
       authorize @product
-      @product.remove
-      render_success(true)
+      @product.destroy
+      render_success true
     end
 
 
