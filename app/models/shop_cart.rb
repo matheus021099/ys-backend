@@ -88,6 +88,8 @@ class ShopCart < ApplicationRecord
     shipping_address = ShopAddress.find_by(id: shipping_address_id)
     return 'you do not have shipping address' unless shipping_address.present?
 
+    return 'cart is empty' if items.size == 0
+
     items.includes(product_variant: :product).each do |item|
       unless item.product_variant.product.stock_status == 'active'
         return "#{item.product_variant.product.name} is not available"

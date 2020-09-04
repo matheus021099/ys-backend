@@ -101,7 +101,7 @@ class Album < ApplicationRecord
     Payment.where(attachment_id: attachment_ids).delete_all
 
     Attachment.where(id: attachment_ids).each do |attachment|
-      attachment.message.destroy
+      attachment.message.destroy if attachment.message.present?
       attachment.delete
     end
 
