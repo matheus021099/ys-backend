@@ -86,9 +86,9 @@ class ShopCart < ApplicationRecord
 
   def buy(shipping_address_id, payment_token)
     shipping_address = ShopAddress.find_by(id: shipping_address_id)
-    return 'you do not have shipping address' unless shipping_address.present?
+    return 'You do not have shipping address' unless shipping_address.present?
 
-    return 'cart is empty' if items.size == 0
+    return 'Cart is empty' if items.size == 0
 
     items.includes(product_variant: :product).each do |item|
       unless item.product_variant.product.stock_status == 'active'
@@ -118,8 +118,9 @@ class ShopCart < ApplicationRecord
         amount: total_cost,
         orders_at: time
       },
-    })
-    return 'Stripe operation failed' if stripe_charge['id'].blank?
+    }) rescue {}
+    return 'Price has been changed' if stripe_charge['id'].blank?
+    # return 'Stripe operation failed' if stripe_charge['id'].blank?
 
     orders = []
     items_count = items.size
