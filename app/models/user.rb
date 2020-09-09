@@ -101,7 +101,6 @@ class User < ApplicationRecord
   def set_default_values
     self.user_type ||= User.user_types[:listener]
     self.status ||= User.statuses[:inactive]
-    self.enabled_live_video ||= false
   end
 
   before_save :downcase_fields

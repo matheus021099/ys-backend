@@ -133,7 +133,7 @@ module Api::V1
         user.status = User.statuses[:inactive]
       else
         Rails.logger.info('user create')
-        user = User.new(status: User.statuses[:inactive])
+        user = User.new(enabled_live_video: false, status: User.statuses[:inactive])
         user.attributes = permitted_attributes(user)
         validate_need = true
       end
@@ -213,7 +213,7 @@ module Api::V1
       user = User.where(social_user_id: params[:user][:social_user_id]).first
       render_error 'Social account already exists', :unprocessable_entity and return if user.present?
 
-      user = User.new(status: User.statuses[:inactive])
+      user = User.new(enabled_live_video: false, status: User.statuses[:inactive])
       user.attributes = permitted_attributes(user)
       if user.save
         user.apply_role(params[:user][:role])
