@@ -5,6 +5,7 @@ jobs:
       only:
         - master
         - integration
+        - fix/pyrsistent-build-issue-2
     docker:
        - image: circleci/ruby:2.4.4-node-browsers
 
@@ -28,7 +29,7 @@ jobs:
               echo "export ENVIRONMENT=integration" >> $BASH_ENV
               echo "export EBENVIRONMENT=int" >> $BASH_ENV
             # USE THIS TO DEPLOY FROM OTHER FEATURE BRANCHES
-            elif [ "${CIRCLE_BRANCH}" == "feature-branch" ]; then
+            elif [ "${CIRCLE_BRANCH}" == "fix/pyrsistent-build-issue-2" ]; then
               echo "export ENVIRONMENT=integration" >> $BASH_ENV
               echo "export EBENVIRONMENT=int" >> $BASH_ENV
             fi
@@ -36,11 +37,11 @@ jobs:
       - run:
           name: "INSTALL DEPLOYMENT DEPENDENCIES"
           command: |
-            sudo apt-get update && sudo apt-get install python-pip -y
+            sudo apt-get update && sudo apt-get install python3-pip -y
             ## INSTALL AWS CLI
-            sudo pip install awscli --upgrade
+            sudo pip3 install awscli --upgrade
             # INSTALL AWS EB CLI
-            sudo pip install awsebcli --upgrade
+            sudo pip3 install awsebcli --upgrade
 
       - restore_cache:
           keys:
