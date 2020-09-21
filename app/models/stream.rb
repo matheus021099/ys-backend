@@ -19,6 +19,12 @@ class Stream < ApplicationRecord
   belongs_to :assoc, polymorphic: true, optional: true
   belongs_to :genre
 
+  # default
+  after_initialize :set_default_values
+  def set_default_values
+    self.viewers_limit ||= 2_000
+  end
+
   def run
     self.update_attributes(
       started_at: Time.now,
