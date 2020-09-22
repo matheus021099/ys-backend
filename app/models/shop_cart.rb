@@ -177,6 +177,7 @@ class ShopCart < ApplicationRecord
           order.items << item
         end
 
+        total_cost = subtotal + shipping + tax_cost
         app_fee = Payment.calculate_fee(subtotal, 'shopping')
         order.attributes = {
           cart_id: self.id,
@@ -184,9 +185,9 @@ class ShopCart < ApplicationRecord
           merchant_id: merchant_id,
           billing_address_id: shipping_address.id,
           shipping_address_id: shipping_address.id,
-          amount: subtotal + shipping + tax_cost,
+          amount: subtotal,
           fee: app_fee,
-          # tax_cost: tax_cost
+          tax_cost: tax_cost,
           shipping_cost: shipping,
           provider: nil,
           payment_token: payment_token,
@@ -198,7 +199,6 @@ class ShopCart < ApplicationRecord
         # order.merchant = merchant
         order.save!
 
-        total_cost = subtotal + shipping + tax_cost
         payment = Payment.buy(
           sender: customer,
           receiver: merchant,

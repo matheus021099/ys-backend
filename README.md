@@ -1,9 +1,13 @@
+# Yousound
+
+## Install
+
 Things you may want to cover:
 
-* Ruby version
+- Ruby version
   2.4.1
 
-* Development
+- Development
   git clone git@github.com:yousound/api.git
   git branch staging
   git fetch
@@ -19,10 +23,15 @@ Things you may want to cover:
 
   cap development staging
 
-* Connect to Server
+- Connect to Server
   chmod 400 ../info/ec2-refactor2017.pem
   ssh -i ../info/ec2-refactor2017.pem ubuntu@52.53.50.11
   sudo service nginx status ( check nginx, web-server running )
   sudo /usr/sbin/passenger-memory-stats ( check passenger, web-application-server is running )
 
-* ...
+## Data Structure
+
+### shop_item
+
+- price: each item price, item_total_price = price \* quantity
+- tax: total tax on item regarding to quantity

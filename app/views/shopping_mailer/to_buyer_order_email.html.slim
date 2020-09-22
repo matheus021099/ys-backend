@@ -57,14 +57,14 @@ head
 body
   .wrapper
     .header
-      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg"
+      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg" alt=""
       img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
 
     .content
       p
         | Hey,&nbsp;
         strong = @order.customer.display_name
-      img src="#{ENV['API_BASE_URL']}/images/ic_check.png"
+      img src="#{ENV['API_BASE_URL']}/images/ic_check.png" alt=""
       h3 Your order is confirmed!
       p
         | Thanks for shopping! Your order (
@@ -75,7 +75,7 @@ body
         .order__header
           label
             | Order #:&nbsp;
-            = @order.id
+            = @order.external_id
           span
             | Order Date: &nbsp;
             = @order.created_at.to_s
@@ -90,12 +90,14 @@ body
             th.cost COST
           - subtotal = 0
           - shipping = 0
+          - tax = 0
           - @order.items.each do |item|
             - subtotal += item.subtotal_cost
             - shipping += item.shipping_cost * item.quantity
+            - tax += item.tax
             tr
               td
-                img src=item.product.covers[0].cover.thumb.url
+                img src=item.product.covers[0].cover.thumb.url alt=""
               td
                 label= item.product.name
                 span $#{'%.2f' % (item.price / 100.0)}
@@ -109,15 +111,23 @@ body
         .divider
 
         ul.order__footer
+          - stripe_fee = Payment.stripe_fee(@order.amount)
           li
             label Subtotal
             span $#{'%.2f' % (subtotal / 100.0)}
           li
             label Shipping Handling
             span $#{'%.2f' % (shipping / 100.0)}
+          - if tax > 0
+            li.tax
+              label Tax
+              span $#{'%.2f' % (tax / 100.0)}
+          li
+            label Fee
+            span $#{'%.2f' % (stripe_fee / 100.0)}
           li.total
             label Total
-            span $#{'%.2f' % ((subtotal + shipping) / 100.0)}
+            span $#{'%.2f' % ((@order.amount + stripe_fee) / 100.0)}
 
         .divider
 
