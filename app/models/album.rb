@@ -563,20 +563,20 @@ class Album < ApplicationRecord
           feed_type: Feed.feed_types[:download]
         )
 
-        if feed && follower.enable_alert?
-          Activity.create(
-            sender_id: downloader.id,
-            receiver_id: follower.id,
-            message: 'downloaded an album',
-            assoc_type: self.class.name,
-            assoc_id: self.id,
-            module_type: Activity.module_types[:stream],
-            action_type: Activity.action_types[:download],
-            alert_type: Activity.alert_types[:both],
-            page_track: page_track,
-            status: Activity.statuses[:unread]
-          )
-        end
+        # if feed && follower.enable_alert?
+        #   Activity.create(
+        #     sender_id: downloader.id,
+        #     receiver_id: follower.id,
+        #     message: 'downloaded an album',
+        #     assoc_type: self.class.name,
+        #     assoc_id: self.id,
+        #     module_type: Activity.module_types[:stream],
+        #     action_type: Activity.action_types[:download],
+        #     alert_type: Activity.alert_types[:both],
+        #     page_track: page_track,
+        #     status: Activity.statuses[:unread]
+        #   )
+        # end
       end
     end
 

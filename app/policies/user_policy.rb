@@ -4,7 +4,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def destroy?
-    user.admin? || user.id == record.id
+    user.admin? || user.moderator? || user.id == record.id
   end
 
   def reset_password?
