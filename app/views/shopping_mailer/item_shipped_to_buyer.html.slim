@@ -57,14 +57,14 @@ head
 body
   .wrapper
     .header
-      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg"
+      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg" alt=""
       img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
 
     .content
       p
         | Hey,&nbsp;
         strong = @item.customer.display_name
-      img src="#{ENV['API_BASE_URL']}/images/ic_check.png"
+      img src="#{ENV['API_BASE_URL']}/images/ic_check.png" alt=""
       h3 Your item(s) have shipped!
 
       .order
@@ -92,7 +92,7 @@ body
 
           tr
             td
-              img src= @item.product.covers[0].cover.thumb.url
+              img src= @item.product.covers[0].cover.thumb.url alt=""
             td
               label= @item.product.name
               span $#{'%.2f' % (@item.price / 100.0)}

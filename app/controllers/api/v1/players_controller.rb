@@ -38,8 +38,8 @@ module Api::V1
       album_offset = states[:album_offset] || 0
       track_offset = states[:track_offset] || 0
       genre = states[:genre] || 'any'
-      
-      if track_offset < 0 
+
+      if track_offset < 0
         album_offset -= 1
         track_offset = 0
       end
@@ -64,8 +64,8 @@ module Api::V1
          User.find(states[:user_id]).download_query(filter, genre).offset(album_offset).limit(1).first
       end
       render_error('album not found', 200) and return if @album.nil?
-      
-      if @album.tracks.length <= track_offset 
+
+      if @album.tracks.length <= track_offset
         album_offset += 1
         track_offset = 0
       end
@@ -106,12 +106,12 @@ module Api::V1
     private
       def set_album
         @album = Album.find_by_slug(params[:album_id]) || Album.find(params[:album_id])
-        render_error('ablum not_found', 200) and return unless @album
+        render_error('album not_found', 200) and return unless @album
       end
 
       def set_track
         @track = Track.find_by_id(params[:track_id])
-        render_error('ablum not_found', 200) and return unless @track
+        render_error('album not_found', 200) and return unless @track
       end
 
       def serializer(states)

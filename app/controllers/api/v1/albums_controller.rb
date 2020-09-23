@@ -214,7 +214,7 @@ module Api::V1
           end
         end
 
-        message_body = "#{current_user.display_name} wants to upload this ablum collaboration"
+        message_body = "#{current_user.display_name} wants to upload this album collaboration"
         collaborators.each do |collaborator|
           UserAlbum.create(
             user_id: collaborator.id,
@@ -432,7 +432,7 @@ module Api::V1
             )
 
             if collaborators_hash[collaborator.id]['id'].blank?
-              message_body = "#{current_user.display_name} wants to upload this ablum collaboration"
+              message_body = "#{current_user.display_name} wants to upload this album collaboration"
               attachment = Attachment.new(
                 attachment_type: Attachment.attachment_types[:collaboration],
                 attachable_type: @album.class.name,
@@ -678,7 +678,7 @@ module Api::V1
       )
 
       @user = @album.user
-      message_body = "#{current_user.display_name} wants to add this ablum to their catalog"
+      message_body = "#{current_user.display_name} wants to add this album to their catalog"
       attachment = Attachment.new(
         attachment_type: Attachment.attachment_types[:label_album],
         attachable_type: @album.class.name,
