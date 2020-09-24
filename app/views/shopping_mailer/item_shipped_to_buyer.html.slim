@@ -12,12 +12,11 @@ head
     .wrapper { max-width: 640px; margin: 50px auto 50px auto; box-shadow: 1px 1px 10px -5px; border-radius: 5px; overflow: hidden; }
 
     .header { text-align: center; }
-    .header img.line { width: 100%; height: 25px; }
     .header img.logo { height: 32px; margin: 50px 0 50px 0; }
 
     .content { padding: 50px 40px 100px 40px; }
     .content > img { height: 20px; margin-right: 20px; }
-    .content h3 { display: inline-block; margin: 20px 0 20px 0; font-size: 26px; font-weight: 500; color: #3A92FF; }
+    .content h3 { display: inline-block; margin: 20px 0 20px 0; font-size: 26px; font-weight: 500; }
     .content p { line-height: 24px; }
     .content p span { color: #3A92FF; }
     .content a { color: #3A92FF; text-decoration: none; }
@@ -46,18 +45,9 @@ head
     .shipping p { font-size: 14px; }
     .shipping p a { margin: 0 !important; padding: 0 !important; background-color: transparent !important; }
 
-    .footer { padding: 20px 0; font-size: 14px; text-align: center !important; }
-    .footer a { display: inline-block; margin-right: 30px; color: #000000; text-decoration: none; }
-    .footer span { color: #D2D2D2; }
-
-    @media (max-width: 414px) {
-      .footer a { display: none; }
-    }
-
 body
   .wrapper
     .header
-      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg" alt=""
       img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
 
     .content
@@ -116,9 +106,3 @@ body
           br
           | #{@item.order.shipping_address.country}
 
-    .footer
-      /= link_to 'FAQ', "#{ENV['WEB_BASE_URL']}/faq"
-      /= link_to 'Help', "#{ENV['WEB_BASE_URL']}/help"
-      /= link_to 'Terms', "#{ENV['WEB_BASE_URL']}/terms"
-      /= link_to 'Contact', "#{ENV['WEB_BASE_URL']}/terms"
-      span.copyright &copy; YouSound, Inc

@@ -12,12 +12,11 @@ head
     .wrapper { max-width: 640px; margin: 50px auto 50px auto; box-shadow: 1px 1px 10px -5px; border-radius: 5px; overflow: hidden; }
 
     .header { text-align: center; }
-    .header img.line { width: 100%; height: 25px; }
     .header img.logo { height: 32px; margin: 50px 0 50px 0; }
 
     .content { padding: 50px 40px 100px 40px; }
     .content > img { height: 20px; margin-right: 20px; }
-    .content h3 { display: inline-block; margin: 20px 0 20px 0; font-size: 26px; font-weight: 500; color: #3A92FF; }
+    .content h3 { display: inline-block; margin: 20px 0 20px 0; font-size: 26px; font-weight: 500; }
     .content h3 span { color: #000000; }
     .content p { line-height: 24px; }
     .content p span { color: #3A92FF; }
@@ -47,30 +46,23 @@ head
     .shipping h4 { margin: 30px 0 20px 0; font-size: 20px; font-weight: 500; }
     .shipping p { font-size: 14px; }
 
-    .footer { padding: 20px 0; font-size: 14px; text-align: center !important; }
-    .footer a { display: inline-block; margin-right: 30px; color: #000000; text-decoration: none; }
-    .footer span { color: #D2D2D2; }
-
-    @media (max-width: 414px) {
-      .footer a { display: none; }
-    }
-
 body
   .wrapper
     .header
-      img.line src="#{ENV['API_BASE_URL']}/images/img_header.jpg" alt=""
       img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
 
     .content
       p
         | Hey,&nbsp;
         strong = @order.merchant.display_name
+
       img src="#{ENV['API_BASE_URL']}/images/ic_check.png" alt=""
       h3
         | You Received&nbsp;
         span
           | $
           = '%.2f' % ((@order.amount + @order.tax_cost - @order.fee) / 100.0)
+
       p
         span= @order.customer.display_name
         | &nbsp;purchased these items.
@@ -142,10 +134,3 @@ body
           | #{@order.shipping_address.city}, #{@order.shipping_address.state}
           br
           | #{@order.shipping_address.country}
-
-    .footer
-      /= link_to 'FAQ', "#{ENV['WEB_BASE_URL']}/faq"
-      /= link_to 'Help', "#{ENV['WEB_BASE_URL']}/help"
-      /= link_to 'Terms', "#{ENV['WEB_BASE_URL']}/terms"
-      /= link_to 'Contact', "#{ENV['WEB_BASE_URL']}/terms"
-      span.copyright &copy; YouSound, Inc
