@@ -1,0 +1,31 @@
+| Hi,&nbsp;
+b = @requester.display_name
+
+br/
+br/
+| Your account was reviewed by&nbsp;
+b = @verifier.display_name
+| , and your account has been verified.
+
+br/
+br/
+|
+  To accept payments you must connect to Stripe.com by logging in
+  and visiting
+b Settings > Bank Details
+
+br/
+br/
+|
+  You can login now and start uploading content.
+  If you are already logged in, please sign out then login to update your account status.
+
+br/
+br/
+= login_url(nil)
+
+br/
+br/
+|
+  Regards,
+  YouSound Team

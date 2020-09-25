@@ -1,0 +1,57 @@
+| Hey,&nbsp;
+b = @item.customer.display_name
+
+br/
+br/
+b Your item(s) have shipped!
+
+br/
+br/
+b Tracking:&nbsp;
+= link_to @item.tracking_site, @item.tracking_site
+
+br/
+| Tracking Number:&nbsp;
+ = @item.tracking_number
+
+br/
+| Order #:&nbsp;
+= @item.order.id
+
+br/
+| Order Date:&nbsp;
+= @item.order.created_at.to_s
+
+br/
+br/
+table
+  tr
+    th ITEM
+    th PRICE
+    th QTY
+    th COST
+
+  tr
+    td
+      b = @item.product.name
+    td $#{'%.2f' % (@item.price / 100.0)}
+    td
+      - if @item.quantity > 0
+        = @item.quantity
+      - else
+        = link_to 'Download', @item.product.digital_content_url
+    td $#{'%.2f' % (@item.subtotal_cost / 100.0)}
+
+br/
+br/
+b Shipping Address
+
+br/
+br/
+= @item.order.customer.display_name
+br/
+| #{@item.order.shipping_address.street_1} #{@item.order.shipping_address.street_2}
+br/
+| #{@item.order.shipping_address.city}, #{@item.order.shipping_address.state}
+br/
+| #{@item.order.shipping_address.country}

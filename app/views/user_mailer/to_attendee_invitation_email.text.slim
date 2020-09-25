@@ -1,0 +1,22 @@
+| Hi,&nbsp;
+b = @attendee.display_name
+
+br/
+br/
+| You have been invited to YouSound.
+
+br/
+br/
+| You can create your account by clicking the below url!
+br/
+= link_to 'Invitation Link', invitation_url(nil, @attendee.invitation_token)
+
+br/
+br/
+| We’re excited to welcome you to the community!
+
+br/
+br/
+|
+  Regards,
+  YouSound Team

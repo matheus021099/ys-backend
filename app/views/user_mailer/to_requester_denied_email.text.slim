@@ -1,0 +1,31 @@
+| Hi,&nbsp;
+b = @requester.display_name
+
+br/
+br/
+| Your account was reviewed by&nbsp;
+b = @verifier.display_name
+| , and your account has been denied.
+
+br/
+br/
+| These are the reasons for your denial
+br/
+b = @requester.denial_reason
+br/
+= @requester.denial_description
+
+br/
+br/
+|
+  Your account will remain in Listener status.
+  Please make any necessary adjustments, and re-submit your application
+  by visting your Settings > Verification Status.
+br/
+= login_url(nil)
+
+br/
+br/
+|
+  Regards,
+  YouSound Team

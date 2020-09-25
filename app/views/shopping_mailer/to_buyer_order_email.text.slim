@@ -1,0 +1,82 @@
+| Hey,&nbsp;
+b = @order.customer.display_name
+
+br/
+br/
+b Your order is confirmed!
+
+br/
+br/
+| Thanks for shopping! Your order (
+= @order.items.collect{|item| "<span>#{item.product.name}</span>"}.join(', ').html_safe
+| ) hasn't shipped yet, but we'll send you an email when it does.
+
+br/
+br/
+| Order #:&nbsp;
+= @order.external_id
+
+br/
+| Order Date: &nbsp;
+= @order.created_at.to_s
+
+br/
+br/
+table
+  tr
+    th ITEM
+    th PRICE
+    th QTY
+    th COST
+  - subtotal = 0
+  - shipping = 0
+  - tax = 0
+  - @order.items.each do |item|
+    - subtotal += item.subtotal_cost
+    - shipping += item.shipping_cost * item.quantity
+    - tax += item.tax
+    tr
+      td
+        b = item.product.name
+      td $#{'%.2f' % (item.price / 100.0)}
+      td
+        - if item.quantity > 0
+          = item.quantity
+        - else
+          = link_to 'Download', item.product.digital_content_url
+      td $#{'%.2f' % (item.subtotal_cost / 100.0)}
+
+br/
+br/
+ul
+  - stripe_fee = Payment.stripe_fee(@order.amount)
+  li
+    | Subtotal: &nbsp;
+    | $#{'%.2f' % (subtotal / 100.0)}
+  li
+    | Shipping Handling: &nbsp;
+    | $#{'%.2f' % (shipping / 100.0)}
+  - if tax > 0
+    li
+      | Tax: &nbsp;
+      | $#{'%.2f' % (tax / 100.0)}
+  li
+    | Fee: &nbsp;
+    | $#{'%.2f' % (stripe_fee / 100.0)}
+  li
+    b Total: &nbsp;
+    | $#{'%.2f' % ((@order.amount + stripe_fee) / 100.0)}
+
+br/
+br/
+b Shipping Address
+
+br/
+br/
+= @order.customer.display_name
+br/
+| #{@order.shipping_address.street_1} #{@order.shipping_address.street_2}
+br/
+| #{@order.shipping_address.city}, #{@order.shipping_address.state}
+br/
+| #{@order.shipping_address.country}

@@ -31,6 +31,14 @@ module MailerHelper
     end
   end
 
+  def unlock_url(app_path, token)
+    if app_path.blank?
+      "#{ENV['WEB_BASE_URL']}/auth/unlock/#{token}"
+    else
+      "#{app_path}/register/auth/unlock/#{token}"
+    end
+  end
+
   def smart_add_url_protocol(url)
     unless url[/\Ahttps:\/\//] || url[/\Ahttp:\/\//]
       url = "https://#{url}"

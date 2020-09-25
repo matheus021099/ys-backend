@@ -1,0 +1,81 @@
+| Hey,&nbsp;
+b = @order.merchant.display_name
+
+br/
+br/
+b You Received&nbsp;
+| $
+= '%.2f' % ((@order.amount + @order.tax_cost - @order.fee) / 100.0)
+
+br/
+br/
+= @order.customer.display_name
+| &nbsp;purchased these items.
+
+br/
+br/
+| Order #:&nbsp;
+= @order.external_id
+
+br/
+| Order Date: &nbsp;
+= @order.created_at.to_s
+
+
+br/
+br/
+table
+  tr
+    th ITEM
+    th PRICE
+    th QTY
+    th COST
+  - @order.items.each do |item|
+    tr
+      td
+        b = item.product.name
+      td $#{'%.2f' % (item.price / 100.0)}
+      td
+        - if item.quantity > 0
+          = item.quantity
+        - else
+          = link_to 'Download', item.product.digital_content_url
+      td $#{'%.2f' % (item.subtotal_cost / 100.0)}
+
+br/
+br/
+- subtotal = @order.items.sum{ |item| item.subtotal_cost }
+- shipping = @order.items.sum{ |item| item.quantity * item.shipping_cost }
+- tax = @order.tax_cost
+- fee = @order.fee
+ul
+  li
+    | Subtotal: &nbsp;
+    | $#{'%.2f' % (subtotal / 100.0)}
+  li
+    | Shipping Handling: &nbsp;
+    | $#{'%.2f' % (shipping / 100.0)}
+  - if tax > 0
+    li
+      | Tax: &nbsp;
+      | $#{'%.2f' % (tax / 100.0)}
+  li style="color: #f44336;"
+    | Fee: &nbsp;
+    | $#{'%.2f' % (fee / 100.0)}
+  li
+    b Total: &nbsp;
+    | $#{'%.2f' % (@order.amount / 100.0)}
+
+br/
+br/
+b Shipping Address
+
+br/
+br/
+= @order.customer.display_name
+br/
+| #{@order.shipping_address.street_1} #{@order.shipping_address.street_2}
+br/
+| #{@order.shipping_address.city}, #{@order.shipping_address.state}
+br/
+| #{@order.shipping_address.country}

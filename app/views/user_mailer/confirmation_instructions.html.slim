@@ -6,9 +6,6 @@ head
     body { font-family: 'Nunito', 'Avenir', 'Arial'; font-size: 16px; }
     .wrapper { max-width: 640px; margin: 50px auto 50px auto; box-shadow: 1px 1px 10px -5px; border-radius: 5px; overflow: hidden; }
 
-    .header { text-align: center; }
-    .header img.logo { height: 32px; margin: 50px 0 50px 0; }
-
     .content { padding: 50px 50px 100px 50px; }
     .content h3 { margin: 20px 0 20px 0; font-size: 28px; font-weight: 500; }
     .content p { line-height: 24px; }
@@ -16,9 +13,6 @@ head
 
 body
   .wrapper
-    .header
-      img.logo src="#{ENV['API_BASE_URL']}/images/img_logo.png" alt="YouSound"
-
     .content
       h3 Welcome to YouSound
 
@@ -28,3 +22,8 @@ body
         | , your registration is completed!
 
       = link_to 'Confirm Registration', confirmation_url(nil, @token)
+
+      p
+        | Regards,
+        br
+        | YouSound Team

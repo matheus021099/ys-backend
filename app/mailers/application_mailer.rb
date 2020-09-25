@@ -52,6 +52,7 @@ class ApplicationMailer < ActionMailer::Base
   end
 
   # def confirmation_email(user)
+  #   @resource = user
   #   @email = user.email
   #   @token = user.confirmation_token
   #   mail(

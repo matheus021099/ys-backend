@@ -1,0 +1,19 @@
+| Hello&nbsp;
+b = @resource.email
+| !
+
+br/
+br/
+| Your account has been locked due to an excessive number of unsuccessful sign in attempts.
+
+br/
+br/
+| Click the link below to unlock your account:
+br/
+= link_to 'Unlock my account', unlock_url(nil, unlock_token: @token)
+
+br/
+br/
+|
+  Regards,
+  YouSound Team

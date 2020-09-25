@@ -54,7 +54,7 @@ Rails.application.configure do
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
-  config.action_mailer.smtp_settings = { :address => '192.168.0.170', :port => 1025 }
+  config.action_mailer.smtp_settings = { :address => '192.168.0.172', :port => 1025 }
 
   # enable bullet to detect N+1 queries
   config.after_initialize do
