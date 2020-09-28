@@ -10,11 +10,18 @@ class Util::Message
       # end
       # nil
 
-      Mailboxer::Conversation.where(
+      conversation = Mailboxer::Conversation.where(
         "subject = ? or subject = ?",
         [sender.id, receiver.id].join(', '),
         [receiver.id, sender.id].join(', ')
       ).first
+
+      if conversation.present? && conversation.last_message.blank?
+        conversation.destroy
+        conversation = nil
+      end
+
+      conversation
     end
 
     def send(sender, receiver, message_body, message_subject = nil, attachment = nil, notification_type = nil)

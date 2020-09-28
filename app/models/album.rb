@@ -113,7 +113,7 @@ class Album < ApplicationRecord
     message_body = "#{self.user.display_name} has deleted an album: <b>#{self.name}</b>"
     user_albums.each do |ua|
       collaborator = ua.user
-      Util::Message.send(user, collaborator, message_body)
+      Util::Message.send(self.user, collaborator, message_body)
     end
   end
 

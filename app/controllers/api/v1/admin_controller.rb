@@ -344,7 +344,8 @@ module Api::V1
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
 
-      products = ShopProduct.where.not(status: Album.statuses[:deleted]).order(created_at: :desc)
+      # products = ShopProduct.where.not(status: Album.statuses[:deleted]).order(created_at: :desc)
+      products = ShopProduct.all.order(created_at: :desc)
       products = products.where(status: statuses) unless statuses.include?('any')
       products = products.page(page).per(per_page)
 
