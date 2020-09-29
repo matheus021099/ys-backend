@@ -1,16 +1,16 @@
 p
   | Hi,&nbsp;
-  strong = @requester.display_name
+  b = @requester.display_name
 
 p
   | Your account was reviewed by&nbsp;
-  strong = @verifier.display_name
+  b = @verifier.display_name
   | , and your account has been denied.
 
 p
   | These are the reasons for your denial
   br
-  strong = @requester.denial_reason
+  b = @requester.denial_reason
   br
   = @requester.denial_description
 
@@ -19,8 +19,10 @@ p
   br
   | Please make any necessary adjustments, and re-submit your application
   br
-  | by visting your Settings > Verification Status.
-  br
+  | by visting your&nbsp;
+  b Settings > Verification Status
+
+p
   = login_url(nil)
 
 p
