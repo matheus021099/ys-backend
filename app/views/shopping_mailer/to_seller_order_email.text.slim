@@ -34,6 +34,8 @@ table
     tr
       td
         b = item.product.name
+        br/
+        = item.product_variant.name
       td $#{'%.2f' % (item.price / 100.0)}
       td
         - if item.quantity > 0
@@ -44,27 +46,23 @@ table
 
 br/
 br/
-- subtotal = @order.items.sum{ |item| item.subtotal_cost }
-- shipping = @order.items.sum{ |item| item.quantity * item.shipping_cost }
-- tax = @order.tax_cost
-- fee = @order.fee
 ul
   li
     | Subtotal: &nbsp;
-    | $#{'%.2f' % (subtotal / 100.0)}
+    | $#{'%.2f' % (@order.amount / 100.0)}
   li
     | Shipping Handling: &nbsp;
-    | $#{'%.2f' % (shipping / 100.0)}
-  - if tax > 0
+    | $#{'%.2f' % (@order.shipping_cost / 100.0)}
+  - if @order.tax_cost > 0
     li
       | Tax: &nbsp;
-      | $#{'%.2f' % (tax / 100.0)}
+      | $#{'%.2f' % (@order.tax_cost / 100.0)}
   li style="color: #f44336;"
     | Fee: &nbsp;
-    | $#{'%.2f' % (fee / 100.0)}
+    | $#{'%.2f' % (@order.fee / 100.0)}
   li
     b Total: &nbsp;
-    | $#{'%.2f' % (@order.amount / 100.0)}
+    | $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost - @order.fee) / 100.0)}
 
 br/
 br/

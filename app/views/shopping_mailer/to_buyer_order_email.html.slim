@@ -80,18 +80,13 @@ body
             th.name
             th.quantity QTY
             th.cost COST
-          - subtotal = 0
-          - shipping = 0
-          - tax = 0
           - @order.items.each do |item|
-            - subtotal += item.subtotal_cost
-            - shipping += item.shipping_cost * item.quantity
-            - tax += item.tax
             tr
               td
                 img src=item.product.covers[0].cover.thumb.url alt=""
               td
-                label= item.product.name
+                label = item.product.name
+                div = item.product_variant.name
                 span $#{'%.2f' % (item.price / 100.0)}
               td
                 - if item.quantity > 0
@@ -103,23 +98,23 @@ body
         .divider
 
         ul.order__footer
-          - stripe_fee = Payment.stripe_fee(@order.amount)
+          - stripe_fee = Payment.stripe_fee(@order.amount + @order.shipping_cost + @order.tax_cost)
           li
             label Subtotal
-            span $#{'%.2f' % (subtotal / 100.0)}
+            span $#{'%.2f' % (@order.amount / 100.0)}
           li
             label Shipping Handling
-            span $#{'%.2f' % (shipping / 100.0)}
-          - if tax > 0
+            span $#{'%.2f' % (@order.shipping_cost / 100.0)}
+          - if @order.tax_cost > 0
             li.tax
               label Tax
-              span $#{'%.2f' % (tax / 100.0)}
+              span $#{'%.2f' % (@order.tax_cost / 100.0)}
           li
-            label Fee
+            label Stripe Fee
             span $#{'%.2f' % (stripe_fee / 100.0)}
           li.total
             label Total
-            span $#{'%.2f' % ((@order.amount + stripe_fee) / 100.0)}
+            span $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost + stripe_fee) / 100.0)}
 
         .divider
 

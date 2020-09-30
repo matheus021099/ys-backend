@@ -89,7 +89,8 @@ body
               td
                 img src=item.product.covers[0].cover.thumb.url alt=""
               td
-                label= item.product.name
+                label = item.product.name
+                div = item.product_variant.name
                 span $#{'%.2f' % (item.price / 100.0)}
               td
                 - if item.quantity > 0
@@ -100,27 +101,23 @@ body
 
         .divider
 
-        - subtotal = @order.items.sum{ |item| item.subtotal_cost }
-        - shipping = @order.items.sum{ |item| item.quantity * item.shipping_cost }
-        - tax = @order.tax_cost
-        - fee = @order.fee
         ul.order__footer
           li
             label Subtotal
-            span $#{'%.2f' % (subtotal / 100.0)}
+            span $#{'%.2f' % (@order.amount / 100.0)}
           li
             label Shipping Handling
-            span $#{'%.2f' % (shipping / 100.0)}
-          - if tax > 0
+            span $#{'%.2f' % (@order.shipping_cost / 100.0)}
+          - if @order.tax_cost > 0
             li.tax
               label Tax
-              span $#{'%.2f' % (tax / 100.0)}
+              span $#{'%.2f' % (@order.tax_cost / 100.0)}
           li.fee
             label Fee
-            span $#{'%.2f' % (fee / 100.0)}
+            span $#{'%.2f' % (@order.fee / 100.0)}
           li.total
             label Total
-            span $#{'%.2f' % (@order.amount / 100.0)}
+            span $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost - @order.fee) / 100.0)}
 
         .divider
 
