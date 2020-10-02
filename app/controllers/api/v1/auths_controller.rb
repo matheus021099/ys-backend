@@ -345,7 +345,8 @@ module Api::V1
       param :form, :email, :string, :required
     end
     def reset_password
-      user = User.find_by(email: params[:email])
+      email = (params[:email] || '').strip.downcase
+      user = User.find_by(email: email)
       if user.present?
         authorize user
         user.send_reset_password_instructions
