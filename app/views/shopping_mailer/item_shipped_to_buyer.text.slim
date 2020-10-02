@@ -48,7 +48,7 @@ b Shipping Address
 
 br/
 br/
-= @item.order.customer.display_name
+= [@order.shipping_address.first_name, @order.shipping_address.last_name].join(' ')
 br/
 | #{@item.order.shipping_address.street_1} #{@item.order.shipping_address.street_2}
 br/

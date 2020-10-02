@@ -43,6 +43,7 @@ head
     .shipping {}
     .shipping h4 { margin: 30px 0 20px 0; font-size: 20px; font-weight: 500; }
     .shipping p { font-size: 14px; }
+    .shipping p span { text-transform: capitalize; }
     .shipping p a { margin: 0 !important; padding: 0 !important; background-color: transparent !important; }
 
 body
@@ -121,7 +122,7 @@ body
       .shipping
         h4 Shipping Address
         p
-          = @order.customer.display_name
+          span = [@order.shipping_address.first_name, @order.shipping_address.last_name].join(' ')
           br
           | #{@order.shipping_address.street_1} #{@order.shipping_address.street_2}
           br
