@@ -4,7 +4,7 @@ module Api::V1
     skip_after_action :verify_authorized
     skip_after_action :verify_policy_scoped
 
-    before_action :set_attendee, only: [:invite]
+    before_action :set_attendee, only: [:destroy, :invite]
 
     swagger_controller :attendee, 'attendee'
 
@@ -81,6 +81,20 @@ module Api::V1
     #   rescue Exception => e
     #     render_error e.message, :unprocessable_entity and return
     # end
+
+
+    setup_authorization_header(:destroy)
+    swagger_api :destroy do |api|
+      summary 'Destory an attendee'
+      param :path, :id, :string, :required, 'attendee id'
+    end
+    def destroy
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
+
+      @attendee.destroy
+
+      render_success true
+    end
 
 
     swagger_api :find_by_token do |api|

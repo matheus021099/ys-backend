@@ -109,7 +109,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :attendees, only: [:index, :create] do
+      resources :attendees, only: [:index, :create, :destroy] do
         member do
           get :invite
         end
