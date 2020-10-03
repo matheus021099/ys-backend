@@ -99,7 +99,7 @@ body
       .shipping
         h4 Shipping Address
         p
-          span = [@order.shipping_address.first_name, @order.shipping_address.last_name].join(' ')
+          span = [@item.order.shipping_address.first_name, @item.order.shipping_address.last_name].join(' ')
           br
           | #{@item.order.shipping_address.street_1} #{@item.order.shipping_address.street_2}
           br
