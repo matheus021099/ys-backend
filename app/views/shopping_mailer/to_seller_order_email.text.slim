@@ -47,6 +47,7 @@ table
 br/
 br/
 ul
+  - stripe_fee = Payment.stripe_fee(@order.amount + @order.shipping_cost + @order.tax_cost)
   li
     | Subtotal: &nbsp;
     | $#{'%.2f' % (@order.amount / 100.0)}
@@ -57,9 +58,12 @@ ul
     li
       | Tax: &nbsp;
       | $#{'%.2f' % (@order.tax_cost / 100.0)}
-  li style="color: #f44336;"
+  / li style="color: #f44336;"
     | Fee: &nbsp;
     | $#{'%.2f' % (@order.fee / 100.0)}
+  li
+    | Stripe Fee: &nbsp;
+    | $#{'%.2f' % (stripe_fee / 100.0)}
   li
     b Total: &nbsp;
     | $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost - @order.fee) / 100.0)}
