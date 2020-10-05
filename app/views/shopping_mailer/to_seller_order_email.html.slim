@@ -123,7 +123,7 @@ body
             span $#{'%.2f' % (stripe_fee / 100.0)}
           li.total
             label Total
-            span $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost - @order.fee) / 100.0)}
+            span $#{'%.2f' % ((@order.amount + @order.shipping_cost + @order.tax_cost + stripe_fee) / 100.0)}
 
         .divider
 
