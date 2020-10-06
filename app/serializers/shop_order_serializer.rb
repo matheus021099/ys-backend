@@ -1,5 +1,5 @@
 class ShopOrderSerializer < ActiveModel::Serializer
-  attributes :id, :amount, :fee, :shipping_cost, :tax_cost, :enabled_address, :status, :created_at, :updated_at
+  attributes :id, :amount, :payment_fee, :fee, :shipping_cost, :tax_cost, :enabled_address, :status, :created_at, :updated_at
   attribute :refund_amount, if: :include_payments?
 
   belongs_to :customer

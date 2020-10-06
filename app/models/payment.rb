@@ -77,6 +77,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
+        payment_fee: stripe_fee,
         fee: app_fee,
         tax: 0,
         status: Payment.statuses[:done]
@@ -110,6 +111,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: sent_amount,
+        payment_fee: stripe_fee,
         fee: 0,
         tax: 0,
         status: Payment.statuses[:done]
@@ -153,6 +155,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
+        payment_fee: stripe_fee,
         fee: app_fee,
         tax: 0,
         assoc_type: attachment.attachable_type,
@@ -220,8 +223,8 @@ class Payment < ApplicationRecord
       precheck = Payment.precheck([sender], [receiver], payment_token)
       return precheck unless precheck === true
 
+      stripe_fee = Payment.stripe_fee(sent_amount)
       # transfer_group = "order_#{order.external_id}"
-      # stripe_fee = Payment.stripe_fee(sent_amount)
       # stripe_transfer = Stripe::Transfer.create({
       #   amount: sent_amount,
       #   currency: 'usd',
@@ -275,6 +278,7 @@ class Payment < ApplicationRecord
         sent_amount: sent_amount,
         received_amount: received_amount,
         # received_amount: received_amount - shared_amount,
+        payment_fee: stripe_fee,
         fee: fee,
         tax: 0,
         order_id: order.id,
@@ -348,6 +352,7 @@ class Payment < ApplicationRecord
                 payment_token: stripe_transfer['id'],
                 sent_amount: recoup_current_amount,
                 received_amount: recoup_current_amount,
+                payment_fee: 0,
                 fee: 0,
                 tax: 0,
                 order_id: order.id,
@@ -394,6 +399,7 @@ class Payment < ApplicationRecord
                 payment_token: stripe_transfer['id'],
                 sent_amount: collaborator_amount,
                 received_amount: collaborator_amount,
+                payment_fee: 0,
                 fee: 0,
                 tax: 0,
                 order_id: order.id,
@@ -439,6 +445,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: 0,
+        payment_fee: stripe_fee,
         fee: sent_amount,
         tax: 0,
         status: Payment.statuses[:pending]
@@ -557,6 +564,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
         received_amount: received_amount,
+        payment_fee: stripe_fee,
         fee: 0,
         tax: 0,
         assoc_type: stream.class.name,
@@ -663,6 +671,7 @@ class Payment < ApplicationRecord
         payment_token: stripe_transfer['id'],
         sent_amount: amount,
         received_amount: 0,
+        payment_fee: 0,
         fee: 0,
         tax: 0,
         status: Payment.statuses[:done]

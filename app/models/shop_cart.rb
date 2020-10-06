@@ -186,6 +186,7 @@ class ShopCart < ApplicationRecord
           billing_address_id: shipping_address.id,
           shipping_address_id: shipping_address.id,
           amount: subtotal,
+          payment_fee: Payment.stripe_fee(subtotal),
           fee: app_fee,
           tax_cost: tax_cost,
           shipping_cost: shipping,

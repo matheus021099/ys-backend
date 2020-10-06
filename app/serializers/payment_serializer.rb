@@ -1,6 +1,6 @@
 class PaymentSerializer < ActiveModel::Serializer
   attributes :id, :payment_type, :description, :payment_token,
-    :sent_amount, :received_amount, :refund_amount,
+    :sent_amount, :received_amount, :refund_amount, :payment_fee,
     :fee, :user_share, :status, :created_at, :order_id
   attribute :assoc # it responds json data
   # belongs_to :assoc # it responds data using serializer

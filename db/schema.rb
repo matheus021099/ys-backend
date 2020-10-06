@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190820121437) do
+ActiveRecord::Schema.define(version: 20201005173601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -101,6 +101,7 @@ ActiveRecord::Schema.define(version: 20190820121437) do
     t.string   "status",           default: "created"
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
+    t.integer  "inviter_id"
     t.index ["display_name"], name: "index_attendees_on_display_name", unique: true, using: :btree
     t.index ["email"], name: "index_attendees_on_email", unique: true, using: :btree
     t.index ["invitation_token"], name: "index_attendees_on_invitation_token", unique: true, using: :btree
@@ -247,6 +248,7 @@ ActiveRecord::Schema.define(version: 20190820121437) do
     t.string   "status"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
+    t.integer  "payment_fee",        default: 0
     t.index ["assoc_type", "assoc_id"], name: "index_payments_on_assoc_type_and_assoc_id", using: :btree
     t.index ["attachment_id"], name: "index_payments_on_attachment_id", using: :btree
     t.index ["order_id"], name: "index_payments_on_order_id", using: :btree
@@ -388,6 +390,8 @@ ActiveRecord::Schema.define(version: 20190820121437) do
     t.string   "tracking_site"
     t.text     "tracking_url"
     t.string   "tracking_number"
+    t.integer  "refund_amount",      default: 0
+    t.string   "description",        default: ""
     t.index ["cart_id"], name: "index_shop_items_on_cart_id", using: :btree
     t.index ["customer_id"], name: "index_shop_items_on_customer_id", using: :btree
     t.index ["merchant_id"], name: "index_shop_items_on_merchant_id", using: :btree
@@ -417,6 +421,7 @@ ActiveRecord::Schema.define(version: 20190820121437) do
     t.string   "status"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
+    t.integer  "payment_fee",         default: 0
     t.index ["billing_address_id"], name: "index_shop_orders_on_billing_address_id", using: :btree
     t.index ["cart_id"], name: "index_shop_orders_on_cart_id", using: :btree
     t.index ["customer_id"], name: "index_shop_orders_on_customer_id", using: :btree
@@ -526,6 +531,7 @@ ActiveRecord::Schema.define(version: 20190820121437) do
     t.string   "status",                default: "active"
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
+    t.boolean  "notified",              default: false
     t.index ["assoc_type", "assoc_id"], name: "index_streams_on_assoc_type_and_assoc_id", using: :btree
     t.index ["genre_id"], name: "index_streams_on_genre_id", using: :btree
     t.index ["id", "user_id"], name: "index_streams_on_id_and_user_id", using: :btree
