@@ -106,20 +106,25 @@ class ShopCart < ApplicationRecord
     time = Time.now.utc
     transfer_group = "orders_at_#{time.to_i}"
     stripe_fee = Payment.stripe_fee(total_cost)
-    stripe_charge = Stripe::Charge.create({
-      amount: total_cost + stripe_fee,
-      currency: 'usd',
-      source: payment_token,
-      description: Payment.payment_types[:buy],
-      transfer_group: transfer_group,
-      metadata: {
-        payment_type: Payment.payment_types[:buy],
-        sender: customer.username,
-        amount: total_cost,
-        orders_at: time
-      },
-    }) rescue {}
-    return 'Price has been changed' if stripe_charge['id'].blank?
+    stripe_charge = nil
+    begin
+      stripe_charge = Stripe::Charge.create({
+        amount: total_cost + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        description: Payment.payment_types[:buy],
+        transfer_group: transfer_group,
+        metadata: {
+          payment_type: Payment.payment_types[:buy],
+          sender: customer.username,
+          amount: total_cost,
+          orders_at: time
+        },
+      })
+    rescue => ex
+      return ex.message
+    end
+    # return 'Price has been changed' if stripe_charge['id'].blank?
     # return 'Stripe operation failed' if stripe_charge['id'].blank?
 
     orders = []

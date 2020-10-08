@@ -66,7 +66,7 @@ module Api::V1
       render_error result['error_description'], :unprocessable_entity and return if result['error'].present?
 
       stripe_account = Stripe::Account.retrieve(result['stripe_user_id']) rescue {}
-      render_error 'Stripe account not accessible', :unprocessable_entity and return if stripe_account['id'].blank?
+      render_error 'Stripe account is not accessible', :unprocessable_entity and return if stripe_account['id'].blank?
 
       current_user.update_attributes(
         payment_provider: 'stripe',
