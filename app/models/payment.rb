@@ -438,6 +438,8 @@ class Payment < ApplicationRecord
       )
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
+      sender.update_columns(stream_rolled_cost: sender.stream_rolled_cost + sent_amount)
+
       Payment.create(
         sender_id: sender.id,
         receiver_id: receiver.id,
