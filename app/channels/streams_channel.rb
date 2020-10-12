@@ -10,6 +10,7 @@ class StreamsChannel < ApplicationCable::Channel
   end
 
   def send_channel_info(stream_id)
+    stream = Stream.find(stream_id)
     channel_name = "stream_#{stream_id}"
     page_track = "Stream: #{stream_id}"
     active_viewers_size = ActionCable.server.pubsub.send(:redis_connection).pubsub('numsub', channel_name).dig(1) || 0
@@ -17,9 +18,11 @@ class StreamsChannel < ApplicationCable::Channel
       page_track: page_track,
       action_type: Activity.action_types[:view_stream]
     ).size
-    ActionCable.server.broadcast(channel_name, {
-      active_viewers_size: active_viewers_size,
-      total_viewers_size: total_viewers_size
-    })
+
+    stream.checkpoint(
+      Time.now,
+      active_viewers_size,
+      total_viewers_size
+    )
   end
 end

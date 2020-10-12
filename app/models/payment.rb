@@ -440,6 +440,14 @@ class Payment < ApplicationRecord
 
       sender.update_columns(stream_rolled_cost: sender.stream_rolled_cost + sent_amount)
 
+      if sender.stream
+        sender.stream.checkpoint(
+          Time.now,
+          sender.stream.watching_viewers,
+          sender.stream.total_viewers
+        )
+      end
+
       Payment.create(
         sender_id: sender.id,
         receiver_id: receiver.id,
@@ -454,80 +462,15 @@ class Payment < ApplicationRecord
       )
     end
 
-    def stream(stream: nil)
-      precheck = Payment.precheck([stream], [stream.user], true)
+    def pay_stream(stream: nil)
+      precheck = Payment.precheck([stream, stream.user], [], true)
       return precheck unless precheck === true
 
-      sender = stream.user
-      stopped_at = stream.stopped_at || Time.now
-      played_time = (stopped_at - stream.started_at).to_i
-      played_time = stream.valid_period if played_time > stream.valid_period
-      description = "#{Util::Time.humanize(played_time)} from #{stream.started_at.strftime("%H:%M:%S %b %d, %Y")}"
-      amount = (STREAM_HOURLY_PRICE * played_time / 3600).to_i
-      paying_amount = amount
-
-      payments = Payment.where(
-        sender_id: sender.id,
-        payment_type: Payment.payment_types[:stream],
-        status: Payment.statuses[:pending]
-      ).order(created_at: :asc)
-
-      ActiveRecord::Base.transaction do
-        payments.each do |payment|
-          if paying_amount > payment.sent_amount
-            payment.update_attributes!(
-              assoc_type: stream.class.name,
-              assoc_id: stream.id,
-              status: Payment.statuses[:done]
-            )
-            paying_amount -= payment.sent_amount
-          elsif paying_amount > 0
-            payment.update_attributes!(
-              sent_amount: paying_amount,
-              assoc_type: stream.class.name,
-              assoc_id: stream.id,
-              status: Payment.statuses[:done]
-            )
-            paying_amount = 0
-          else
-            payment.destroy
-          end
-        end
-
-        sender.update_columns(
-          stream_rolled_time: stream.valid_period - played_time,
-          stream_rolled_cost: (STREAM_HOURLY_PRICE * stream.valid_period / 3600).to_i - amount
-        )
-      end
-
-      payments.each do |payment|
-        if payment.destroyed?
-          Stripe::Refund.create({
-            charge: payment.payment_token
-          })
-        else
-          Stripe::Charge.update(
-            payment.payment_token,
-            metadata: {
-              payment_type: Payment.payment_types[:stream],
-              sender: sender.username,
-              stream: stream.name,
-              stream_id: stream.id,
-              played_time: played_time,
-              amount: amount,
-            },
-          )
-
-          stripe_fee = Payment.stripe_fee(payment.sent_amount)
-          Stripe::Charge.capture(
-            payment.payment_token,
-            {
-              amount: payment.sent_amount + stripe_fee,
-              # application_fee_amount: payment.sent_amount,
-            }
-          )
-        end
-      end
+      user = stream.user
+      stream_rolled_cost = user.stream_rolled_cost > stream.cost ? user.stream_rolled_cost - stream.cost.to_i : 0
+      user.update_columns(
+        stream_rolled_cost: stream_rolled_cost
+      )
 
       true
     end
@@ -739,7 +682,7 @@ class Payment < ApplicationRecord
       return 'Payment token not specified' if payment_token.blank?
 
       entities.each do |entity|
-        return 'Sender not found' if entity.blank?
+        return 'Entity not found' if entity.blank?
       end
 
       stripe_connected_users.each do |user|

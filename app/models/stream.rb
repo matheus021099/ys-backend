@@ -5,6 +5,9 @@ class Stream < ApplicationRecord
   @@mediapackage = nil
   @@ssm = nil
 
+  STREAM_PER_VIEWER_MINUTE_PRICE = 5.0
+  STREAM_PER_MINUTE_PRICE = 5.8
+
   enum status: {
     active: 'active',
     starting: 'starting',
@@ -25,11 +28,47 @@ class Stream < ApplicationRecord
     self.viewers_limit ||= 2_000
   end
 
+  def checkpoint(check_at, watching_viewers_size, total_viewers_size)
+    stream = self
+    user = stream.user
+
+    check_at ||= Time.now
+    prev_checkpoint_at = stream.checkpoint_at || stream.started_at
+    interval = (check_at - prev_checkpoint_at).to_i
+    per_sec_cost = (STREAM_PER_MINUTE_PRICE + stream.watching_viewers * STREAM_PER_VIEWER_MINUTE_PRICE) / 60
+    cost = 0
+    remaining_seconds = -1
+    unless user.enabled_live_video_free
+      cost =  stream.cost + per_sec_cost * interval
+      remaining_seconds = ((user.stream_rolled_cost - cost) / per_sec_cost).to_i
+      remaining_seconds = 0 if remaining_seconds < 0
+    end
+
+    stream.update_attributes(
+      checkpoint_at: check_at,
+      cost: cost,
+      watching_viewers: watching_viewers_size,
+      total_viewers: total_viewers_size,
+      remaining_seconds: remaining_seconds
+    )
+
+    channel_name = "stream_#{stream.id}"
+    ActionCable.server.broadcast(channel_name, {
+      active_viewers_size: stream.watching_viewers,
+      total_viewers_size: stream.total_viewers
+    })
+
+    true
+  end
+
   def run
+    now = Time.now
     self.update_attributes(
-      started_at: Time.now,
+      started_at: now,
+      checkpoint_at: now,
       status: Stream.statuses[:running]
     )
+    checkpoint(now, 0, 0)
 
     Feed.insert(
       consumer_id: self.user_id,
@@ -285,6 +324,7 @@ class Stream < ApplicationRecord
     @stream = self
     result = true
     was_running = @stream.running?
+    now = Time.now
 
     # remove repost
     Activity.where(
@@ -308,7 +348,7 @@ class Stream < ApplicationRecord
         @@medialive.stop_channel({
           channel_id: @stream.ml_channel_id
         })
-        @stream.stopped_at = Time.now
+        @stream.stopped_at = now
       end
 
       @@medialive.delete_channel({
@@ -367,7 +407,7 @@ class Stream < ApplicationRecord
       StreamStopWorker.perform_async(@stream.id)
     ensure
       if was_running
-        @stream.stopped_at = Time.now
+        @stream.stopped_at = now
         played_time = (@stream.stopped_at - @stream.started_at).to_i
 
         unless @stream.user.enabled_live_video_free
@@ -383,7 +423,8 @@ class Stream < ApplicationRecord
             status: Activity.statuses[:read]
           )
 
-          Payment.stream(stream: @stream)
+          checkpoint(@stream.stopped_at, @stream.watching_viewers, @stream.total_viewers)
+          Payment.pay_stream(stream: @stream)
         else
           Activity.create(
             sender_id: @stream.user_id,

@@ -823,12 +823,14 @@ module Api::V1
       authorize @stream
 
       begin
+        now = Time.now
         medialive = Aws::MediaLive::Client.new(region: ENV['AWS_REGION'])
         medialive.start_channel({
           channel_id: @stream.ml_channel_id
         })
         @stream.update_attributes(
-          started_at: Time.now,
+          started_at: now,
+          checkpoint_at: now,
           status: Stream.statuses[:running]
         )
       rescue => e
@@ -854,7 +856,10 @@ module Api::V1
         medialive.stop_channel({
           channel_id: @stream.ml_channel_id
         })
-        @stream.update_attributes(stopped_at: Time.now, status: Stream.statuses[:active])
+        @stream.update_attributes(
+          stopped_at: Time.now,
+          status: Stream.statuses[:active]
+        )
       rescue => e
         render_error e.message, :unprocessable_entity and return
       end

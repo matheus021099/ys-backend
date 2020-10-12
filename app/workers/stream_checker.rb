@@ -4,12 +4,21 @@ class StreamChecker
   sidekiq_options queue: :high, unique: :until_and_while_executing
 
   def perform
-    remaining_time
+    # remaining_time
     abnormal_delete
   end
 
   def remaining_time
-    Stream.where("status = ? AND started_at + valid_period * interval '1 second' < ?", Stream.statuses[:running], 10.minutes.ago).each do |stream|
+    # Stream.where("status = ? AND started_at + valid_period * interval '1 second' < ?", Stream.statuses[:running], 10.minutes.ago).each do |stream|
+    #   stream.remove
+    # end
+
+    Stream.where(
+      "status = ? AND remaining_seconds >= ? && checkpoint_at + remaining_seconds * interval '1 second' < ?",
+      Stream.statuses[:running],
+      0,
+      Time.now
+    ).each do |stream|
       stream.remove
     end
   end
