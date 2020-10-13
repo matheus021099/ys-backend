@@ -208,7 +208,7 @@ class Album < ApplicationRecord
   end
 
   def ready_release?
-    (self.playlist? && self.ready_release_playlist?) || (self.album? && self.ready_release_album)
+    (self.playlist? && self.ready_release_playlist?) || (self.album? && self.ready_release_album?)
   end
 
   def released?
@@ -244,7 +244,7 @@ class Album < ApplicationRecord
       ).delete_all
     end
 
-    return if self.released
+    return if self.released?
     return if self.collaborators_count != 0 && self.has_pending_collaborators?
 
     #TODO - wonder difference between released and published
