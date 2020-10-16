@@ -55,7 +55,8 @@ class Stream < ApplicationRecord
     channel_name = "stream_#{stream.id}"
     ActionCable.server.broadcast(channel_name, {
       active_viewers_size: stream.watching_viewers,
-      total_viewers_size: stream.total_viewers
+      total_viewers_size: stream.total_viewers,
+      remaining_seconds: stream.remaining_seconds
     })
 
     true
