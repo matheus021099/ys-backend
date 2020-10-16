@@ -62,10 +62,10 @@ class StreamSerializer < ActiveModel::Serializer
     end
   end
 
-  def remaining_seconds
-    return object.valid_period if object.started_at.blank?
-    return object.valid_period - (Time.now - object.started_at).to_i
-  end
+  # def remaining_seconds
+  #   return object.valid_period if object.started_at.blank?
+  #   return object.valid_period - (Time.now - object.started_at).to_i
+  # end
 
   def is_current_user?
     scope && scope.current_user == object.user
