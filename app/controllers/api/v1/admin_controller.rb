@@ -374,7 +374,7 @@ module Api::V1
       per_page = (params[:per_page] || 5).to_i
 
       streams = Stream.includes(:user).where('name ILIKE ?', "%#{q.downcase}%")
-        .order("streams.status != 'running', streams.created_at ASC").pluck(:id, :status, :created_at)
+        .order("streams.status != 'running', streams.created_at ASC")
       streams = streams.page(page).per(per_page)
 
       render_success(

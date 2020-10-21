@@ -14,7 +14,7 @@ class StreamChecker
     # end
 
     Stream.where(
-      "status = ? AND remaining_seconds >= ? && checkpoint_at + remaining_seconds * interval '1 second' < ?",
+      "status = ? AND remaining_seconds >= ? AND checkpoint_at + remaining_seconds * interval '1 second' < ?",
       Stream.statuses[:running],
       0,
       Time.now
