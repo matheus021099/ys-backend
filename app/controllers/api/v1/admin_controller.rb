@@ -360,6 +360,40 @@ module Api::V1
     end
 
 
+    setup_authorization_header(:streams)
+    swagger_api :stream do |api|
+      summary 'get streams'
+      params :query, :q, :string, :optional
+      param :query, :page, :integer, :optional
+      param :query, :per_page, :integer, :optional
+    end
+    def streams
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin?
+      q = params[:q] || ''
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 5).to_i
+
+      streams = Stream.includes(:user).where('name ILIKE ?', "%#{q.downcase}%")
+        .order("streams.status != 'running', streams.created_at ASC").pluck(:id, :status, :created_at)
+      streams = streams.page(page).per(per_page)
+
+      render_success(
+        streams: streams.as_json(
+          only: [ :id, :name, :total_viewers, :view_prcie, :status, :created_at ],
+          include: {
+            user: {
+              only: [ :id, :username, :avatar]
+            },
+            genre: {
+              only: [ :id, :name]
+            }
+          }
+        ),
+        pagination: pagination(streams)
+      )
+    end
+
+
     setup_authorization_header(:send_global_message)
     swagger_api :send_global_message do |api|
       summary 'send global message'

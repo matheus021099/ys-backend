@@ -104,6 +104,7 @@ Rails.application.routes.draw do
           post :toggle_live_video_free
           get :albums
           get :products
+          get :streams
           post :send_global_message
           get :global_stats
         end
