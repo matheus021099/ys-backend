@@ -247,15 +247,11 @@ class Stream < ApplicationRecord
       message: 'Allowed'
     } unless activity.blank?
 
-    viewers_size = Activity.where('sender_id = receiver_id').where(
-      page_track: page_track,
-      action_type: Activity.action_types[:view_stream]
-    ).size
     return {
       code: false,
       message: 'Exceeds the viewers limit',
       amount: 0
-    } if @stream.viewers_limit > 0 && viewers_size >= @stream.viewers_limit
+    } if @stream.viewers_limit > 0 && @stream.watching_viewers >= @stream.viewers_limit
 
     return {
       code: true,
