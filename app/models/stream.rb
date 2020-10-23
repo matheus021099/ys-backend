@@ -31,10 +31,11 @@ class Stream < ApplicationRecord
   def checkpoint(check_at, watching_viewers_size, total_viewers_size)
     stream = self
     user = stream.user
+    now = Time.now
 
-    check_at ||= Time.now
-    prev_checkpoint_at = stream.checkpoint_at || stream.started_at
-    interval = (check_at - prev_checkpoint_at).to_i
+    check_at ||= now
+    prev_checkpoint_at = stream.checkpoint_at || stream.started_at || now
+    interval = (check_at - prev_checkpoint_at).to_i rescue 0
     per_sec_cost = (STREAM_PER_MINUTE_PRICE + stream.watching_viewers * STREAM_PER_VIEWER_MINUTE_PRICE) / 60
     cost = 0
     remaining_seconds = -1
@@ -137,7 +138,7 @@ class Stream < ApplicationRecord
 
       ### create streams/:id/notify and call it when stream is available
       PushNotificationWorker.perform_async(
-        follower.devices.where(enabled: true).pluck(:token),
+        follower.devices.pluck(:token),
         FCMService::push_notification_types[:video_started],
         message_body,
         data

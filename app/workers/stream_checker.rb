@@ -4,7 +4,7 @@ class StreamChecker
   sidekiq_options queue: :high, unique: :until_and_while_executing
 
   def perform
-    remaining_time
+    # remaining_time
     abnormal_delete
   end
 

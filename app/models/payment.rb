@@ -442,7 +442,7 @@ class Payment < ApplicationRecord
 
       if sender.stream
         sender.stream.checkpoint(
-          Time.now,
+          nil,
           sender.stream.watching_viewers,
           sender.stream.total_viewers
         )
