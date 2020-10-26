@@ -35,3 +35,11 @@ Things you may want to cover:
 
 - price: each item price, item_total_price = price \* quantity
 - tax: total tax on item regarding to quantity
+
+## ToDo
+
+### streams
+
+- rename StreamsChannel to StreamViewersChannel
+- rename StreamCreatorsChannel to StreamChannel
+- require all channel name and data

@@ -53,7 +53,7 @@ class Stream < ApplicationRecord
       remaining_seconds: remaining_seconds
     )
 
-    channel_name = "stream_#{stream.id}"
+    channel_name = "stream_creator_#{stream.id}"
     ActionCable.server.broadcast(channel_name, {
       active_viewers_size: stream.watching_viewers,
       total_viewers_size: stream.total_viewers,
@@ -98,7 +98,7 @@ class Stream < ApplicationRecord
   def notify
     self.update_columns(notified: true)
 
-    ActionCable.server.broadcast("stream_#{self.id}", { notified: true })
+    ActionCable.server.broadcast("stream_creator_#{self.id}", { notified: true })
 
     message_body = "#{self.user.username} broadcasting live!"
     data = self.as_json(
