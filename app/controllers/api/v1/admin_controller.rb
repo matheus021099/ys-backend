@@ -380,6 +380,7 @@ module Api::V1
       render_success(
         streams: streams.as_json(
           only: [ :id, :name, :total_viewers, :view_price, :status, :created_at ],
+          methods: :broadcast_time,
           include: {
             user: {
               only: [ :id, :username, :avatar]

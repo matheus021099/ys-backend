@@ -28,6 +28,16 @@ class Stream < ApplicationRecord
     self.viewers_limit ||= 2_000
   end
 
+  # custom attributes
+  def broadcast_time
+    now = Time.now
+    stream_started_at = self.started_at || now
+    stream_stopped_at = self.stopped_at || now
+    time = (stream_stopped_at - stream_started_at).to_i
+    time = 0 if time < 0
+    time
+  end
+
   def checkpoint(check_at, watching_viewers_size, total_viewers_size)
     stream = self
     user = stream.user
