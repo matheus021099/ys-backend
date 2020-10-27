@@ -229,6 +229,13 @@ class Stream < ApplicationRecord
     @stream = self
     current_user = viewer
 
+    # check event capacity
+    return {
+      code: false,
+      message: 'Exceeds the viewers limit',
+      amount: 0
+    } if @stream.viewers_limit > 0 && @stream.watching_viewers >= @stream.viewers_limit
+
     return {
       code: true,
       message: 'Allowed'
@@ -237,7 +244,7 @@ class Stream < ApplicationRecord
     # allow the user who paid with in a day
     payment = Payment.where(
       sender_id: current_user.id,
-      receiver_id: self.user_id,
+      receiver_id: @stream.user_id,
       payment_type: Payment.payment_types[:pay_view_stream],
       refund_amount: 0,
     ).where('created_at > ?', 1.day.ago).first
@@ -246,6 +253,7 @@ class Stream < ApplicationRecord
       message: 'Allowed'
     } unless payment.blank?
 
+    # check if user has ever viewed
     page_track = "#{@stream.class.name}: #{@stream.id}"
     activity = Activity.where(
       sender_id: current_user.id,
@@ -258,17 +266,13 @@ class Stream < ApplicationRecord
       message: 'Allowed'
     } unless activity.blank?
 
-    return {
-      code: false,
-      message: 'Exceeds the viewers limit',
-      amount: 0
-    } if @stream.viewers_limit > 0 && @stream.watching_viewers >= @stream.viewers_limit
-
+    # check stream is free to view
     return {
       code: true,
       message: 'Allowed'
     } if @stream.view_price == 0
 
+    # check viewer is in guests list
     return {
       code: true,
       message: 'Allowed'
