@@ -49,7 +49,9 @@ class StreamPolicy < ApplicationPolicy
 
   def permitted_attributes
     [
+      :name,
       :viewers_limit,
+      :view_price,
       :assoc_type,
       :assoc_id
     ]

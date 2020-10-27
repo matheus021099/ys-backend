@@ -710,8 +710,8 @@ module Api::V1
         @stream.guest_list = User.where(id: guests_ids).pluck(:id)
       end
 
-      extend_period = params[:stream][:extend_period].to_i rescue 0
-      @stream.valid_period += extend_period if extend_period > 0
+      # extend_period = params[:stream][:extend_period].to_i rescue 0
+      # @stream.valid_period += extend_period if extend_period > 0
 
       @stream.attributes = permitted_attributes(@stream)
       @stream.save!
