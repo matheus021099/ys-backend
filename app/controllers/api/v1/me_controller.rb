@@ -22,16 +22,20 @@ module Api::V1
     swagger_api :mutual_users do |api|
       summary 'get mutual users'
       param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
-      param :form, :per_page, :integer, :optional, '10, 20, etc. default is 10'
+      param :form, :per_page, :integer, :optional, '-1, 10, 20, etc. default is 10'
       params :form, :stripe_connected, :boolean, optional
     end
     def mutual_users
       page = params[:page] || 1
       per_page = params[:per_page] || 10
-
       requrie_stripe_connected = ActiveModel::Type::Boolean.new.cast(params[:stripe_connected]) rescue false
 
-      users = current_user.mutual_users(requrie_stripe_connected).page(page).per(per_page)
+      users = current_user.mutual_users(requrie_stripe_connected)
+      paginationJson = {}
+      if per_page > 0
+        users = users.page(page).per(per_page)
+        paginationJson = pagination(users)
+      end
 
       render_success(
         users: ActiveModelSerializers::SerializableResource.new(
@@ -39,7 +43,7 @@ module Api::V1
           each_serializer: UserSerializer1,
           scope: OpenStruct.new(current_user: current_user)
         ),
-        pagination: pagination(users)
+        pagination: paginationJson
       )
     end
 
