@@ -14,7 +14,7 @@ module Api::V1
     end
     def index
       render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
-      attendees = Attendee.includes(:user).all
+      attendees = Attendee.includes(:user).order(created_at: :desc).all
       result = ActiveModel::Serializer::CollectionSerializer.new(
         attendees,
         serializer: AttendeeSerializer

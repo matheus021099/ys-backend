@@ -55,7 +55,7 @@ module Api::V1
         fields: [:username, :display_name, :email],
         match: :word_start,
         where: where,
-        order: {username: :asc},
+        order: {created_at: :desc},
         page: page,
         per_page: per_page
       )
