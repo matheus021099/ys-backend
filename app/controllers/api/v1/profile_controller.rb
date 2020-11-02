@@ -259,14 +259,19 @@ module Api::V1
       per_page = params[:per_page] || 50
 
       users = @user.sample_following_query
-      users = users.page(page).per(per_page)
+      paginationJson = {}
+      if per_page > 0
+        users = users.page(page).per(per_page)
+        paginationJson = pagination(users)
+      end
+
       render_success(
         users: ActiveModelSerializers::SerializableResource.new(
           users,
           each_serializer: UserSerializer1,
           scope: OpenStruct.new(current_user: current_user)
         ),
-        pagination: pagination(users)
+        pagination: paginationJson
       )
     end
 

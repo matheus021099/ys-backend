@@ -806,6 +806,8 @@ class User < ApplicationRecord
 
     users = User.where(id: mutual_user_ids)
     users = users.where.not(payment_account_id: nil) if require_stripe_connected
+
+    users
   end
 
   def sample_following_query
