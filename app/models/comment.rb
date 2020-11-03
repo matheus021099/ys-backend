@@ -30,28 +30,29 @@ class Comment < ApplicationRecord
 
     self.commentable.user.add_role :writer, self
 
+    # send PN when owner mention himself
     users = []
     if self.commentable.user_id != self.user_id
       self.user.add_role :writer, self
       users << self.commentable.user
-
-      self.body.gsub /@(\w+)/ do |username|
-        username = username.gsub('@', '').downcase
-        user = User.includes(:devices).find_by_username(username)
-        if user.present?
-          user.add_role :reader, self
-          users << user
-        end
-      end.html_safe
     end
+
+    self.body.gsub /@(\w+)/ do |username|
+      username = username.gsub('@', '').downcase
+      u = u.includes(:devices).find_by_username(username)
+      if u.present?
+        u.add_role :reader, self
+        users << u
+      end
+    end.html_safe
     users.uniq! { |u| u.id }
 
     message_body = "commented on #{commentable_type}"
-    users.each do |user|
-      if user.id == self.commentable.user_id
+    users.each do |u|
+      if u.id == self.commentable.user_id
         Activity.create(
           sender_id: self.user_id,
-          receiver_id: user.id,
+          receiver_id: u.id,
           message: "commented on your #{commentable_type}",
           module_type: Activity.module_types[:activity],
           action_type: Activity.action_types[:comment],
@@ -63,7 +64,7 @@ class Comment < ApplicationRecord
       else
         Activity.create(
           sender_id: self.user_id,
-          receiver_id: user.id,
+          receiver_id: u.id,
           message: "mentioned you in #{commentable_type}",
           module_type: Activity.module_types[:activity],
           action_type: Activity.action_types[:comment],
@@ -75,8 +76,8 @@ class Comment < ApplicationRecord
       end
 
       PushNotificationWorker.perform_async(
-        # user.devices.where(enabled: true).pluck(:token),
-        user.devices.pluck(:token),
+        # u.devices.where(enabled: true).pluck(:token),
+        u.devices.pluck(:token),
         FCMService::push_notification_types[:commented],
         message_body,
         CommentSerializer.new(
