@@ -300,107 +300,6 @@ class Album < ApplicationRecord
       #   )
       # end
     end
-  end
-
-  def repost(reposter, page_track = nil)
-    return 'You are trying to repost your album' if reposter.id == self.user_id
-
-    feed = Feed.insert(
-      consumer_id: reposter.id,
-      # publisher_id: self.user_id,
-      publisher_id: reposter.id,
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      feed_type: Feed.feed_types[:repost]
-    )
-
-    Activity.insert(
-      sender_id: reposter.id,
-      receiver_id: self.user_id,
-      message: 'reposted your album',
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      module_type: Activity.module_types[:activity],
-      action_type: Activity.action_types[:repost],
-      alert_type: Activity.alert_types[:both],
-      page_track: page_track,
-      status: Activity.statuses[:unread]
-    )
-
-    Activity.insert(
-      sender_id: reposter.id,
-      receiver_id: reposter.id,
-      message: 'reposted an album',
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      module_type: Activity.module_types[:stream],
-      action_type: Activity.action_types[:repost],
-      alert_type: Activity.alert_types[:both],
-      page_track: page_track,
-      status: Activity.statuses[:unread]
-    )
-
-    if feed
-      self.reposted += 1
-      self.save
-    end
-
-    reposter.followers.each do |follower|
-      next if follower.blank?
-      # album should not appear in possessor's stream page
-      next if follower.id == self.user_id
-
-      feed = Feed.insert(
-        consumer_id: follower.id,
-        publisher_id: reposter.id,
-        assoc_type: self.class.name,
-        assoc_id: self.id,
-        feed_type: Feed.feed_types[:repost]
-      )
-
-      if feed && follower.enable_alert?
-        Activity.insert(
-          sender_id: reposter.id,
-          receiver_id: follower.id,
-          message: 'reposted an album',
-          assoc_type: self.class.name,
-          assoc_id: self.id,
-          module_type: Activity.module_types[:stream],
-          action_type: Activity.action_types[:repost_by_following],
-          alert_type: Activity.alert_types[:both],
-          page_track: page_track,
-          status: Activity.statuses[:unread]
-        )
-      end
-    end
-
-    message_body = "#{reposter.display_name} reposted [#{self.name}]"
-    PushNotificationWorker.perform_async(
-      self.user.devices.where(enabled: true).pluck(:token),
-      FCMService::push_notification_types[:album_reposted],
-      message_body,
-      AlbumSerializer1.new(scope: OpenStruct.new(current_user: reposter)).serialize(self).as_json
-    )
-
-    true
-  end
-
-  def unrepost(unreposter)
-    return 'You are trying to un-repost your album' if unreposter.id == self.user_id
-
-    Activity.where({
-      sender_id: unreposter.id,
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      action_type: Activity.action_types[:repost]
-    }).delete_all
-
-    Feed.where({
-      publisher_id: unreposter.id,
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      feed_types: Feed.feed_types[:repost]
-    }).delete_all
 
     true
   end
@@ -476,30 +375,28 @@ class Album < ApplicationRecord
       feed_type: Feed.feed_types[:hide]
     )
 
-    if feed
-      # Activity.create(
-      #   sender_id: actor.id,
-      #   receiver_id: self.user_id,
-      #   message: 'hide your album',
-      #   assoc_type: self.class.name,
-      #   assoc_id: self.id,
-      #   module_type: Activity.module_types[:activity],
-      #   action_type: Activity.action_types[:hide],
-      #   alert_type: Activity.alert_types[:both],
-      #   status: Activity.statuses[:unread]
-      # )
-      Activity.create(
-        sender_id: actor.id,
-        receiver_id: actor.id,
-        message: 'hide an album',
-        assoc_type: self.class.name,
-        assoc_id: self.id,
-        module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:hide],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:read]
-      )
-    end
+    # Activity.create(
+    #   sender_id: actor.id,
+    #   receiver_id: self.user_id,
+    #   message: 'hide your album',
+    #   assoc_type: self.class.name,
+    #   assoc_id: self.id,
+    #   module_type: Activity.module_types[:activity],
+    #   action_type: Activity.action_types[:hide],
+    #   alert_type: Activity.alert_types[:both],
+    #   status: Activity.statuses[:unread]
+    # )
+    Activity.create(
+      sender_id: actor.id,
+      receiver_id: actor.id,
+      message: 'hide an album',
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      module_type: Activity.module_types[:activity],
+      action_type: Activity.action_types[:hide],
+      alert_type: Activity.alert_types[:both],
+      status: Activity.statuses[:read]
+    )
 
     true
   end
@@ -532,10 +429,9 @@ class Album < ApplicationRecord
       status: Activity.statuses[:read]
     )
 
-    if feed
-      self.downloaded += 1
-      self.save
+    # self.update_attributes(downloaded: self.downloaded + 1)
 
+    if feed
       Activity.create(
         sender_id: downloader.id,
         receiver_id: self.user_id,
@@ -548,36 +444,36 @@ class Album < ApplicationRecord
         page_track: page_track,
         status: Activity.statuses[:unread]
       )
+    end
 
-      downloader.followers.each do |follower|
-        next if follower.blank?
+    downloader.followers.each do |follower|
+      next if follower.blank?
 
-        # album should not appear in possessor's stream page
-        next if follower.id == self.user_id
+      # album should not appear in possessor's stream page
+      next if follower.id == self.user_id
 
-        feed = Feed.insert(
-          consumer_id: follower.id,
-          publisher_id: downloader.id,
-          assoc_type: self.class.name,
-          assoc_id: self.id,
-          feed_type: Feed.feed_types[:download]
-        )
+      feed = Feed.insert(
+        consumer_id: follower.id,
+        publisher_id: downloader.id,
+        assoc_type: self.class.name,
+        assoc_id: self.id,
+        feed_type: Feed.feed_types[:download]
+      )
 
-        # if feed && follower.enable_alert?
-        #   Activity.create(
-        #     sender_id: downloader.id,
-        #     receiver_id: follower.id,
-        #     message: 'downloaded an album',
-        #     assoc_type: self.class.name,
-        #     assoc_id: self.id,
-        #     module_type: Activity.module_types[:stream],
-        #     action_type: Activity.action_types[:download],
-        #     alert_type: Activity.alert_types[:both],
-        #     page_track: page_track,
-        #     status: Activity.statuses[:unread]
-        #   )
-        # end
-      end
+      # if feed && follower.enable_alert?
+      #   Activity.create(
+      #     sender_id: downloader.id,
+      #     receiver_id: follower.id,
+      #     message: 'downloaded an album',
+      #     assoc_type: self.class.name,
+      #     assoc_id: self.id,
+      #     module_type: Activity.module_types[:stream],
+      #     action_type: Activity.action_types[:download],
+      #     alert_type: Activity.alert_types[:both],
+      #     page_track: page_track,
+      #     status: Activity.statuses[:unread]
+      #   )
+      # end
     end
 
     ### for now, page_track is available for stream
@@ -607,14 +503,14 @@ class Album < ApplicationRecord
     #   feed_type: Feed.feed_types[:play]
     # )
 
-    played_before = Activity.where(
-      sender_id: player.id,
-      receiver_id: self.user_id,
-      assoc_type: self.class.name,
-      assoc_id: self.id,
-      action_type: Activity.action_types[:play]
-    ).size > 0
-    self.update_attributes(played: self.played + 1) unless played_before
+    # played_before = Activity.where(
+    #   sender_id: player.id,
+    #   receiver_id: self.user_id,
+    #   assoc_type: self.class.name,
+    #   assoc_id: self.id,
+    #   action_type: Activity.action_types[:play]
+    # ).size > 0
+    # self.update_attributes(played: self.played + 1) unless played_before
 
     Activity.create(
       sender_id: player.id,
@@ -665,6 +561,108 @@ class Album < ApplicationRecord
     #     )
     #   end
     # end if feed
+
+    true
+  end
+
+  def repost(reposter, page_track = nil)
+    return 'You are trying to repost your album' if reposter.id == self.user_id
+
+    feed = Feed.insert(
+      consumer_id: reposter.id,
+      # publisher_id: self.user_id,
+      publisher_id: reposter.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      feed_type: Feed.feed_types[:repost]
+    )
+
+    Activity.insert(
+      sender_id: reposter.id,
+      receiver_id: self.user_id,
+      message: 'reposted your album',
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      module_type: Activity.module_types[:activity],
+      action_type: Activity.action_types[:repost],
+      alert_type: Activity.alert_types[:both],
+      page_track: page_track,
+      status: Activity.statuses[:unread]
+    )
+
+    Activity.insert(
+      sender_id: reposter.id,
+      receiver_id: reposter.id,
+      message: 'reposted an album',
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      module_type: Activity.module_types[:stream],
+      action_type: Activity.action_types[:repost],
+      alert_type: Activity.alert_types[:both],
+      page_track: page_track,
+      status: Activity.statuses[:unread]
+    )
+
+    # self.update_columns(reposted: self.reposted + 1)
+
+    reposter.followers.each do |follower|
+      next if follower.blank?
+      # album should not appear in possessor's stream page
+      next if follower.id == self.user_id
+
+      feed = Feed.insert(
+        consumer_id: follower.id,
+        publisher_id: reposter.id,
+        assoc_type: self.class.name,
+        assoc_id: self.id,
+        feed_type: Feed.feed_types[:repost]
+      )
+
+      if feed && follower.enable_alert?
+        Activity.insert(
+          sender_id: reposter.id,
+          receiver_id: follower.id,
+          message: 'reposted an album',
+          assoc_type: self.class.name,
+          assoc_id: self.id,
+          module_type: Activity.module_types[:stream],
+          action_type: Activity.action_types[:repost_by_following],
+          alert_type: Activity.alert_types[:both],
+          page_track: page_track,
+          status: Activity.statuses[:unread]
+        )
+      end
+    end
+
+    message_body = "#{reposter.display_name} reposted [#{self.name}]"
+    PushNotificationWorker.perform_async(
+      self.user.devices.where(enabled: true).pluck(:token),
+      FCMService::push_notification_types[:album_reposted],
+      message_body,
+      AlbumSerializer1.new(scope: OpenStruct.new(current_user: reposter)).serialize(self).as_json
+    )
+
+    true
+  end
+
+  def unrepost(unreposter)
+    return 'You are trying to un-repost your album' if unreposter.id == self.user_id
+
+    Activity.where({
+      sender_id: unreposter.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      action_type: Activity.action_types[:repost]
+    }).delete_all
+
+    Feed.where({
+      publisher_id: unreposter.id,
+      assoc_type: self.class.name,
+      assoc_id: self.id,
+      feed_types: Feed.feed_types[:repost]
+    }).delete_all
+
+    true
   end
 
   def zip_download_url

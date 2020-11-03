@@ -47,22 +47,26 @@ module Api::V1
       reposts_size = Activity.for_album(@album.id)
         .where.not(sender_id: @album.user_id)
         .where(action_type: Activity.action_types[:repost])
-        .group(:sender_id).count.size
+        .size
+        # .group(:sender_id).count.size
 
       downloads_size = Activity.for_album(@album.id)
         .where.not(sender_id: @album.user_id)
         .where(action_type: Activity.action_types[:download])
-        .group(:sender_id).count.size
+        .size
+        # .group(:sender_id).count.size
 
       plays_size = Activity.for_album(@album.id)
         .where.not(sender_id: @album.user_id)
         .where(action_type: Activity.action_types[:play])
-        .group(:sender_id).count.size
+        .size
+        # .group(:sender_id).count.size
 
       hides_size = Activity.for_album(@album.id)
         .where.not(sender_id: @album.user_id)
         .where(action_type: Activity.action_types[:hide])
-        .group(:sender_id).count.size
+        .size
+        # .group(:sender_id).count.size
 
       result = {
         reposts_size: reposts_size,
