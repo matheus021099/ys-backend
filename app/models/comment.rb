@@ -39,7 +39,7 @@ class Comment < ApplicationRecord
 
     self.body.gsub /@(\w+)/ do |username|
       username = username.gsub('@', '').downcase
-      u = u.includes(:devices).find_by_username(username)
+      u = User.includes(:devices).find_by_username(username)
       if u.present?
         u.add_role :reader, self
         users << u
