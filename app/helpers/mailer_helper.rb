@@ -35,7 +35,15 @@ module MailerHelper
     if app_path.blank?
       "#{ENV['WEB_BASE_URL']}/auth/unlock/#{token}"
     else
-      "#{app_path}/register/auth/unlock/#{token}"
+      "#{app_path}/auth/unlock/#{token}"
+    end
+  end
+
+  def order_detail_url(app_path, order_id)
+    if app_path.blank?
+      "#{ENV['WEB_BASE_URL']}/sell/order/#{order_id}"
+    else
+      "#{app_path}/sell/order/#{order_id}"
     end
   end
 
