@@ -23,12 +23,8 @@ class UserPolicy < ApplicationPolicy
     user.id == record.id
   end
 
-  def connect_stripe?
-    user.id == record.id
-  end
-
-  def disconnect_stripe?
-    user.id == record.id
+  def check_stripe_connection?
+    true
   end
 
   def instant_payouts?

@@ -9,7 +9,7 @@ module Api::V1
     # skip_after_action :verify_authorized, only: [:hidden_genres]
     before_action :set_user, only: [
       :update, :destroy, :repost_price_proration, :set_repost_price, :change_password,
-      :connect_stripe, :disconnect_stripe, :instant_payouts, :donate,
+      :check_stripe_connection, :instant_payouts, :donate,
       :info, :invite, :reposted_feeds, :cart_items,
       :has_followed, :follow, :unfollow, :block, :unblock, :favorite, :unfavorite,
       :hidden_genres, :available_stream_period,
@@ -245,6 +245,24 @@ module Api::V1
       render_error('Not matched password', :unprocessable_entity) and return unless params[:new_password] === params[:confirmed_password]
 
       @user.update_attributes(password: params[:new_password])
+      render_success true
+    end
+
+
+    setup_authorization_header(:check_stripe_connection)
+    swagger_api :check_stripe_connection do |api|
+      summary 'check stripe connection for user'
+      param :path, :id, :string, :required, 'user id or username'
+    end
+    def check_stripe_connection
+      render_error 'Not connected to stripe', :unprocessable_entity and return if @user.payment_account_id.blank?
+
+      stripe_account = Stripe::Account.retrieve(@user.payment_account_id) rescue {}
+      if stripe_account['id'].blank?
+        @user.disconnect_stripe
+        render_error 'Not connected to stripe', :unprocessable_entity and return
+      end
+
       render_success true
     end
 

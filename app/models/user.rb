@@ -330,7 +330,21 @@ class User < ApplicationRecord
 
     self.destroy
 
-    return true
+    true
+  end
+
+  def disconnect_stripe
+    self.update_attributes(
+      payment_provider: nil,
+      payment_account_id: nil,
+      payment_account_type: nil,
+      payment_publishable_key: nil,
+      payment_access_code: nil
+    )
+
+    self.products.destroy_all
+
+    true
   end
 
   # some fields for mailboxer

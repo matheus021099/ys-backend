@@ -62,6 +62,7 @@ Rails.application.routes.draw do
           get :repost_price_proration
           post :set_repost_price
           post :change_password
+          get :check_stripe_connection
           post :donate
           get :info
           get :invite

@@ -93,15 +93,7 @@ module Api::V1
       summary 'disconnect stripe'
     end
     def disconnect_stripe
-      current_user.update_attributes(
-        payment_provider: nil,
-        payment_account_id: nil,
-        payment_account_type: nil,
-        payment_publishable_key: nil,
-        payment_access_code: nil
-      )
-
-      current_user.products.destroy_all
+      current_user.disconnect_stripe
 
       render json: current_user,
         serializer: UserSerializer,
