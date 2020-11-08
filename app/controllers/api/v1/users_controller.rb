@@ -255,6 +255,7 @@ module Api::V1
       param :path, :id, :string, :required, 'user id or username'
     end
     def check_stripe_connection
+      authorize @user
       render_error 'Not connected to stripe', :unprocessable_entity and return if @user.payment_account_id.blank?
 
       stripe_account = Stripe::Account.retrieve(@user.payment_account_id) rescue {}
