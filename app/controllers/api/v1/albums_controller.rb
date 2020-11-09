@@ -75,8 +75,15 @@ module Api::V1
 
       albums = Album.search(
         q,
-        fields: [:name, :description, :artist_name],
-        where: {id: {not: current_user.id}},
+        fields: [:name, :description, :owner_username, :owner_display_name],
+        match: :word_start,
+        where: {
+          # user_id: {not: current_user.id},
+          album_type: 'album',
+          status: ['published', 'collaborated'],
+          is_only_for_live_stream: false,
+          slug: {not: nil}
+        },
         includes: [:tracks, :album_tracks, :user_albums, :user],
         order: orders,
         limit: per_page,

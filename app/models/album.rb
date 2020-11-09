@@ -224,7 +224,6 @@ class Album < ApplicationRecord
   end
 
   def can_edit_collaborators
-    self.status
     # return false if self.status == Album.statuses[:published] || self.status == Album.statuses[:collaborated]
     return false if self.status == 'published' || self.status == 'collaborated'
     return true if self.collaborators_count == 0

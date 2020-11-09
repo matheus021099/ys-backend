@@ -89,8 +89,13 @@ module Api::V1
 
       users = User.search(
         q,
-        fields: [:username, :display_name, :email],
-        where: {id: {not: exclude_ids}, status: {not: User.statuses[:deleted]}},
+        fields: [:username, :display_name],
+        match: :word_start,
+        where: {
+          id: {not: exclude_ids},
+          status: 'active',
+          user_type: {not: ['admin', 'superadmin']}
+        },
         order: orders,
         limit: per_page,
         offset: (page - 1) * per_page
