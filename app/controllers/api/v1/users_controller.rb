@@ -78,9 +78,9 @@ module Api::V1
       q = params[:q] || '*'
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 5).to_i
-      orders = {username: :asc}
+      orders = {}
 
-      #TODO - set roles according to current_user's role
+      #TODO - set roles according to current_user's role, and check min_word_length
       # roles = [:superadmin] if current_user.superadmin?
       # roles = [:superadmin, :admin] if current_user.admin?
       exclude_ids = User.where(user_type: [ User.user_types[:superadmin], User.user_types[:admin] ]).pluck(:id)
