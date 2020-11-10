@@ -202,9 +202,9 @@ class ShopCart < ApplicationRecord
         if order.items.select{ |item| item.status != 'item_shipped' }.blank?
           order.status = ShopOrder.statuses[:order_shipped]
         end
-        # order.merchant = merchant
         order.save!
 
+        #TODO Consider errors come from stripe connection
         payment = Payment.buy(
           sender: customer,
           receiver: merchant,
@@ -216,7 +216,7 @@ class ShopCart < ApplicationRecord
           payment_token: stripe_charge['id'],
           transfer_group: transfer_group,
           order: order
-        )
+        ) rescue 'Seller not connected to Stripe'
 
         unless payment.instance_of? Payment
           # Rails.logger.info 'raise rollback'
@@ -235,57 +235,16 @@ class ShopCart < ApplicationRecord
     end
 
     orders.each do |order|
-      message_body = "#{self.customer.display_name} purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]"
-      Activity.create(
-        sender_id: self.customer_id,
-        receiver_id: order.merchant_id,
-        message: message_body,
-        assoc_type: order.class.name,
-        assoc_id: order.id,
-        module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:order_product],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:unread]
-      )
-      Activity.create(
-        sender_id: self.customer_id,
-        receiver_id: self.customer_id,
-        message: "purchased [#{order.items.collect{|item| item.product.name}.join(', ')}] from #{order.merchant.display_name}",
-        assoc_type: order.class.name,
-        assoc_id: order.id,
-        module_type: Activity.module_types[:activity],
-        action_type: Activity.action_types[:order_product],
-        alert_type: Activity.alert_types[:both],
-        status: Activity.statuses[:read]
-      )
+      order.notify
 
-      ActionCable.server.broadcast("notification_#{order.merchant_id}", {sell: 1})
+      ActionCable.server.broadcast("notification_#{self.merchant_id}", {sell: 1})
       order.items.each do |item|
         item.mark_as_shipped if item.product.category.is_digital
       end
-
-      message_body = "[#{self.customer.display_name}] purchased [#{order.items.collect{|item| item.product.name}.join(', ')}]"
-
-      data = {
-        products: order.items.collect{|item| item.product.as_json(
-          only: [ :id, :name ],
-          include: {
-            covers: {
-              only: [ :id, :cover, :position ]
-            }
-          }
-        )}
-      }
-
-      PushNotificationWorker.perform_async(
-        order.merchant.devices.where(enabled: true).pluck(:token),
-        FCMService::push_notification_types[:product_purchased],
-        message_body,
-        data
-      )
     end
 
     ActionCable.server.broadcast("notification_#{self.customer_id}", {cart: -items_count})
+
     orders
   end
 
