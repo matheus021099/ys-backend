@@ -100,6 +100,7 @@ Rails.application.routes.draw do
           get :signup_users
           post :approve_user
           post :deny_user
+          post :disconnect_stripe
           post :toggle_view_direct_messages
           post :toggle_live_video
           post :toggle_live_video_free

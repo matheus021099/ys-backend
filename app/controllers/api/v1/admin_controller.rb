@@ -243,6 +243,31 @@ module Api::V1
     end
 
 
+    setup_authorization_header(:disconnect_stripe)
+    swagger_api :disconnect_stripe do |api|
+      summary 'disconnect stripe'
+      param :form, :user_id, :string, :required
+    end
+    def disconnect_stripe
+      render_error 'You are not authorized', :unprocessable_entity and return unless current_user.admin? || current_user.moderator?
+      user = User.find(params[:user_id])
+      if user.stripe_connected
+        # user.disconnect_stripe
+        #TODO can only be deleted once all balances are zero.
+        stripe_account = Stripe::Account.delete(user.payment_account_id) rescue {}
+        user.update_attributes(
+          payment_provider: nil,
+          payment_account_id: nil,
+          payment_account_type: nil,
+          payment_publishable_key: nil,
+          payment_access_code: nil
+        )
+      end
+
+      render_success true
+    end
+
+
     setup_authorization_header(:toggle_view_direct_messages)
     swagger_api :toggle_view_direct_messages do |api|
       summary 'toggle view direct messages feature for moderators'
