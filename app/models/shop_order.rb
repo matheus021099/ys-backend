@@ -31,7 +31,7 @@ class ShopOrder < ApplicationRecord
     Util::Number.encode self.id
   end
 
-  def notifiy
+  def notify
     ApplicationMailer.to_buyer_order_email(self).deliver
     ApplicationMailer.to_seller_order_email(self).deliver
 
