@@ -160,6 +160,7 @@ class Stream < ApplicationRecord
 
   def repost(reposter)
     return 'you are trying to repost your own live video' if reposter.id == self.user_id
+    return 'live video is not running' unless self.running?
 
     feed = Feed.insert(
       consumer_id: reposter.id,
