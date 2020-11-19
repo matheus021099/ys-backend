@@ -7,20 +7,20 @@ jobs:
         - integration
         - fix/pyrsistent-build-issue-2
     docker:
-       - image: circleci/ruby:2.4.4-node-browsers
+      - image: circleci/ruby:2.4.4-node-browsers
 
     environment:
-      YOUSOUND_IMAGE: "yousound-api"
-      AWSREGION: "us-east-1"
-      AWSACCOUNTID: "731521589805"
-      APP: "YS-API"
+      YOUSOUND_IMAGE: 'yousound-api'
+      AWSREGION: 'us-east-1'
+      AWSACCOUNTID: '731521589805'
+      APP: 'YS-API'
 
     working_directory: ~/repo
 
     steps:
       - checkout
       - run:
-          name: "PREPARE ENVIRONMENT VARIABLES"
+          name: 'PREPARE ENVIRONMENT VARIABLES'
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               echo "export ENVIRONMENT=production" >> $BASH_ENV
@@ -35,7 +35,7 @@ jobs:
             fi
 
       - run:
-          name: "INSTALL DEPLOYMENT DEPENDENCIES"
+          name: 'INSTALL DEPLOYMENT DEPENDENCIES'
           command: |
             sudo apt-get update && sudo apt-get install python3-pip -y
             ## INSTALL AWS CLI
@@ -45,9 +45,9 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-deps-{{ checksum "Gemfile.lock" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-deps-{{ checksum "Gemfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - run:
           name: install dependencies
@@ -61,7 +61,7 @@ jobs:
           key: v1-deps-{{ checksum "Gemfile.lock" }}
 
       - run:
-          name: "PREPARE FILES FOR DEPLOYMENT"
+          name: 'PREPARE FILES FOR DEPLOYMENT'
           command: |
             # GET THE COMMIT ID TO SET AS PART OF THE INSTANCE NAME FOR PAPERTRAIL
             COMMITID=$(git rev-parse --short HEAD)
@@ -109,6 +109,8 @@ jobs:
             sed -i "s/<STRIPE_PUBLISHABLE_KEY>/$STRIPE_PUBLISHABLE_KEY/g" Dockerrun.aws.json
             sed -i "s/<STRIPE_SECRET_KEY>/$STRIPE_SECRET_KEY/g" Dockerrun.aws.json
             sed -i "s/<STRIPE_CONNECT_CLIENT_ID>/$STRIPE_CONNECT_CLIENT_ID/g" Dockerrun.aws.json
+            sed -i "s/<MUX_TOKEN_ID>/$MUX_TOKEN_ID/g" Dockerrun.aws.json
+            sed -i "s/<MUX_TOKEN_SECRET>/$MUX_TOKEN_SECRET/g" Dockerrun.aws.json
             sed -i "s/<TWITTER_API_KEY>/$TWITTER_API_KEY/g" Dockerrun.aws.json
             sed -i "s/<TWITTER_API_SECRET>/$TWITTER_API_SECRET/g" Dockerrun.aws.json
             sed -i "s/<INTERCOM_SECRET_KEY>/$INTERCOM_SECRET_KEY/g" Dockerrun.aws.json
@@ -140,8 +142,8 @@ jobs:
             sed -i "s/<APP_NAME>/ys-api-$EBENVIRONMENT/g" ./config/newrelic.yml
 
       - deploy:
-         name: "DEPLOY TO EB"
-         command: |
-           # DEPLOY TO EB
-           eb use ys-api-$EBENVIRONMENT
-           eb deploy ys-api-$EBENVIRONMENT
+          name: 'DEPLOY TO EB'
+          command: |
+            # DEPLOY TO EB
+            eb use ys-api-$EBENVIRONMENT
+            eb deploy ys-api-$EBENVIRONMENT

@@ -159,6 +159,14 @@
           "value": "<STRIPE_CONNECT_CLIENT_ID>"
         },
         {
+          "name": "MUX_TOKEN_ID",
+          "value": "<MUX_TOKEN_ID>"
+        },
+        {
+          "name": "MUX_TOKEN_SECRET",
+          "value": "<MUX_TOKEN_SECRET>"
+        },
+        {
           "name": "TWITTER_API_KEY",
           "value": "<TWITTER_API_KEY>"
         },

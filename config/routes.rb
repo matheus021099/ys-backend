@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   match '/auth/twitter/callback', to: 'web#twitter_callback', via: [:get, :post]
   match '/auth/stripe_connect/callback', to: 'web#stripe_connect_callback', via: [:get, :post]
+  match '/mux/callback', to: 'web#mux_callback', via: [:get, :post]
 
   get '/albums/:album_id/download_as_zip', to: 'web#download_as_zip'
 

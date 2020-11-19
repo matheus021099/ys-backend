@@ -1187,6 +1187,7 @@ DEPENDENCIES
   foreman
   friendly_id
   goldiloader
+  httparty
   jwt
   kaminari
   listen (>= 3.0.5, < 3.2)

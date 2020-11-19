@@ -11,12 +11,12 @@ module Clockwork
     config[:tz] = Time.zone
   end
 
-  every(10.seconds, 'stream_signal_checker') {
-    StreamSignalChecker.perform_async
-    # StreamRemainingCounter.perform_async
-  }
+  # every(10.seconds, 'stream_signal_checker') {
+  #   StreamSignalChecker.perform_async
+  #   # StreamRemainingCounter.perform_async
+  # }
   every(1.minute, 'stream_checker') {
-    StreamChecker.perform_async
+    # StreamChecker.perform_async
     AlbumChecker.perform_async
   }
   every(1.hour, 'post_checker') {

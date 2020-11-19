@@ -5,8 +5,10 @@ class Stream < ApplicationRecord
   @@mediapackage = nil
   @@ssm = nil
 
-  STREAM_PER_VIEWER_MINUTE_PRICE = 5.0
-  STREAM_PER_MINUTE_PRICE = 5.8
+  # STREAM_PER_VIEWER_MINUTE_PRICE = 5.0
+  # STREAM_PER_MINUTE_PRICE = 5.8
+  STREAM_PER_VIEWER_MINUTE_PRICE = 14.0
+  ENCODING_PER_MINUTE_PRICE = 0.26
 
   enum status: {
     active: 'active',
@@ -352,72 +354,14 @@ class Stream < ApplicationRecord
 
     Util::Tag.remove(@stream.id)
 
+    result = true
     begin
-      @@medialive ||= Aws::MediaLive::Client.new(region: ENV['AWS_REGION'])
-      @@mediapackage ||= Aws::MediaPackage::Client.new(region: ENV['AWS_REGION'])
-      @@ssm ||= Aws::SSM::Client.new(region: ENV['AWS_REGION'])
-
-      if @stream.running? || @stream.starting?
-        @@medialive.stop_channel({
-          channel_id: @stream.ml_channel_id
-        })
-        @stream.stopped_at = now
-      end
-
-      @@medialive.delete_channel({
-        channel_id: @stream.ml_channel_id
-      })
-
-      @@mediapackage.delete_origin_endpoint({
-        id: @stream.mp_channel_2_ep_1_id
-      })
-
-      @@mediapackage.delete_origin_endpoint({
-        id: @stream.mp_channel_1_ep_1_id
-      })
-
-      @@mediapackage.delete_channel({
-        id: @stream.mp_channel_2_id
-      })
-
-      @@mediapackage.delete_channel({
-        id: @stream.mp_channel_1_id
-      })
-
-      @@ssm.delete_parameters({
-        names: [
-          "/medialive/#{@stream.mp_channel_1_id}_user",
-          "/medialive/#{@stream.mp_channel_2_id}_user"
-        ]
-      })
-
-      ### error raised due to medialive_channal is in deleting
-      # @@medialive.delete_input({
-      #   input_id: @stream.ml_input_id
-      # })
+      @stream.deleted!
+      mux = Services::Mux.new
+      mux.deleteStream(@stream.ml_channel_id)
     rescue => e
       Rails.logger.info(e.message)
       result = e.message
-      @stream.assign_attributes(
-        status: Stream.statuses[:inactive]
-      )
-      @stream.save!
-    else
-      @stream.assign_attributes(
-        mp_channel_1_id: nil,
-        mp_channel_1_url: nil,
-        mp_channel_1_ep_1_id: nil,
-        mp_channel_1_ep_1_url: nil,
-        mp_channel_2_id: nil,
-        mp_channel_2_url: nil,
-        mp_channel_2_ep_1_id: nil,
-        mp_channel_2_ep_1_url: nil,
-        cf_domain: nil,
-        status: Stream.statuses[:inactive]
-      )
-      @stream.save!
-
-      StreamStopWorker.perform_async(@stream.id)
     ensure
       if was_running
         @stream.stopped_at = now
@@ -459,7 +403,6 @@ class Stream < ApplicationRecord
         end
       end
     end
-
-    return result
+    result
   end
 end

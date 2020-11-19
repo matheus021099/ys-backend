@@ -29,6 +29,14 @@ Things you may want to cover:
   sudo service nginx status ( check nginx, web-server running )
   sudo /usr/sbin/passenger-memory-stats ( check passenger, web-application-server is running )
 
+## Flow
+
+### order flow
+
+- when user places an order, he puts the card info and creates the `stripe_token` on front-end (desktop/mobile) side
+- it calls `items/buy` API with `stripe_token`
+- on API side, it gets the amount from the card with `stripe_token` and then divide the amount to merchants and collaborators.
+
 ## Data Structure
 
 ### shop_item

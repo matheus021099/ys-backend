@@ -33,7 +33,30 @@ class WebController < ApplicationController
     puts "\n\n twitter_callback"
     p auth
     p request
-    put "\n\n"
+    put "\n\n\n"
+  end
+
+  def mux_callback
+    puts "\n\n mux_callback"
+    p request
+    puts "\n\n\n"
+
+    type = request.type
+    case type
+      when 'video.live_stream.active'
+        channel_id = request.data.id
+        stream = Stream.find_by(ml_channel_id: channel_id)
+        if stream && !(stream.inactive? || stream.deleted?)
+          stream.running!
+          stream.notify
+        end
+      when 'video.live_stream.idle'
+        channel_id = request.data.id
+        stream = Stream.find_by(ml_channel_id: channel_id)
+        if stream
+          stream.remove
+        end
+    end
   end
 
   def download_as_zip

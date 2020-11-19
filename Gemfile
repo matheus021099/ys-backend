@@ -93,6 +93,9 @@ gem 'faker'
 # enable elastic-search
 gem 'searchkick'
 
+# 3rd party API call
+gem 'httparty'
+
 # firebase clouding message
 gem 'fcm'
 
