@@ -237,7 +237,7 @@ class ShopCart < ApplicationRecord
     orders.each do |order|
       order.notify
 
-      ActionCable.server.broadcast("notification_#{self.merchant_id}", {sell: 1})
+      ActionCable.server.broadcast("notification_#{order.merchant_id}", {sell: 1})
       order.items.each do |item|
         item.mark_as_shipped if item.product.category.is_digital
       end
