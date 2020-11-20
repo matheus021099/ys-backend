@@ -84,18 +84,13 @@ module Api::V1
       @stream = Stream.new(user: current_user, status: Stream.statuses[:active]) unless @stream.present?
       authorize @stream
 
-      # in_sec_group_id = ENV['AWS_MEDIALIVE_INPUT_SECURITY_GROUP_ID'] || '7767738'
-      # ml_input_type = params[:stream][:ml_input_type] || 'RTMP_PUSH'
-      # ml_input_codec = params[:stream][:ml_input_codec] || 'HEVC'
-      # ml_input_resolution = params[:stream][:ml_input_resolution] || 'HD'
-      # ml_input_maximum_bitrate = params[:stream][:ml_input_type] || 'MAX_50_MBPS'
-
-
-
+      genre_id = params[:stream][:genre_id]
+      view_price = params[:stream][:view_price].to_i rescue 0
 
       begin
         mux = Services::Mux.new
-        res = mux.createStream
+        res = mux.createStream()
+        Rails.logger.info(res)
 
         playback1_id = res['data']['playback_ids'][0]['id'] rescue ''
         playback2_id = res['data']['playback_ids'][1]['id'] rescue ''
