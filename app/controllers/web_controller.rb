@@ -41,17 +41,17 @@ class WebController < ApplicationController
     p request
     puts "\n\n\n"
 
-    type = request.type
+    type = request["type"]
     case type
       when 'video.live_stream.active'
-        channel_id = request.data.id
+        channel_id = request["data"]["id"]
         stream = Stream.find_by(ml_channel_id: channel_id)
         if stream && !(stream.inactive? || stream.deleted?)
           stream.running!
           stream.notify
         end
       when 'video.live_stream.idle'
-        channel_id = request.data.id
+        channel_id = request["data"]["id"]
         stream = Stream.find_by(ml_channel_id: channel_id)
         if stream
           stream.remove
