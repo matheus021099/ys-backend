@@ -40,10 +40,19 @@ class Stream < ApplicationRecord
     time
   end
 
-  def checkpoint(check_at, watching_viewers_size, total_viewers_size)
+  def checkpoint(check_at = nil)
     stream = self
     user = stream.user
     now = Time.now
+
+    watching_viewers_size = StreamLog.where(
+      stream_id: stream.id
+    ).delete_all
+    page_track = "Stream: #{stream.id}"
+    total_viewers_size = Activity.where('sender_id = receiver_id').where(
+      page_track: page_track,
+      action_type: Activity.action_types[:view_stream]
+    ).size
 
     check_at ||= now
     prev_checkpoint_at = stream.checkpoint_at || stream.started_at || now
@@ -82,7 +91,7 @@ class Stream < ApplicationRecord
       checkpoint_at: now,
       status: Stream.statuses[:running]
     )
-    checkpoint(now, 0, 0)
+    self.checkpoint
 
     Feed.insert(
       consumer_id: self.user_id,
@@ -380,7 +389,7 @@ class Stream < ApplicationRecord
             status: Activity.statuses[:read]
           )
 
-          checkpoint(@stream.stopped_at, @stream.watching_viewers, @stream.total_viewers)
+          @stream.checkpoint
           Payment.pay_stream(stream: @stream)
         else
           Activity.create(

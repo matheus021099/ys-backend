@@ -4,8 +4,15 @@ class StreamChecker
   sidekiq_options queue: :high, unique: :until_and_while_executing
 
   def perform
-    remaining_time
-    abnormal_delete
+    checkpoint
+    # remaining_time
+    # abnormal_delete
+  end
+
+  def checkpoint
+    Stream.where(status: Stream.statuses[:running]).each do |stream|
+      stream.checkpoint
+    end
   end
 
   def remaining_time

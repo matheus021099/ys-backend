@@ -302,6 +302,7 @@ Rails.application.routes.draw do
           get :can_view
           post :pay_view
           get :view
+          get :watching
         end
       end
 

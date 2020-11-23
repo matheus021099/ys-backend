@@ -16,7 +16,7 @@ module Clockwork
   #   # StreamRemainingCounter.perform_async
   # }
   every(1.minute, 'stream_checker') {
-    # StreamChecker.perform_async
+    StreamChecker.perform_async
     AlbumChecker.perform_async
   }
   every(1.hour, 'post_checker') {

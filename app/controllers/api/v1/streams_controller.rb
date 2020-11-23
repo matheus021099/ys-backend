@@ -357,6 +357,20 @@ module Api::V1
       render_success true
     end
 
+    setup_authorization_header(:watching)
+    swagger_api :on do |api|
+      summary 'viewers inform they are still watching'
+      param :path, :id, :string, :required
+    end
+    def watching
+      skip_authorization
+      StreamLog.find_or_creat_by(
+        stream_id: params[:id],
+        user_id: current_user.id
+      )
+      render_success true
+    end
+
     private
     def set_stream
       @stream = Stream.find(params[:id])

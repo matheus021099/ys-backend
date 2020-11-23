@@ -441,11 +441,7 @@ class Payment < ApplicationRecord
       sender.update_columns(stream_rolled_cost: sender.stream_rolled_cost + sent_amount)
 
       if sender.stream
-        sender.stream.checkpoint(
-          nil,
-          sender.stream.watching_viewers,
-          sender.stream.total_viewers
-        )
+        sender.stream.checkpoint
       end
 
       Payment.create(
