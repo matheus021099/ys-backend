@@ -105,9 +105,9 @@ module Api::V1
           ml_input_dest_1_url: 'rtmp://live.yousound.com:5222/app',
           ml_input_dest_2_url: 'rtmp://live.yousound.com:433/app',
           mp_channel_1_ep_1_id: playback1_id,
-          mp_channel_1_ep_1_url: playback1_id.blank? ? "https://stream.mux.com/#{playback1_id}.m3u8" : '',
+          mp_channel_1_ep_1_url: playback1_id.blank? ? '' : "https://stream.mux.com/#{playback1_id}.m3u8",
           mp_channel_2_ep_1_id: playback2_id,
-          mp_channel_2_ep_1_url: playback2_id.blank? ? "https://stream.mux.com/#{playback2_id}.m3u8" : '',
+          mp_channel_2_ep_1_url: playback2_id.blank? ? '' : "https://stream.mux.com/#{playback2_id}.m3u8",
           cf_domain: nil,
           status: Stream.statuses[:active]
         )

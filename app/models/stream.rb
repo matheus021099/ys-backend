@@ -57,7 +57,7 @@ class Stream < ApplicationRecord
     check_at ||= now
     prev_checkpoint_at = stream.checkpoint_at || stream.started_at || now
     interval = (check_at - prev_checkpoint_at).to_i rescue 0
-    per_sec_cost = (STREAM_PER_MINUTE_PRICE + stream.watching_viewers * STREAM_PER_VIEWER_MINUTE_PRICE) / 60
+    per_sec_cost = (ENCODING_PER_MINUTE_PRICE + stream.watching_viewers * STREAM_PER_VIEWER_MINUTE_PRICE) / 60
     cost = 0
     remaining_seconds = -1
     unless user.enabled_live_video_free

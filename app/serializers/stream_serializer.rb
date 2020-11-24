@@ -4,6 +4,7 @@ class StreamSerializer < ActiveModel::Serializer
     :view_price, :viewers_limit, :notified
   attribute :assoc
   attribute :guests
+  attribute :ml_input_id, if: :is_current_user?
   attribute :ml_input_dest_1_url, if: :is_current_user?
   attribute :is_reposted
 
