@@ -47,7 +47,7 @@ class WebController < ApplicationController
         channel_id = request["data"]["id"]
         stream = Stream.find_by(ml_channel_id: channel_id)
         if stream && !(stream.inactive? || stream.deleted?)
-          stream.running!
+          stream.run
           stream.notify
         end
       when 'video.live_stream.idle'

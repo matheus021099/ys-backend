@@ -372,9 +372,10 @@ class Stream < ApplicationRecord
       Rails.logger.info(e.message)
       result = e.message
     ensure
+      @stream.started_at ||= now
+      @stream.stopped_at ||= now
       if was_running
-        @stream.stopped_at = now
-        played_time = (@stream.stopped_at - @stream.started_at).to_i
+        played_time = (@stream.stopped_at - @stream.started_at).to_i rescue 0
 
         unless @stream.user.enabled_live_video_free
           Activity.create(
@@ -411,6 +412,7 @@ class Stream < ApplicationRecord
           )
         end
       end
+      @stream.save
     end
     result
   end
