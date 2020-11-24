@@ -30,13 +30,13 @@ class Services::Mux
     options = {
       basic_auth: @auth
     }
-    self.class.get(`/v1/live-streams/#{stream_id}`, options)
+    self.class.get("/v1/live-streams/#{stream_id}", options)
   end
 
   def deleteStream(stream_id)
     options = {
       basic_auth: @auth
     }
-    self.class.delete(`/v1/live-streams/#{stream_id}`, options)
+    self.class.delete("/v1/live-streams/#{stream_id}", options)
   end
 end
