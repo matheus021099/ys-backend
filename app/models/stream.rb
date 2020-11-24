@@ -81,7 +81,7 @@ class Stream < ApplicationRecord
       remaining_seconds: stream.remaining_seconds
     })
 
-    true
+    remaining_seconds
   end
 
   def run

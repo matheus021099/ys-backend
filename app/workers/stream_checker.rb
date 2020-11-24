@@ -11,7 +11,9 @@ class StreamChecker
 
   def checkpoint
     Stream.where(status: Stream.statuses[:running]).each do |stream|
-      stream.checkpoint
+      if stream.checkpoint === 0
+        stream.remove
+      end
     end
   end
 
