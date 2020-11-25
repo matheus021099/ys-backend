@@ -3,7 +3,7 @@ module Api::V1
     before_action :set_stream, only: [
       :show, :update, :destroy, :notify,
       :start, :stop, :repost,
-      :can_view, :pay_view, :view
+      :can_view, :pay_view, :view, :watching
     ]
     # skip_after_action :verify_authorized
     # skip_after_action :verify_policy_scoped
@@ -367,7 +367,7 @@ module Api::V1
       StreamLog.find_or_create_by(
         stream_id: params[:id],
         user_id: current_user.id
-      )
+      ) unless @stream.user_id == current_user.id
       render_success true
     end
 
