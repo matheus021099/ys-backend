@@ -1,3 +1,4 @@
+require 'uri'
 class Album < ApplicationRecord
   # include AuthenticatorConcern
 
@@ -665,8 +666,11 @@ class Album < ApplicationRecord
   end
 
   def zip_download_url
-    album_zip_name = self.name + '.zip'
-    self.zip.url(query: {:"response-content-disposition" => "attachment; filename=\"#{album_zip_name}\""})
+    filename = self.name + '.zip'
+    ascii_filename = filename.encode("US-ASCII", undef: :replace, replace: "_")
+    utf8_uri_encoded_filename = URI.encode(filename)
+    # self.zip.url(query: {:"response-content-disposition" => "attachment; filename=\"#{ascii_filename}\""})
+    self.zip.url(query: {:"response-content-disposition" => "attachment; filename=\"#{ascii_filename}\"; filename*=UTF-8''#{utf8_uri_encoded_filename}"})
   end
 
   def async_generate_zip
