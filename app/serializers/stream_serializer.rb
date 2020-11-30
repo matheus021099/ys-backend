@@ -7,6 +7,7 @@ class StreamSerializer < ActiveModel::Serializer
   attribute :ml_input_id, if: :is_current_user?
   attribute :ml_input_dest_1_url, if: :is_current_user?
   attribute :is_reposted
+  attribute :broadcast_seconds
 
   belongs_to :user
   belongs_to :genre
@@ -61,6 +62,10 @@ class StreamSerializer < ActiveModel::Serializer
     else
       nil
     end
+  end
+
+  def broadcast_seconds
+    (Time.now - object.started_at).to_i rescue 0
   end
 
   # def remaining_seconds
