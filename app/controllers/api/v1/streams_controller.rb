@@ -115,6 +115,14 @@ module Api::V1
           @stream.assoc_id = params[:stream][:assoc_id]
           @stream.assoc_type = params[:stream][:assoc_type]
         end
+
+        remaining_seconds = -1
+        unless current_user.enabled_live_video_free
+          remaining_seconds = (current_user.stream_rolled_cost * 60 / Stream::ENCODING_PER_MINUTE_PRICE).to_i
+          remaining_seconds = 0 if remaining_seconds < 0
+        end
+        @stream.remaining_seconds = remaining_seconds
+
         @stream.save!
       rescue => e
         render_error e.message, :unprocessable_entity and return
