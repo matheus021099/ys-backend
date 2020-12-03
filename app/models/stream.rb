@@ -45,18 +45,20 @@ class Stream < ApplicationRecord
     user = stream.user
     now = Time.now
 
+    check_at ||= now
+    prev_checkpoint_at = stream.checkpoint_at || stream.started_at || now
+    interval = (check_at - prev_checkpoint_at).to_i rescue 0
+
     watching_viewers_size = StreamLog.where(
-      stream_id: stream.id
-    ).delete_all
+      stream_id: stream.id,
+      updated_at: prev_checkpoint_at..check_at
+    ).size
     page_track = "Stream: #{stream.id}"
     total_viewers_size = Activity.where('sender_id = receiver_id').where(
       page_track: page_track,
       action_type: Activity.action_types[:view_stream]
     ).size
 
-    check_at ||= now
-    prev_checkpoint_at = stream.checkpoint_at || stream.started_at || now
-    interval = (check_at - prev_checkpoint_at).to_i rescue 0
     per_sec_cost = (ENCODING_PER_MINUTE_PRICE + stream.watching_viewers * STREAM_PER_VIEWER_MINUTE_PRICE) / 60
     cost = 0
     remaining_seconds = -1
@@ -367,6 +369,7 @@ class Stream < ApplicationRecord
     begin
       @stream.deleted!
       mux = Services::Mux.new
+      mux.completeStream(@stream.ml_channel_id)
       mux.deleteStream(@stream.ml_channel_id)
     rescue => e
       Rails.logger.info(e.message)
@@ -411,6 +414,8 @@ class Stream < ApplicationRecord
             stream_rolled_cost: 0
           )
         end
+
+        StreamLog.where(stream_id: @stream.id).delete_all
       end
       @stream.save
     end

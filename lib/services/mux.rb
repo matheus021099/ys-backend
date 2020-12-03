@@ -33,6 +33,13 @@ class Services::Mux
     self.class.get("/v1/live-streams/#{stream_id}", options)
   end
 
+  def completeStream(stream_id)
+    options = {
+      basic_auth: @auth
+    }
+    self.class.put("/v1/live-streams/#{stream_id}/complete", options)
+  end
+
   def deleteStream(stream_id)
     options = {
       basic_auth: @auth

@@ -372,10 +372,13 @@ module Api::V1
     end
     def watching
       skip_authorization
-      StreamLog.find_or_create_by(
-        stream_id: params[:id],
-        user_id: current_user.id
-      ) unless @stream.user_id == current_user.id
+      unless @stream.user_id == current_user.id
+        log = StreamLog.find_or_create_by(
+          stream_id: params[:id],
+          user_id: current_user.id
+        )
+        log.touch
+      end
       render_success true
     end
 
