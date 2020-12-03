@@ -51,7 +51,7 @@ class Stream < ApplicationRecord
 
     watching_viewers_size = StreamLog.where(
       stream_id: stream.id,
-      updated_at: prev_checkpoint_at..check_at
+      updated_at: check_at.ago(1.minute)..check_at
     ).size
     page_track = "Stream: #{stream.id}"
     total_viewers_size = Activity.where('sender_id = receiver_id').where(
