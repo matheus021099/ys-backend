@@ -433,8 +433,7 @@ class Payment < ApplicationRecord
         metadata: {
           payment_type: Payment.payment_types[:stream],
           sender: sender.username,
-        },
-        capture: false
+        }
       )
       return 'Stripe operation failed' if stripe_charge['id'].blank?
 
@@ -454,7 +453,7 @@ class Payment < ApplicationRecord
         payment_fee: stripe_fee,
         fee: sent_amount,
         tax: 0,
-        status: Payment.statuses[:pending]
+        status: Payment.statuses[:done]
       )
     end
 
