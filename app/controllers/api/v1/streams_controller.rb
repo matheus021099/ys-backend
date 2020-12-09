@@ -72,6 +72,7 @@ module Api::V1
       param :form, 'stream[genre_id]', :string, :required
       param :form, 'stream[view_price]', :integer, :required
       param :form, 'stream[valid_period]', :integer, :required
+      param :form, 'stream[viewers_limit]', :integer, :optional
       param :form, 'stream[cover]', :File, :required
       param :form, 'stream[ml_input_type]', :string, :optional, 'UDP_PUSH, RTP_PUSH, RTMP_PUSH, RTMP_PULL, URL_PULL'
       param :form, 'stream[ml_input_codec]', :string, :optional, 'MPEG2, AVC, HEVC'
@@ -86,6 +87,7 @@ module Api::V1
 
       genre_id = params[:stream][:genre_id]
       view_price = params[:stream][:view_price].to_i rescue 0
+      viewers_limit = params[:stream][:viewers_limit].to_i rescue 0
 
       begin
         mux = Services::Mux.new
@@ -99,6 +101,7 @@ module Api::V1
           description: params[:stream][:description] || '',
           genre_id: genre_id,
           view_price: view_price,
+          viewers_limit: viewers_limit,
           cover: params[:stream][:cover],
           ml_channel_id: res['data']['id'],
           ml_input_id: res['data']['stream_key'],
