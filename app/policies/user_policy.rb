@@ -44,7 +44,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def follow?
-    user.id != record.id && !user.following?(record)
+    !user.moderator? && user.id != record.id && !user.following?(record)
   end
 
   def unfollow?
