@@ -9,7 +9,7 @@ module Api::V1
     # skip_after_action :verify_authorized, only: [:hidden_genres]
     before_action :set_user, only: [
       :update, :destroy, :repost_price_proration, :set_repost_price, :change_password,
-      :check_stripe_connection, :instant_payouts, :donate,
+      :check_stripe_connection, :instant_payouts, :donate, :video_credit,
       :info, :invite, :reposted_feeds, :cart_items,
       :has_followed, :follow, :unfollow, :block, :unblock, :favorite, :unfavorite,
       :hidden_genres, :available_stream_period,
@@ -352,6 +352,62 @@ module Api::V1
       #   scope: OpenStruct.new(current_user: current_user),
       #   include_all: true,
       #   include_social_info: false
+
+      render_success true
+    end
+
+
+    setup_authorization_header(:video_credit)
+    swagger_api :video_credit do |api|
+      summary 'add video credit'
+      param :path, :id, :string, :required, 'user id or slug'
+      param :form, :amount, :integer, :required, 'amount in cent'
+      param :form, :payment_token, :string, :optional
+      param :form, :description, :string, :optional
+    end
+    def video_credit
+      authorize @user rescue render_error "You can't add video credit to yourself", :unprocessable_entity and return
+
+      amount = params[:amount].to_i rescue 0
+      description = params[:description] || 'Add Video Credit'
+      render_error 'Please enter the amount', :unprocessable_entity and return if amount < 100
+
+      sender = current_user
+      receiver = @user
+      payment = Payment.video_credit(
+        sender: sender,
+        receiver: receiver,
+        description: description,
+        sent_amount: amount,
+        payment_token: params[:payment_token]
+      )
+      render_error payment, :unprocessable_entity and return unless payment.kind_of? Payment
+
+      message_body = "I just added #{number_to_currency(amount / 100.0)} video credit for live streaming"
+      Util::Message.send(sender, receiver, message_body, nil, nil, FCMService::push_notification_types[:user_donated])
+
+      Activity.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        message: "#{current_user.display_name} just added #{number_to_currency(amount / 100.0)} video credit for live streaming",
+        assoc_type: payment.class.name,
+        assoc_id: payment.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:donation],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:unread]
+      )
+      Activity.create(
+        sender_id: sender.id,
+        receiver_id: sender.id,
+        message: "sent #{receiver.display_name} #{number_to_currency(amount / 100.0)} video credit for live streaming",
+        assoc_type: payment.class.name,
+        assoc_id: payment.id,
+        module_type: Activity.module_types[:activity],
+        action_type: Activity.action_types[:donation],
+        alert_type: Activity.alert_types[:both],
+        status: Activity.statuses[:read]
+      )
 
       render_success true
     end

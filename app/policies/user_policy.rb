@@ -35,6 +35,10 @@ class UserPolicy < ApplicationPolicy
     user.id != record.id
   end
 
+  def video_credit?
+    user.id != record.id
+  end
+
   def info?
     (user && user.id == record.id) || !(record.superadmin? || record.admin?)
   end

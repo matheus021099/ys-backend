@@ -5,6 +5,7 @@ class Payment < ApplicationRecord
     deposit: 'deposit', # pay with credit card
     withdraw: 'withdraw',
     donate: 'donate',
+    video_credit: 'video_credit',
     fee: 'fee',
     repost_price_upgrade_cost: 'repost_price_upgrade_cost',
     shipment: 'shipment',
@@ -73,6 +74,49 @@ class Payment < ApplicationRecord
         sender_id: sender.id,
         receiver_id: receiver.id,
         payment_type: Payment.payment_types[:donate],
+        description: description,
+        payment_token: stripe_charge['id'],
+        sent_amount: sent_amount,
+        received_amount: received_amount,
+        payment_fee: stripe_fee,
+        fee: app_fee,
+        tax: 0,
+        status: Payment.statuses[:done]
+      )
+    end
+
+    def video_credit(sender: nil, receiver: nil, description: '', sent_amount: 0, payment_token: nil)
+      precheck = Payment.precheck([sender, receiver], [], payment_token)
+      return precheck unless precheck === true
+
+      app_fee = Payment.calculate_fee(sent_amount, 'donation', description.downcase)
+      received_amount = sent_amount - app_fee
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Charge.create({
+        amount: sent_amount + stripe_fee,
+        currency: 'usd',
+        source: payment_token,
+        description: Payment.payment_types[:video_credit],
+        metadata: {
+          payment_type: Payment.payment_types[:video_credit],
+          sender: sender.username,
+          receiver: receiver.username,
+          amount: sent_amount
+        },
+      })
+
+      receiver.update_columns(
+        stream_rolled_cost: receiver.stream_rolled_cost + received_amount
+      )
+
+      if receiver.stream
+        receiver.stream.checkpoint
+      end
+
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        payment_type: Payment.payment_types[:video_credit],
         description: description,
         payment_token: stripe_charge['id'],
         sent_amount: sent_amount,
