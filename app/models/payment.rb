@@ -104,6 +104,7 @@ class Payment < ApplicationRecord
           amount: sent_amount
         },
       })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
 
       receiver.update_columns(
         stream_rolled_cost: receiver.stream_rolled_cost + received_amount

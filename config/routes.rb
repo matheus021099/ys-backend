@@ -65,7 +65,7 @@ Rails.application.routes.draw do
           post :change_password
           get :check_stripe_connection
           post :donate
-          post :video_credit,
+          post :video_credit
           get :info
           get :invite
           get :reposted_feeds
