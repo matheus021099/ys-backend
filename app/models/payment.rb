@@ -507,7 +507,7 @@ class Payment < ApplicationRecord
       return precheck unless precheck === true
 
       user = stream.user
-      stream_rolled_cost = user.stream_rolled_cost > stream.cost ? user.stream_rolled_cost - stream.cost.to_i : 0
+      stream_rolled_cost = user.stream_rolled_cost > stream.cost ? user.stream_rolled_cost - stream.cost : 0
       user.update_columns(
         stream_rolled_cost: stream_rolled_cost
       )

@@ -64,7 +64,7 @@ class Stream < ApplicationRecord
     remaining_seconds = -1
     unless user.enabled_live_video_free
       cost =  stream.cost + per_sec_cost * interval
-      remaining_seconds = ((user.stream_rolled_cost - cost) / per_sec_cost).to_i
+      remaining_seconds = ((user.stream_rolled_cost - cost) / per_sec_cost).ceil()
       remaining_seconds = 0 if remaining_seconds < 0
     end
 
@@ -365,7 +365,6 @@ class Stream < ApplicationRecord
 
     Util::Tag.remove(@stream.id)
 
-    result = true
     begin
       @stream.deleted!
       mux = Services::Mux.new
@@ -373,7 +372,7 @@ class Stream < ApplicationRecord
       mux.deleteStream(@stream.ml_channel_id)
     rescue => e
       Rails.logger.info(e.message)
-      result = e.message
+      # result = e.message
     ensure
       @stream.started_at ||= now
       @stream.stopped_at ||= now
