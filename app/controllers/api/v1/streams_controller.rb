@@ -223,7 +223,8 @@ module Api::V1
       render json: current_user,
         serializer: UserSerializer,
         scope: OpenStruct.new(current_user: current_user),
-        include_all: true
+        include_all: true,
+        include_social_info: true
     end
 
 
