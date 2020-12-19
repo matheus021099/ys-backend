@@ -73,6 +73,7 @@ module Api::V1
       param :form, 'stream[view_price]', :integer, :required
       param :form, 'stream[valid_period]', :integer, :required
       param :form, 'stream[viewers_limit]', :integer, :optional
+      param :form, 'stream[collaborators]', :string, :optional
       param :form, 'stream[cover]', :File, :required
       param :form, 'stream[ml_input_type]', :string, :optional, 'UDP_PUSH, RTP_PUSH, RTMP_PUSH, RTMP_PULL, URL_PULL'
       param :form, 'stream[ml_input_codec]', :string, :optional, 'MPEG2, AVC, HEVC'
@@ -126,7 +127,51 @@ module Api::V1
         end
         @stream.remaining_seconds = remaining_seconds
 
+        collaborators_count = 0
+        obj = {}
+        collaborators = []
+        collaborator = nil
+        unless params[:stream][:collaborators].blank?
+          begin
+            data = JSON.parse(params[:stream][:collaborators])
+            obj = data.inject({}){|o, c| o[c['user_id']] = c; o}
+            collaborators = User.where(id: obj.keys)
+            collaborators_count = collaborators.size
+            @stream.collaborators_count = collaborators_count
+          rescue => ex
+          end
+        end
+
+        total_collaborators_share = 0
+        collaborators.each do |collaborator|
+          total_collaborators_share += obj[collaborator.id]['user_share']
+        end
+        creator_share = 100 - total_collaborators_share
+        creator_recoup_cost = (params[:stream][:creator_recoup_cost] || 0).to_i
+        creator_recoup_cost = 0 if creator_recoup_cost < 0
+        render_error 'Total share shoud be less than 100', :unprocessable_entity and return if creator_share <= 0
+
         @stream.save!
+
+        UserStream.create(
+          user_id: current_user.id,
+          stream_id: @stream.id,
+          user_type: UserStream.user_types[:creator],
+          user_share: creator_share,
+          recoup_cost: creator_recoup_cost,
+          status: UserStream.statuses[:accepted]
+        )
+
+        # message_body = "#{current_user.display_name} wants to upload this stream collaboration"
+        collaborators.each do |collaborator|
+          UserStream.create(
+            user_id: collaborator.id,
+            stream_id: @stream.id,
+            user_type: UserStream.user_types[:collaborator],
+            user_share: obj[collaborator.id]['user_share'],
+            status: UserStream.statuses[:accepted]
+          )
+        end
       rescue => e
         render_error e.message, :unprocessable_entity and return
       end
@@ -143,7 +188,7 @@ module Api::V1
       param :form, 'stream[guests_ids]', :string, :optional
       param :form, 'stream[viewers_limit]', :integer, :optional
       param :form, 'stream[extend_period]', :integer, :optional
-      param :form, 'stream[assoc_type]', :string, :optional, 'Album, ShopProduct'
+      param :form, 'stream[assoc_type]', :string, :optional, 'Album, Shopstream'
       param :form, 'stream[assoc_id]', :string, :optional
     end
     def update
@@ -168,8 +213,8 @@ module Api::V1
         case assoc.class.name
           when 'Album'
             result = AlbumSerializer.new(assoc).as_json
-          when 'ShopProduct'
-            result = ShopProductSerializer.new(assoc).as_json
+          when 'Shopstream'
+            result = ShopstreamSerializer.new(assoc).as_json
           when 'User'
             result = UserSerializer.new(assoc).as_json
         end

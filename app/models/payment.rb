@@ -15,6 +15,7 @@ class Payment < ApplicationRecord
     recoup: 'recoup',
     collaborate: 'collaborate',
     stream: 'stream',
+    stream_collaborate: 'stream_collaborate',
     pay_view_stream: 'pay_view_stream'
   }
 
@@ -515,6 +516,47 @@ class Payment < ApplicationRecord
       true
     end
 
+    # def pay_view_stream(sender: nil, stream: nil, payment_token: nil)
+    #   precheck = Payment.precheck([sender, stream], [stream.user], payment_token)
+    #   return 'Free live video' unless stream.view_price > 0
+    #   receiver = stream.user
+    #   sent_amount = stream.view_price
+    #   app_fee = Payment.calculate_fee(sent_amount, 'pay_view_stream')
+    #   received_amount = sent_amount - app_fee
+    #   stripe_fee = Payment.stripe_fee(sent_amount)
+    #   stripe_charge = Stripe::Charge.create({
+    #     amount: sent_amount + stripe_fee,
+    #     application_fee_amount: app_fee,
+    #     currency: 'usd',
+    #     source: payment_token,
+    #     description: Payment.payment_types[:pay_view_stream],
+    #     metadata: {
+    #       payment_type: Payment.payment_types[:pay_view_stream],
+    #       sender: sender.username,
+    #       stream: stream.name,
+    #       stream_id: stream.id,
+    #       amount: sent_amount
+    #     },
+    #   }, {
+    #     stripe_account: receiver.payment_account_id
+    #   })
+    #   return 'Stripe operation failed' if stripe_charge['id'].blank?
+    #   Payment.create(
+    #     sender_id: sender.id,
+    #     receiver_id: receiver.id,
+    #     payment_type: Payment.payment_types[:pay_view_stream],
+    #     payment_token: stripe_charge['id'],
+    #     sent_amount: sent_amount,
+    #     received_amount: received_amount,
+    #     payment_fee: stripe_fee,
+    #     fee: 0,
+    #     tax: 0,
+    #     assoc_type: stream.class.name,
+    #     assoc_id: stream.id,
+    #     status: Payment.statuses[:done]
+    #   )
+    # end
+
     def pay_view_stream(sender: nil, stream: nil, payment_token: nil)
       precheck = Payment.precheck([sender, stream], [stream.user], payment_token)
       return 'Free live video' unless stream.view_price > 0
@@ -524,12 +566,14 @@ class Payment < ApplicationRecord
       app_fee = Payment.calculate_fee(sent_amount, 'pay_view_stream')
       received_amount = sent_amount - app_fee
       stripe_fee = Payment.stripe_fee(sent_amount)
+
+      transfer_group = "#{stream.id}_#{sender.username}_#{Time.now.utc.to_i}"
       stripe_charge = Stripe::Charge.create({
         amount: sent_amount + stripe_fee,
-        application_fee_amount: app_fee,
         currency: 'usd',
         source: payment_token,
         description: Payment.payment_types[:pay_view_stream],
+        transfer_group: transfer_group,
         metadata: {
           payment_type: Payment.payment_types[:pay_view_stream],
           sender: sender.username,
@@ -537,25 +581,177 @@ class Payment < ApplicationRecord
           stream_id: stream.id,
           amount: sent_amount
         },
-      }, {
-        stripe_account: receiver.payment_account_id
       })
       return 'Stripe operation failed' if stripe_charge['id'].blank?
+      stripe_charge_id = stripe_charge['id']
 
-      Payment.create(
-        sender_id: sender.id,
-        receiver_id: receiver.id,
-        payment_type: Payment.payment_types[:pay_view_stream],
-        payment_token: stripe_charge['id'],
-        sent_amount: sent_amount,
-        received_amount: received_amount,
-        payment_fee: stripe_fee,
-        fee: 0,
-        tax: 0,
-        assoc_type: stream.class.name,
-        assoc_id: stream.id,
-        status: Payment.statuses[:done]
+      shared_amount = Payment.view_stream_collaborate(
+        sender: sender,
+        stream: stream,
+        paid_amount: received_amount,
+        transfer_group: transfer_group,
+        payment_token: stripe_charge_id
       )
+
+      if shared_amount < received_amount
+        stripe_transfer = Stripe::Transfer.create({
+          amount: received_amount - shared_amount,
+          currency: 'usd',
+          source_transaction: stripe_charge_id,
+          destination: receiver.payment_account_id,
+          description: Payment.payment_types[:pay_view_stream],
+          transfer_group: transfer_group,
+          metadata: {
+            payment_type: Payment.payment_types[:pay_view_stream],
+            amount: sent_amount,
+            viewer: sender.username,
+          },
+        })
+        return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+        Payment.create(
+          sender_id: sender.id,
+          receiver_id: receiver.id,
+          payment_type: Payment.payment_types[:pay_view_stream],
+          payment_token: stripe_charge_id,
+          sent_amount: sent_amount,
+          received_amount: received_amount,
+          payment_fee: stripe_fee,
+          fee: 0,
+          tax: 0,
+          assoc_type: stream.class.name,
+          assoc_id: stream.id,
+          status: Payment.statuses[:done]
+        )
+      end
+    end
+
+    def view_stream_collaborate(
+      sender: nil,
+      stream: nil,
+      paid_amount: 0,
+      transfer_group: nil,
+      payment_token: nil
+    )
+      shared_amount = 0
+
+      if stream.collaborators_count > 0
+        #TODO add recoup_paid column to UserProduct
+        ### product has collaborators
+        user_stream = UserProduct.where(
+          stream_id: stream.id,
+          user_type: UserProduct.user_types[:creator],
+          status: UserProduct.statuses[:accepted]
+        ).first
+        creator_share = user_stream.user_share
+        creator_recoup_cost = user_stream.recoup_cost
+        recoup_paid_amount = user_stream.recoup_paid
+        recoup_paid = true
+        recoup_remain_amount = 0
+        recoup_current_amount = 0
+
+        if recoup_paid_amount < creator_recoup_cost
+          recoup_paid = false
+          recoup_remain_amount = creator_recoup_cost - recoup_paid_amount
+        end
+
+        ### user_stream.user is receiver, stream creator, but make sure he connected to stripe
+        if user_stream.user.stripe_connected && creator_recoup_cost > 0
+          ### item_total_cost diminished
+          if !recoup_paid
+            recoup_current_amount = paid_amount > recoup_remain_amount ? recoup_remain_amount : paid_amount
+            recoup_remain_amount -= recoup_current_amount
+            paid_amount -= recoup_current_amount
+            shared_amount += recoup_current_amount
+
+            if recoup_current_amount > 0
+              stripe_transfer = Stripe::Transfer.create({
+                amount: recoup_current_amount,
+                currency: 'usd',
+                source_transaction: payment_token,
+                destination: user_stream.user.payment_account_id,
+                description: Payment.payment_types[:recoup],
+                transfer_group: transfer_group,
+                metadata: {
+                  payment_type: Payment.payment_types[:recoup],
+                  stream: stream.name,
+                  recoup_remain_amount: recoup_remain_amount,
+                  viewer: sender.username,
+                }
+              })
+              return 'Stripe operation failed' if stripe_transfer['id'].blank?
+
+              Payment.create(
+                sender_id: sender.id,
+                receiver_id: user_stream.user.id,
+                payment_type: Payment.payment_types[:recoup],
+                payment_token: stripe_transfer['id'],
+                sent_amount: recoup_current_amount,
+                paid_amount: recoup_current_amount,
+                payment_fee: 0,
+                fee: 0,
+                tax: 0,
+                assoc_type: stream.class.name,
+                assoc_id: stream.id,
+                status: Payment.statuses[:done]
+              )
+            end
+
+            user_stream.update_attributes(recoup_paid: user_stream.recoup_paid + recoup_current_amount)
+          end
+        end
+
+        if paid_amount > 0
+          user_streams = UserStream.where(
+            stream_id: stream.id,
+            user_type: UserStream.user_types[:collaborator],
+            status: UserStream.statuses[:accepted]
+          )
+          user_streams.each do |user_stream|
+            ### cannot share the amount because collaborate did not connect to stripe
+            next unless user_stream.user.stripe_connected
+
+            collaborator_amount = (paid_amount * user_stream.user_share / 100).floor
+
+            if collaborator_amount > 0
+              stripe_transfer = Stripe::Transfer.create({
+                amount: collaborator_amount,
+                currency: 'usd',
+                source_transaction: payment_token,
+                destination: user_stream.user.payment_account_id,
+                description: Payment.payment_types[:stream_collaborate],
+                transfer_group: transfer_group,
+                metadata: {
+                  payment_type: Payment.payment_types[:stream_collaborate],
+                  stream: stream.name,
+                  viewer: sender.username,
+                }
+              })
+              next if stripe_transfer['id'].blank?
+
+              Payment.create(
+                sender_id: sender.id,
+                receiver_id: user_stream.user_id,
+                payment_type: Payment.payment_types[:stream_collaborate],
+                payment_token: stripe_transfer['id'],
+                sent_amount: collaborator_amount,
+                received_amount: collaborator_amount,
+                payment_fee: 0,
+                fee: 0,
+                tax: 0,
+                user_share: user_stream.user_share,
+                assoc_type: stream.class.name,
+                assoc_id: stream.id,
+                status: Payment.statuses[:done]
+              )
+
+              shared_amount += collaborator_amount
+            end
+          end
+        end
+      end
+
+      shared_amount
     end
 
     def refund_without_fee(payment: nil, amount: 0, description: '')

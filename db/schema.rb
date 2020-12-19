@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201123195106) do
+ActiveRecord::Schema.define(version: 20201218003243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -546,6 +546,7 @@ ActiveRecord::Schema.define(version: 20201123195106) do
     t.integer  "watching_viewers",      default: 0
     t.integer  "total_viewers",         default: 0
     t.integer  "remaining_seconds",     default: 0
+    t.integer  "collaborators_count",   default: 0
     t.index ["assoc_type", "assoc_id"], name: "index_streams_on_assoc_type_and_assoc_id", using: :btree
     t.index ["genre_id"], name: "index_streams_on_genre_id", using: :btree
     t.index ["id", "user_id"], name: "index_streams_on_id_and_user_id", using: :btree
@@ -753,6 +754,20 @@ ActiveRecord::Schema.define(version: 20201123195106) do
     t.integer "user_id"
     t.integer "role_id"
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
+  end
+
+  create_table "users_streams", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "stream_id"
+    t.string   "user_type"
+    t.integer  "user_share",  default: 100
+    t.integer  "recoup_cost", default: 0
+    t.integer  "recoup_paid", default: 0
+    t.string   "status"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.index ["stream_id"], name: "index_users_streams_on_stream_id", using: :btree
+    t.index ["user_id"], name: "index_users_streams_on_user_id", using: :btree
   end
 
   add_foreign_key "mailboxer_conversation_opt_outs", "mailboxer_conversations", column: "conversation_id", name: "mb_opt_outs_on_conversations_id"
