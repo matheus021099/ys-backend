@@ -23,6 +23,7 @@ class Stream < ApplicationRecord
   belongs_to :user
   belongs_to :assoc, polymorphic: true, optional: true
   belongs_to :genre
+  has_many :user_streams, dependent: :destroy
 
   # default
   after_initialize :set_default_values

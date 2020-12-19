@@ -73,6 +73,7 @@ module Api::V1
       param :form, 'stream[view_price]', :integer, :required
       param :form, 'stream[valid_period]', :integer, :required
       param :form, 'stream[viewers_limit]', :integer, :optional
+      param :form, 'stream[creator_recoup_cost]', :integer, :optional
       param :form, 'stream[collaborators]', :string, :optional
       param :form, 'stream[cover]', :File, :required
       param :form, 'stream[ml_input_type]', :string, :optional, 'UDP_PUSH, RTP_PUSH, RTMP_PUSH, RTMP_PULL, URL_PULL'
