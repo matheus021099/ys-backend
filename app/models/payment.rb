@@ -687,7 +687,7 @@ class Payment < ApplicationRecord
                 payment_type: Payment.payment_types[:recoup],
                 payment_token: stripe_transfer['id'],
                 sent_amount: recoup_current_amount,
-                paid_amount: recoup_current_amount,
+                received_amount: recoup_current_amount,
                 payment_fee: 0,
                 fee: 0,
                 tax: 0,

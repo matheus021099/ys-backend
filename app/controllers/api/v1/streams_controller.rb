@@ -128,7 +128,6 @@ module Api::V1
         end
         @stream.remaining_seconds = remaining_seconds
 
-        collaborators_count = 0
         obj = {}
         collaborators = []
         collaborator = nil
@@ -137,8 +136,6 @@ module Api::V1
             data = JSON.parse(params[:stream][:collaborators])
             obj = data.inject({}){|o, c| o[c['user_id']] = c; o}
             collaborators = User.where(id: obj.keys)
-            collaborators_count = collaborators.size
-            @stream.collaborators_count = collaborators_count
           rescue => ex
           end
         end
@@ -151,6 +148,8 @@ module Api::V1
         creator_recoup_cost = (params[:stream][:creator_recoup_cost] || 0).to_i
         creator_recoup_cost = 0 if creator_recoup_cost < 0
         render_error 'Total share shoud be less than 100', :unprocessable_entity and return if creator_share <= 0
+
+        @stream.collaborators_count = collaborators.size
 
         @stream.save!
 

@@ -254,7 +254,7 @@ class Stream < ApplicationRecord
     return {
       code: true,
       message: 'Allowed'
-    } if current_user.id == @stream.user_id
+    } if @stream.user_streams.exists?(user_id: current_user.id, status: UserStream.statuses[:accepted])
 
     # allow the user who paid with in a day
     payment = Payment.where(
