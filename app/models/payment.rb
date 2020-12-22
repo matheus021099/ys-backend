@@ -614,9 +614,9 @@ class Payment < ApplicationRecord
           receiver_id: receiver.id,
           payment_type: Payment.payment_types[:pay_view_stream],
           payment_token: stripe_charge_id,
-          sent_amount: sent_amount,
-          received_amount: received_amount,
-          payment_fee: stripe_fee,
+          sent_amount: received_amount - shared_amount,
+          received_amount: received_amount - shared_amount,
+          payment_fee: 0,
           fee: 0,
           tax: 0,
           assoc_type: stream.class.name,
@@ -624,6 +624,21 @@ class Payment < ApplicationRecord
           status: Payment.statuses[:done]
         )
       end
+
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: User.public_relations_user.id,
+        payment_type: Payment.payment_types[:pay_view_stream],
+        payment_token: stripe_charge_id,
+        sent_amount: sent_amount,
+        received_amount: app_fee,
+        payment_fee: stripe_fee,
+        fee: 0,
+        tax: 0,
+        assoc_type: stream.class.name,
+        assoc_id: stream.id,
+        status: Payment.statuses[:done]
+      )
     end
 
     def view_stream_collaborate(

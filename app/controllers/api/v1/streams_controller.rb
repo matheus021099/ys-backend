@@ -90,6 +90,9 @@ module Api::V1
       genre_id = params[:stream][:genre_id]
       view_price = params[:stream][:view_price].to_i rescue 0
       viewers_limit = params[:stream][:viewers_limit].to_i rescue 0
+      creator_recoup_cost = params[:stream][:creator_recoup_cost].to_i rescue 0
+
+      render_error 'Recoup price shoud not be less than $1.00', :unprocessable_entity and return if creator_recoup_cost != 0 && creator_recoup_cost < 100
 
       begin
         mux = Services::Mux.new
@@ -145,7 +148,6 @@ module Api::V1
           total_collaborators_share += obj[collaborator.id]['user_share']
         end
         creator_share = 100 - total_collaborators_share
-        creator_recoup_cost = (params[:stream][:creator_recoup_cost] || 0).to_i
         creator_recoup_cost = 0 if creator_recoup_cost < 0
         render_error 'Total share shoud be less than 100', :unprocessable_entity and return if creator_share <= 0
 
