@@ -636,12 +636,10 @@ class Payment < ApplicationRecord
       shared_amount = 0
 
       if stream.collaborators_count > 0
-        #TODO add recoup_paid column to UserProduct
-        ### product has collaborators
-        user_stream = UserProduct.where(
+        user_stream = UserStream.where(
           stream_id: stream.id,
-          user_type: UserProduct.user_types[:creator],
-          status: UserProduct.statuses[:accepted]
+          user_type: UserStream.user_types[:creator],
+          status: UserStream.statuses[:accepted]
         ).first
         creator_share = user_stream.user_share
         creator_recoup_cost = user_stream.recoup_cost
