@@ -124,6 +124,25 @@ class Stream < ApplicationRecord
 
     ActionCable.server.broadcast("stream_creator_#{self.id}", { notified: true })
 
+    if self.collaborators_count > 0
+      creator_stream = self.user_streams.where(users_streams: {
+        user_type: UserStream.user_types[:creator],
+        status: UserStream.statuses[:accepted]
+      }).first
+      # recoup_cost = creator_stream.recoup_cost > 0 ? number_to_currency(creator_stream.recoup_cost / 100.0) : 'not set'
+      recoup_cost = number_to_currency(creator_stream.recoup_cost / 100.0)
+
+      self.user_streams.where(users_streams: {
+        user_type: UserStream.user_types[:collaborator],
+        status: UserStream.statuses[:accepted]
+      }).each do |user_stream|
+        message_body = "You have been added as a live pay per view collaborator to <b>#{self.name}</b> by <b>#{self.user.display_name}</b>. " \
+          "The recoup cost of this event is <b>#{recoup_cost}</b>. After the recoup cost is reached, " \
+          "you will receive <b>#{user_stream.user_share}%</b> of every <b>#{number_to_currency(self.view_price / 100.0)}</b> pay per view sold on this event for the next 24 hours."
+        Util::Message.send(self.user, user_stream.user, message_body)
+      end
+    end
+
     message_body = "#{self.user.username} broadcasting live!"
     data = self.as_json(
       only: [ :id, :user_id, :name, :cover ],
