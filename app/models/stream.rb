@@ -1,4 +1,5 @@
 class Stream < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
   acts_as_taggable_on :guests
 
   @@medialive = nil
