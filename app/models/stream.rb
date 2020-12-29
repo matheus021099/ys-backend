@@ -139,7 +139,7 @@ class Stream < ApplicationRecord
       }).each do |user_stream|
         message_body = "You have been added as a live pay per view collaborator to <b>#{self.name}</b> by <b>#{self.user.display_name}</b>. " \
           "The recoup cost of this event is <b>#{recoup_cost}</b>. After the recoup cost is reached, " \
-          "you will receive <b>#{user_stream.user_share}%</b> of every <b>#{number_to_currency(self.view_price / 100.0)}</b> pay per view sold on this event for the next 24 hours."
+          "you will receive <b>#{user_stream.user_share}%</b> of every <b>#{number_to_currency(self.view_price / 100.0)}</b> pay per view sold on this event until it's ended."
         Util::Message.send(self.user, user_stream.user, message_body)
       end
     end
