@@ -96,6 +96,8 @@ Rails.application.routes.draw do
 
       resources :devices, only: [:create]
 
+      resources :invitations, only: [:create]
+
       resources :admin, only: [] do
         collection do
           get :users

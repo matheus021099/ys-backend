@@ -23,7 +23,7 @@ module MailerHelper
     end
   end
 
-  def invitation_url(app_path, token)
+  def attendee_invitation_url(app_path, token)
     if app_path.blank?
       "#{ENV['WEB_BASE_URL']}/register/attendee/#{token}"
     else

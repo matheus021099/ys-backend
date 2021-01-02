@@ -81,7 +81,7 @@ module Api::V1
 
     swagger_api :sign_up_as_listener do |api|
       summary "sign up as listener"
-      param :form, "user[invitation_token]", :string, :optional
+      param :form, "user[attendee_invitation_token]", :string, :optional
 
       param :form, "user[username]", :string, :required
       param :form, "user[display_name]", :string, :required
@@ -155,8 +155,8 @@ module Api::V1
           status: Activity.statuses[:read]
         )
         ### make a relation between a user and an attendee
-        unless params[:user][:invitation_token].blank?
-          attendee = Attendee.find_by(invitation_token: params[:user][:invitation_token])
+        unless params[:user][:attendee_invitation_token].blank?
+          attendee = Attendee.find_by(invitation_token: params[:user][:attendee_invitation_token])
           if attendee.present?
             attendee.update_attributes(
               invitation_token: nil,
