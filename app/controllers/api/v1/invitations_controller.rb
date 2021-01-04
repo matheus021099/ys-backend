@@ -1,6 +1,6 @@
 module Api::V1
   class InvitationsController < ApiController
-    helper MailerHelper
+    include MailerHelper
 
     swagger_controller :invitations, 'invitation'
 
@@ -17,7 +17,7 @@ module Api::V1
 
       render_error 'failed', :unprocessable_entity unless @invitation.save
 
-      render_success {
+      render json: {
         url: invitation_url(nil, @invitation.invitation_token)
       }
     end
