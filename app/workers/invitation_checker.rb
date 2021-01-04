@@ -8,6 +8,6 @@ class InvitationChecker
   end
 
   def remove_expired
-    Invitation.where("status = ? AND invitation.created_at < ?", Invitation.statuses[:pending], 3.day.ago).destroy_all
+    Invitation.where("status = ? AND created_at < ?", Invitation.statuses[:pending], 3.day.ago).destroy_all
   end
 end

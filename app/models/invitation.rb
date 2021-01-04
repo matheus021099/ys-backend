@@ -10,6 +10,6 @@ class Invitation < ApplicationRecord
 
   after_initialize :set_default_values
   def set_default_values
-    self.status ||= Invitation.statuses[:accepted]
+    self.status ||= Invitation.statuses[:pending]
   end
 end
