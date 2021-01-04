@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201218003243) do
+ActiveRecord::Schema.define(version: 20201230101055) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -171,6 +171,17 @@ ActiveRecord::Schema.define(version: 20201218003243) do
     t.integer "sequence",    default: 0
     t.index ["ancestry"], name: "index_genres_on_ancestry", using: :btree
     t.index ["slug"], name: "index_genres_on_slug", unique: true, using: :btree
+  end
+
+  create_table "invitations", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "inviter_id"
+    t.string   "invitation_token"
+    t.string   "status"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["inviter_id"], name: "index_invitations_on_inviter_id", using: :btree
+    t.index ["user_id"], name: "index_invitations_on_user_id", using: :btree
   end
 
   create_table "mailboxer_conversation_opt_outs", force: :cascade do |t|

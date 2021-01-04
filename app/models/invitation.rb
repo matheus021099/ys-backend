@@ -12,8 +12,4 @@ class Invitation < ApplicationRecord
   def set_default_values
     self.status ||= Invitation.statuses[:accepted]
   end
-
-  def new_invitation_token
-    SecureRandom.urlsafe_base64(16)
-  end
 end

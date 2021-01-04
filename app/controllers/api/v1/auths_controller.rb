@@ -155,14 +155,22 @@ module Api::V1
           status: Activity.statuses[:read]
         )
         ### make a relation between a user and an attendee
-        unless params[:user][:attendee_invitation_token].blank?
-          attendee = Attendee.find_by(invitation_token: params[:user][:attendee_invitation_token])
+        if params[:user][:attendee_invitation_token].present?
+          attendee = Attendee.find_by(invitation_token: params[:user][:attendee_invitation_token], status: Attendee.statuses[:created])
           if attendee.present?
             attendee.update_attributes(
               invitation_token: nil,
               invited_at: nil,
               user_id: user.id,
               status: Attendee.statuses[:accepted]
+            )
+          end
+        elsif params[:user][:invitation_token].present?
+          invitation = Invitation.find_by(invitation_token: params[:user][:invitation_token], status: Invitation.statuses[:pending])
+          if invitation.present?
+            invitation.update_attributes(
+              user_id: user.id,
+              status: Invitation.statuses[:accepted]
             )
           end
         end

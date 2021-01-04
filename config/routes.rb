@@ -96,8 +96,6 @@ Rails.application.routes.draw do
 
       resources :devices, only: [:create]
 
-      resources :invitations, only: [:create]
-
       resources :admin, only: [] do
         collection do
           get :users
@@ -121,6 +119,12 @@ Rails.application.routes.draw do
           get :invite
         end
 
+        collection do
+          get :find_by_token
+        end
+      end
+
+      resources :invitations, only: [:create] do
         collection do
           get :find_by_token
         end

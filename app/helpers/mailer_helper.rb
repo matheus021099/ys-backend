@@ -31,6 +31,14 @@ module MailerHelper
     end
   end
 
+  def invitation_url(app_path, token)
+    if app_path.blank?
+      "#{ENV['WEB_BASE_URL']}/register/invited/#{token}"
+    else
+      "#{app_path}/register/invited/#{token}"
+    end
+  end
+
   def unlock_url(app_path, token)
     if app_path.blank?
       "#{ENV['WEB_BASE_URL']}/auth/unlock/#{token}"

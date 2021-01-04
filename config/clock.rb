@@ -21,6 +21,7 @@ module Clockwork
   }
   every(1.hour, 'post_checker') {
     PostChecker.perform_async
+    InvitationChecker.perform_async
   }
   every(12.hours, 'message_checker') {
     MessageChecker.perform_async
