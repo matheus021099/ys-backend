@@ -2,6 +2,10 @@ module Api::V1
   class InvitationsController < ApiController
     include MailerHelper
 
+    skip_before_action :authenticate_token!, only: [:find_by_token]
+    skip_after_action :verify_authorized, only: [:find_by_token]
+    # skip_after_action :verify_policy_scoped
+
     swagger_controller :invitations, 'invitation'
 
 
@@ -9,9 +13,9 @@ module Api::V1
       summary 'create an invitation'
     end
     def create
-      skip_authorization
-
       @invitation = Invitation.new
+      authorize @invitation
+
       @invitation.inviter = current_user
       @invitation.invitation_token = SecureRandom.urlsafe_base64(16)
 
@@ -34,7 +38,7 @@ module Api::V1
 
       render_error 'Token invalid', :unprocessable_entity and return unless @invitation.present?
 
-      if @invitation.invited_at < 3.days.ago
+      if @invitation.created_at < 3.days.ago
         @invitation.update_attributes(status: Invitation.statuses[:expired])
         render_error 'Token expired', :unprocessable_entity and return
       end
