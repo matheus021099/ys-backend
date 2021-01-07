@@ -35,7 +35,7 @@ class UserSerializer < ActiveModel::Serializer
   attribute :demand_stream_seconds, if: :include_social_info?
   # attribute :social_provider, if: :include_social_info?
   attribute :social_user_id, if: :include_social_info?
-  # attribute :social_user_name, if: :include_social_info?
+  attribute :social_user_name, if: :include_social_info?
   # attribute :social_token, if: :include_social_info?
   # attribute :social_token_secret, if: :include_social_info?
 

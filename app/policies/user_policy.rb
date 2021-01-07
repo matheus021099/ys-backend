@@ -130,6 +130,7 @@ class UserPolicy < ApplicationPolicy
 
       :request_role,
       :social_user_id,
+      :social_user_name,
 
       :genre_id,
       # :release_count,
