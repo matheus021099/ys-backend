@@ -111,6 +111,10 @@ class ShopProduct < ApplicationRecord
 
   scope :published, -> { where('status = ?', ShopProduct.statuses[:published]) }
 
+  # define alias attributes
+  alias_attribute :user_id, :merchant_id
+  alias_attribute :user, :merchant
+
   # default
   after_initialize :set_default_values
   def set_default_values

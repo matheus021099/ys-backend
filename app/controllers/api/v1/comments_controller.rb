@@ -26,13 +26,19 @@ module Api::V1
       comment_ids = comments_1 + comments_2
       comments = Comment.where('id IN (?)', comment_ids).where.not(user_id: current_user.block_list).order('created_at desc').page(page).per(per_page)
 
+      commented = false
+      if ['Album', 'ShopProduct'].include?(commentable.class.name) && commentable.user_id != current.user_id
+        commented = commentable.comments.exists?(user_id: current_user.id)
+      end
+
       render_success(
         comments: ActiveModel::SerializableResource.new(
           comments,
           scope: OpenStruct.new(current_user: current_user),
           include_commenter: true
         ),
-        pagination: pagination(comments)
+        pagination: pagination(comments),
+        commented: commented
       )
     end
 
