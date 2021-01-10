@@ -27,7 +27,7 @@ module Api::V1
       comments = Comment.where('id IN (?)', comment_ids).where.not(user_id: current_user.block_list).order('created_at desc').page(page).per(per_page)
 
       commented = false
-      if ['Album', 'ShopProduct'].include?(commentable.class.name) && commentable.user_id != current.user_id
+      if ['Album', 'ShopProduct'].include?(commentable.class.name) && commentable.user_id != current_user.id
         commented = commentable.comments.exists?(user_id: current_user.id)
       end
 
