@@ -149,7 +149,7 @@ module Api::V1
         end
         creator_share = 100 - total_collaborators_share
         creator_recoup_cost = 0 if creator_recoup_cost < 0
-        render_error 'Total share shoud be less than 100', :unprocessable_entity and return if creator_share <= 0
+        render_error 'Total share shoud not be greater than 100', :unprocessable_entity and return if creator_share < 0
 
         @stream.collaborators_count = collaborators.size
 
