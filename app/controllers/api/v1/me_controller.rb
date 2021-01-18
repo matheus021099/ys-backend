@@ -108,9 +108,12 @@ module Api::V1
       summary 'albums to attach the live video'
     end
     def video_attach_albums
-      render json: current_user.stream_attach_albums_query,
+      albums = current_user.stream_attach_albums_query || []
+      render json: ActiveModel::Serializer::CollectionSerializer.new(
+        albums,
         serializer: AlbumSerializer,
         scope: OpenStruct.new(current_user: current_user)
+      )
     end
 
 
@@ -119,9 +122,12 @@ module Api::V1
       summary 'products to attach the live video'
     end
     def video_attach_products
-      render json: current_user.stream_attach_products_query,
+      products = current_user.stream_attach_products_query || []
+      render json: ActiveModel::Serializer::CollectionSerializer.new(
+        products,
         serializer: ShopProductSerializer,
         scope: OpenStruct.new(current_user: current_user)
+      )
     end
   end
 end

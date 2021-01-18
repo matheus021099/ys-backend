@@ -68,7 +68,7 @@ class ShopProductSerializer < ActiveModel::Serializer
   end
 
   def is_reposted
-    if scope && scope.current_user
+    if scope&.current_user
       Feed.where(
         consumer_id: scope.current_user.id,
         publisher_id: scope.current_user.id,
@@ -86,8 +86,8 @@ class ShopProductSerializer < ActiveModel::Serializer
   end
 
   def include_digital_content?
-    object.category.is_digital &&
-    scope && scope.current_user && (
+    object&.category&.is_digital &&
+    scope&.current_user && (
       scope.current_user.id == object.merchant_id ||
       ShopItem.where(
         product_id: object.id,
