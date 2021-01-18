@@ -121,7 +121,7 @@ module Api::V1
     def video_attach_products
       render json: current_user.stream_attach_products_query,
         serializer: ShopProductSerializer,
-        scope: OpenStruct.new(current_user: current_user),
+        scope: OpenStruct.new(current_user: current_user)
     end
   end
 end
