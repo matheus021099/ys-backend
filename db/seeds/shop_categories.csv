@@ -1,25 +1,24 @@
 name,is_digital
 "Tee",false
+"Hats",false
 "Sweatshirt / Hoodie",false
-"Outerwear",false
-"Shorts",false
-"Shirt",false
-"Hat",false
-"Bottom",false
-"Accessory",false
 "Vinyl",false
-"Musical Instruments",false
-"CD",false
+"Digital Audio",true
+"Sample Pack",true
 "Cassette",false
-"DVD",false
-"USB",false
-"Poster",false
-"Ticket",false
-"Digital - Audio",true
-"Digital - Sample Pack",true
-"Digital - Software",true
-"Digital - Video",true
-"Digital - Ebook",true
-"Digital - Sheet Music",true
-"Digital - Image",true
+"Outerwear",false
+"Tops",false
+"Accessories",false
+"Musical Instruments",false
+"Bottoms",false
+"Shorts",false
 "Other",false
+"CD",false
+"USB",false
+"Posters",false
+"Prints",true
+"Tickets",false
+"Software",true
+"Video",true
+"Ebook",true
+"Sheet Music",true
