@@ -101,5 +101,27 @@ module Api::V1
         include_all: true,
         include_social_info: false
     end
+
+
+    setup_authorization_header(:video_attach_albums)
+    swagger_api :video_attach_albums do |api|
+      summary 'albums to attach the live video'
+    end
+    def video_attach_albums
+      render json: current_user.stream_attach_albums_query,
+        serializer: AlbumSerializer,
+        scope: OpenStruct.new(current_user: current_user)
+    end
+
+
+    setup_authorization_header(:video_attach_products)
+    swagger_api :video_attach_products do |api|
+      summary 'products to attach the live video'
+    end
+    def video_attach_products
+      render json: current_user.stream_attach_products_query,
+        serializer: ShopProductSerializer,
+        scope: OpenStruct.new(current_user: current_user),
+    end
   end
 end

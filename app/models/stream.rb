@@ -20,6 +20,7 @@ class Stream < ApplicationRecord
   }
 
   mount_uploader :cover, VideoCoverUploader
+  mount_uploader :digital_content, FileUploader
 
   belongs_to :user
   belongs_to :assoc, polymorphic: true, optional: true
@@ -34,6 +35,10 @@ class Stream < ApplicationRecord
   end
 
   # custom attributes
+  def digital_content_url
+    self.digital_content.url(query: {:"response-content-disposition" => "attachment; filename=\"#{digital_content_name}\""})
+  end
+
   def broadcast_time
     now = Time.now
     stream_started_at = self.started_at || now

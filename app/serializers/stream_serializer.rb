@@ -1,6 +1,6 @@
 class StreamSerializer < ActiveModel::Serializer
   attributes :id, :name, :description, :cover, :started_at, :stopped_at, :status, :mp_channel_1_ep_1_url,
-    :valid_period, :remaining_seconds, :assoc_type,
+    :valid_period, :remaining_seconds, :assoc_type, :digital_content_name,
     :view_price, :viewers_limit, :notified
   attribute :assoc
   attribute :guests
@@ -8,6 +8,8 @@ class StreamSerializer < ActiveModel::Serializer
   attribute :ml_input_dest_1_url, if: :is_current_user?
   attribute :is_reposted
   attribute :broadcast_seconds
+  attribute :digital_content_url
+  attribute :accounts
 
   belongs_to :user
   belongs_to :genre
@@ -47,6 +49,17 @@ class StreamSerializer < ActiveModel::Serializer
       User.where(id: object.guest_list),
       serializer: UserSerializer,
       scope: scope
+    )
+  end
+
+  def accounts
+    user_ids = object.account_ids || []
+    user_ids.unshift(scope.current_user.id) if scope&.current_user
+    users = User.where(id: user_ids)
+    ActiveModelSerializers::SerializableResource.new(
+      users,
+      each_serializer: UserSerializer1,
+      scope: OpenStruct.new(current_user: scope&.current_user)
     )
   end
 

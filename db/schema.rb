@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201230101055) do
+ActiveRecord::Schema.define(version: 20210118084814) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -558,6 +558,9 @@ ActiveRecord::Schema.define(version: 20201230101055) do
     t.integer  "total_viewers",         default: 0
     t.integer  "remaining_seconds",     default: 0
     t.integer  "collaborators_count",   default: 0
+    t.string   "digital_content"
+    t.string   "digital_content_name"
+    t.text     "account_ids",           default: [],                    array: true
     t.index ["assoc_type", "assoc_id"], name: "index_streams_on_assoc_type_and_assoc_id", using: :btree
     t.index ["genre_id"], name: "index_streams_on_genre_id", using: :btree
     t.index ["id", "user_id"], name: "index_streams_on_id_and_user_id", using: :btree

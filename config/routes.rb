@@ -55,6 +55,8 @@ Rails.application.routes.draw do
           post :mutual_users
           post :connect_stripe
           get :disconnect_stripe
+          get :video_attach_albums
+          get :video_attach_products
         end
       end
 

@@ -706,6 +706,31 @@ class User < ApplicationRecord
     # query = Album.where(id: album_ids)
   end
 
+  def stream_attach_albums_query
+    Album
+      .select('t1.*')
+      .from('albums t1')
+      .joins("RIGHT JOIN "\
+        "(SELECT assoc_id, feed_type FROM feeds "\
+          "WHERE publisher_id = '#{self.id}' AND assoc_type = 'Album' AND feed_type IN ('#{Feed.feed_types[:release]}', '#{Feed.feed_types[:repost]}') "\
+          "GROUP BY assoc_id, feed_type) t2 "\
+        "ON t1.id = t2.assoc_id")
+      .where("album_type = '#{Album.album_types[:album]}'")
+      .order("feed_type = '#{Feed.feed_types[:release]}' DESC")
+  end
+
+  def stream_attach_products_query
+    ShopProduct
+      .select('t1.*')
+      .from('shop_products t1')
+      .joins("RIGHT JOIN "\
+        "(SELECT assoc_id, feed_type FROM feeds "\
+          "WHERE publisher_id = '#{self.id}' AND assoc_type = 'ShopProduct' AND feed_type IN ('#{Feed.feed_types[:release]}', '#{Feed.feed_types[:repost]}') "\
+          "GROUP BY assoc_id, feed_type) t2 "\
+        "ON t1.id = t2.assoc_id")
+      .order("feed_type = '#{Feed.feed_types[:release]}' DESC")
+  end
+
   def follower_query(filter)
     case filter
       when 'listener'
