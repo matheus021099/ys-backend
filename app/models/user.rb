@@ -707,28 +707,58 @@ class User < ApplicationRecord
   end
 
   def stream_attach_albums_query
-    Album
-      .select('t1.*')
-      .from('albums t1')
-      .joins("RIGHT JOIN "\
-        "(SELECT assoc_id, feed_type FROM feeds "\
-          "WHERE publisher_id = '#{self.id}' AND assoc_type = 'Album' AND feed_type IN ('#{Feed.feed_types[:release]}', '#{Feed.feed_types[:repost]}') "\
-          "GROUP BY assoc_id, feed_type) t2 "\
-        "ON t1.id = t2.assoc_id")
-      .where("album_type = '#{Album.album_types[:album]}'")
-      .order("feed_type = '#{Feed.feed_types[:release]}' DESC")
+    user_id = self.id
+
+    own_album_ids = Album.joins(:user_albums)
+      .where(
+        users_albums: {
+          user_id: user_id,
+          user_type: [
+            UserAlbum.user_types[:creator],
+            UserAlbum.user_types[:collaborator],
+            UserAlbum.user_types[:label]
+          ]
+        },
+        album_type: Album.album_types[:album]
+      )
+      .where.not(status: Album.statuses[:deleted])
+      .order(created_at: :desc)
+      .pluck(:id)
+
+    reposted_album_ids = Feed
+      .where(
+        publisher_id: user_id,
+        assoc_type: 'Album',
+        feed_type: Feed.feed_types[:repost]
+      )
+      .group(:assoc_id)
+      .count.keys()
+
+    album_ids = own_album_ids + reposted_album_ids
+
+    Album.includes(:tracks).where(id: album_ids)
   end
 
   def stream_attach_products_query
-    ShopProduct
-      .select('t1.*')
-      .from('shop_products t1')
-      .joins("RIGHT JOIN "\
-        "(SELECT assoc_id, feed_type FROM feeds "\
-          "WHERE publisher_id = '#{self.id}' AND assoc_type = 'ShopProduct' AND feed_type IN ('#{Feed.feed_types[:release]}', '#{Feed.feed_types[:repost]}') "\
-          "GROUP BY assoc_id, feed_type) t2 "\
-        "ON t1.id = t2.assoc_id")
-      .order("feed_type = '#{Feed.feed_types[:release]}' DESC")
+    user_id = self.id
+    own_product_ids = ShopProduct.joins(:user_products)
+      .where(users_products: { user_id: user_id })
+      .where.not(status: ShopProduct.statuses[:deleted])
+      .order(created_at: :desc)
+      .pluck(:id)
+
+    reposted_product_ids = Feed
+      .where(
+        publisher_id: user_id,
+        assoc_type: 'ShopProduct',
+        feed_type: Feed.feed_types[:repost]
+      )
+      .group(:assoc_id)
+      .count.keys()
+
+    product_ids = own_product_ids + reposted_product_ids
+
+    ShopProduct.includes(:merchant, :category, :variants, :shipments, :covers).where(id: product_ids)
   end
 
   def follower_query(filter)
