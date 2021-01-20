@@ -91,6 +91,7 @@ module Api::V1
       view_price = params[:stream][:view_price].to_i rescue 0
       viewers_limit = params[:stream][:viewers_limit].to_i rescue 0
       creator_recoup_cost = params[:stream][:creator_recoup_cost].to_i rescue 0
+      account_ids = params[:stream][:account_ids].split(',').map(&:strip) rescue []
 
       render_error 'Recoup price shoud not be less than $1.00', :unprocessable_entity and return if creator_recoup_cost != 0 && creator_recoup_cost < 100
 
@@ -117,6 +118,7 @@ module Api::V1
           mp_channel_2_ep_1_id: playback2_id,
           mp_channel_2_ep_1_url: playback2_id.blank? ? '' : "https://stream.mux.com/#{playback2_id}.m3u8",
           cf_domain: nil,
+          account_ids: account_ids,
           status: Stream.statuses[:active]
         )
         if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?

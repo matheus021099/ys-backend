@@ -1,6 +1,6 @@
 class StreamSerializer < ActiveModel::Serializer
   attributes :id, :name, :description, :cover, :started_at, :stopped_at, :status, :mp_channel_1_ep_1_url,
-    :valid_period, :remaining_seconds, :assoc_type, :digital_content_name,
+    :valid_period, :remaining_seconds, :assoc_type, :account_ids, :digital_content_name,
     :view_price, :viewers_limit, :notified
   attribute :assoc
   attribute :guests
@@ -53,13 +53,15 @@ class StreamSerializer < ActiveModel::Serializer
   end
 
   def accounts
+    current_user_id = scope&.current_user&.id || 0
     user_ids = object.account_ids || []
     user_ids.unshift(scope.current_user.id) if scope&.current_user
-    users = User.where(id: user_ids)
+    users = User.where(id: user_ids).order("id = #{current_user_id} DESC")
     ActiveModelSerializers::SerializableResource.new(
       users,
       each_serializer: UserSerializer1,
-      scope: OpenStruct.new(current_user: scope&.current_user)
+      scope: OpenStruct.new(current_user: scope&.current_user),
+      include_is_following: true
     )
   end
 
