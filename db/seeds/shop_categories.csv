@@ -10,11 +10,11 @@ name,is_digital
 "Tops",false
 "Accessories",false
 "Musical Instruments",false
+"USB",false
 "Bottoms",false
 "Shorts",false
 "Other",false
 "CD",false
-"USB",false
 "Posters",false
 "Prints",true
 "Tickets",false

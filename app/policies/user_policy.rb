@@ -100,7 +100,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update_role?
-    user.admin? && user.moderator? && user.id != record.id
+    (user.admin? || user.moderator?) && user.id != record.id
   end
 
   def permitted_attributes
