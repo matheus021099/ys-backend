@@ -80,6 +80,8 @@ module Api::V1
       param :form, 'stream[ml_input_codec]', :string, :optional, 'MPEG2, AVC, HEVC'
       param :form, 'stream[ml_input_resolution]', :string, :optional, 'SD, HD, UHD'
       param :form, 'stream[ml_input_maximum_bitrate]', :string, :optional, 'MAX_10_MBPS, MAX_20_MBPS, MAX_50_MBPS'
+      param :form, 'stream[digital_content]', :File, :optional
+      param :form, 'stream[digital_content_name]', :string, :optional
     end
     def create
       # skip_authorization
@@ -119,6 +121,8 @@ module Api::V1
           mp_channel_2_ep_1_url: playback2_id.blank? ? '' : "https://stream.mux.com/#{playback2_id}.m3u8",
           cf_domain: nil,
           account_ids: account_ids,
+          digital_content: params[:stream][:digital_content],
+          digital_content_name: param[:stream][:digital_content_name],
           status: Stream.statuses[:active]
         )
         if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
