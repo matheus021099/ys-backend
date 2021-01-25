@@ -773,7 +773,8 @@ class Payment < ApplicationRecord
       return precheck unless precheck === true
 
       receiver = stream.user
-      app_fee = Payment.calculate_fee(sent_amount, 'donation', description.downcase)
+      description = "Pay attachment for the stream - #{stream.name}"
+      app_fee = Payment.calculate_fee(sent_amount, 'donation')
       received_amount = sent_amount - app_fee
       stripe_fee = Payment.stripe_fee(sent_amount)
       stripe_charge = Stripe::Charge.create({

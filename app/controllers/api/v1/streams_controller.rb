@@ -3,7 +3,7 @@ module Api::V1
     before_action :set_stream, only: [
       :show, :update, :destroy, :notify,
       :start, :stop, :repost,
-      :can_view, :pay_view, :view, :watching
+      :can_view, :pay_view, :view, :watching, :pay_attachment
     ]
     # skip_after_action :verify_authorized
     # skip_after_action :verify_policy_scoped
