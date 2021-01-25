@@ -312,6 +312,7 @@ Rails.application.routes.draw do
           post :pay_view
           get :view
           get :watching
+          post :pay_attachment
         end
       end
 

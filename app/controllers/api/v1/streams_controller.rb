@@ -122,7 +122,7 @@ module Api::V1
           cf_domain: nil,
           account_ids: account_ids,
           digital_content: params[:stream][:digital_content],
-          digital_content_name: param[:stream][:digital_content_name],
+          digital_content_name: params[:stream][:digital_content_name],
           status: Stream.statuses[:active]
         )
         if params[:stream][:assoc_type].present? && params[:stream][:assoc_id].present?
@@ -436,6 +436,35 @@ module Api::V1
         )
         log.touch
       end
+      render_success true
+    end
+
+
+    setup_authorization_header(:pay_attachment)
+    swagger_api :pay_attachment do |api|
+      summary 'pay for attachment of a stream'
+      param :path, :id, :string, :required
+      param :form, :amount, :integer, :required, 'amount in cent'
+      param :form, :payment_token, :string, :optional
+    end
+    def pay_attachment
+      skip_authorization
+
+      amount = params[:amount].to_i rescue 0
+      render_error 'Please enter the amount', :unprocessable_entity and return if amount < 100
+
+      payment = Payment.pay_stream_attachment(
+        sender: current_user,
+        stream: @stream,
+        sent_amount: amount,
+        payment_token: params[:payment_token]
+      )
+      render_error payment, :unprocessable_entity and return unless payment.kind_of? Payment
+
+      message_body = "You can download stream attachment "\
+        "<a href='#{@stream.digital_content_url}' target='_blank'>#{@stream.digital_content_name}</a>"
+      Util::Message.send(@stream.user, current_user, message_body)
+
       render_success true
     end
 

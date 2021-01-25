@@ -16,7 +16,8 @@ class Payment < ApplicationRecord
     collaborate: 'collaborate',
     stream: 'stream',
     stream_collaborate: 'stream_collaborate',
-    pay_view_stream: 'pay_view_stream'
+    pay_view_stream: 'pay_view_stream',
+    pay_stream_attachment: 'pay_stream_attachment'
   }
 
   enum status: {
@@ -765,6 +766,49 @@ class Payment < ApplicationRecord
       end
 
       shared_amount
+    end
+
+    def pay_stream_attachment(sender: nil, stream: nil, sent_amount: 0, payment_token: nil)
+      precheck = Payment.precheck([sender, stream], [stream.user], payment_token)
+      return precheck unless precheck === true
+
+      receiver = stream.user
+      app_fee = Payment.calculate_fee(sent_amount, 'donation', description.downcase)
+      received_amount = sent_amount - app_fee
+      stripe_fee = Payment.stripe_fee(sent_amount)
+      stripe_charge = Stripe::Charge.create({
+        amount: sent_amount + stripe_fee,
+        application_fee_amount: app_fee,
+        currency: 'usd',
+        source: payment_token,
+        description: Payment.payment_types[:pay_stream_attachment],
+        metadata: {
+          payment_type: Payment.payment_types[:pay_stream_attachment],
+          sender: sender.username,
+          stream: stream.name,
+          stream_id: stream.id,
+          amount: sent_amount
+        },
+      }, {
+        stripe_account: receiver.payment_account_id
+      })
+      return 'Stripe operation failed' if stripe_charge['id'].blank?
+
+      Payment.create(
+        sender_id: sender.id,
+        receiver_id: receiver.id,
+        payment_type: Payment.payment_types[:pay_stream_attachment],
+        description: description,
+        payment_token: stripe_charge['id'],
+        sent_amount: sent_amount,
+        received_amount: received_amount,
+        payment_fee: stripe_fee,
+        fee: app_fee,
+        tax: 0,
+        assoc_type: stream.class.name,
+        assoc_id: stream.id,
+        status: Payment.statuses[:done]
+      )
     end
 
     def refund_without_fee(payment: nil, amount: 0, description: '')
