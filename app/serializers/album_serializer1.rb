@@ -14,7 +14,8 @@ class AlbumSerializer1 < Panko::Serializer
   def user
     ActiveModel::Serializer::UserSerializer1.new(
       object.user,
-      scope: scope
+      scope: scope,
+      include_is_following: true
     )
   end
 
