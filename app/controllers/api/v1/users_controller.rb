@@ -536,7 +536,7 @@ module Api::V1
       ) if album.present?
 
       # @user.products.published.each do |product|
-      product = @user.products.published.last
+      product = @user.products.published.where.not(show_status: ShopProduct.show_statuses[:show_only_stream]).last
       Feed.insert(
         consumer_id: current_user.id,
         publisher_id: @user.id,
