@@ -60,7 +60,7 @@ class Comment < ApplicationRecord
           status: Activity.statuses[:unread],
           assoc_type: self.commentable_type,
           assoc_id: self.commentable_id
-        )
+        ) unless self.commentable_type == 'Stream'
       else
         Activity.create(
           sender_id: self.user_id,
@@ -76,7 +76,6 @@ class Comment < ApplicationRecord
       end
 
       PushNotificationWorker.perform_async(
-        # u.devices.where(enabled: true).pluck(:token),
         u.devices.pluck(:token),
         FCMService::push_notification_types[:commented],
         message_body,
@@ -85,7 +84,7 @@ class Comment < ApplicationRecord
           scope: OpenStruct.new(current_user: self.user),
           include_commenter: true,
         ).as_json
-      )
+      ) if u.id != self.commentable.user_id || self.commentable_type != 'Stream'
     end
 
     true
