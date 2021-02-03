@@ -152,6 +152,7 @@ Rails.application.routes.draw do
           post :sample_followings
           post :followings
           post :followers
+          post :verified_followers
         end
       end
 

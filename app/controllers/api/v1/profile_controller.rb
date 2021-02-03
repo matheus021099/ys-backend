@@ -327,6 +327,46 @@ module Api::V1
       )
     end
 
+
+    swagger_api :verified_followers do |api|
+      summary 'verified followers for home search'
+      param :header, 'Authorization', :string, :optional, 'Authentication token'
+      param :path, :id, :string, :required, 'user id or slug'
+      param :form, :page, :integer, :optional, '1, 2, etc. default is 1'
+      param :form, :per_page, :integer, :optional, '50, 100, etc. default is 50'
+    end
+    def verified_followers
+      page = params[:page] || 1
+      per_page = params[:per_page] || 50
+
+      users = User
+        .joins("INNER JOIN follows ON users.id = follows.follower_id")
+        .where(
+          users: {
+            status: User.statuses[:active],
+            user_type: [
+              User.user_types[:artist],
+              User.user_types[:brand],
+              User.user_types[:label]
+            ]
+          },
+          follows: {
+            blocked: false,
+            followable_id: @user.id
+          }
+        )
+        .order('follows.created_at DESC').page(page).per(per_page)
+
+      render_success(
+        users: ActiveModelSerializers::SerializableResource.new(
+          users,
+          each_serializer: UserSerializer1,
+          scope: OpenStruct.new(current_user: current_user)
+        ),
+        pagination: pagination(users)
+      )
+    end
+
     private
     def set_user
       @user = User.find_by_slug(params[:id]) || User.find(params[:id])
