@@ -53,10 +53,9 @@ class StreamSerializer < ActiveModel::Serializer
   end
 
   def accounts
-    current_user_id = scope&.current_user&.id || 0
     user_ids = object.account_ids || []
-    user_ids.unshift(scope.current_user.id) if scope&.current_user
-    users = User.where(id: user_ids).order("id = #{current_user_id} DESC")
+    user_ids.unshift(object.user_id)
+    users = User.where(id: user_ids).order("id = #{object.user_id} DESC")
     ActiveModelSerializers::SerializableResource.new(
       users,
       each_serializer: UserSerializer1,

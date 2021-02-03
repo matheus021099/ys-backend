@@ -93,7 +93,7 @@ module Api::V1
       view_price = params[:stream][:view_price].to_i rescue 0
       viewers_limit = params[:stream][:viewers_limit].to_i rescue 0
       creator_recoup_cost = params[:stream][:creator_recoup_cost].to_i rescue 0
-      account_ids = params[:stream][:account_ids].split(',').map(&:strip) rescue []
+      account_ids = params[:stream][:account_ids].split(',').map{|v| v.strip.to_i} rescue []
 
       render_error 'Recoup price shoud not be less than $1.00', :unprocessable_entity and return if creator_recoup_cost != 0 && creator_recoup_cost < 100
 
