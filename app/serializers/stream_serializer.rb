@@ -54,7 +54,6 @@ class StreamSerializer < ActiveModel::Serializer
 
   def accounts
     user_ids = object.account_ids || []
-    user_ids.unshift(object.user_id)
     users = User.where(id: user_ids).order("id = #{object.user_id} DESC")
     ActiveModelSerializers::SerializableResource.new(
       users,
