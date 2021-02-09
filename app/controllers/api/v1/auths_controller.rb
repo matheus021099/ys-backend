@@ -172,6 +172,7 @@ module Api::V1
               user_id: user.id,
               status: Invitation.statuses[:accepted]
             )
+            user.update_columns(inviter_id: invitation.inviter_id, invited_at: invitation.created_at)
           end
         end
         ### send a welcome message
