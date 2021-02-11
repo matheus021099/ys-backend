@@ -43,18 +43,15 @@ class Util::Message
 
       notification_type ||= FCMService::push_notification_types[:message_sent]
 
-      # PushNotificationWorker.new.perform(
       PushNotificationWorker.perform_async(
         receiver.devices.where(enabled: true).pluck(:token),
         notification_type,
         message_body,
         MessageSerializer1.new(
           scope: OpenStruct.new(current_user: sender)
-        ).serialize(receipt.message).as_json
-        # MessageSerializer.new(
-        #   receipt.message,
-        #   scope: OpenStruct.new(current_user: sender)
-        # ).as_json
+        ).serialize(receipt.message).as_json,
+        nil,
+        sender.display_name
       )
 
       self.broadcast(receipt.message)

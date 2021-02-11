@@ -25,6 +25,10 @@ class Util::Serializer
           assoc.as_json(
             only: [ :id, :cover, :media_name ]
           )
+        when 'Stream'
+          assoc.as_json(
+            only: [ :id, :name, :cover ]
+          )
       end
     end
   end
