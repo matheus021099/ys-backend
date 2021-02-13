@@ -196,7 +196,7 @@ module Api::V1
       param :form, 'stream[guests_ids]', :string, :optional
       param :form, 'stream[viewers_limit]', :integer, :optional
       param :form, 'stream[extend_period]', :integer, :optional
-      param :form, 'stream[assoc_type]', :string, :optional, 'Album, Shopstream'
+      param :form, 'stream[assoc_type]', :string, :optional, 'Album, ShopProduct'
       param :form, 'stream[assoc_id]', :string, :optional
     end
     def update
@@ -221,8 +221,8 @@ module Api::V1
         case assoc.class.name
           when 'Album'
             result = AlbumSerializer.new(assoc).as_json
-          when 'Shopstream'
-            result = ShopstreamSerializer.new(assoc).as_json
+          when 'ShopProduct'
+            result = ShopProductSerializer.new(assoc).as_json
           when 'User'
             result = UserSerializer.new(assoc).as_json
         end
