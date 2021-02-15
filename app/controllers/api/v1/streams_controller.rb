@@ -236,16 +236,21 @@ module Api::V1
           assoc: Util::Serializer.polymophic_serializer(assoc)
         }
 
-        user_ids = Activity.where(
-          action_type: Activity.action_types[:view_stream],
-          page_track: "#{@stream.class.name}: #{@stream.id}"
-        ).group(:sender_id).pluck(:sender_id)
+        # user_ids = Activity.where(
+        #   action_type: Activity.action_types[:view_stream],
+        #   page_track: "#{@stream.class.name}: #{@stream.id}"
+        # ).group(:sender_id).pluck(:sender_id)
+        now = Time.now
+        user_ids = StreamLog.where(
+          stream_id: @stream.id,
+          updated_at: now.ago(1.minute)..now
+        ).pluck(:user_id)
 
         user_ids << @stream.user_id
         user_ids.uniq!
 
         PushNotificationWorker.perform_async(
-          Device.where(user_id: user_ids, enabled: true).pluck(:token),
+          Device.where(user_id: user_ids).pluck(:token),
           FCMService::push_notification_types[:video_attachment_changed],
           "[#{current_user.display_name}] has updated the video attachment",
           data
